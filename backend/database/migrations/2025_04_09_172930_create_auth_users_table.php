@@ -18,7 +18,7 @@ class CreateAuthUsersTable extends Migration
             $table->timestamps();
 
             // Foreign key: department (if table exists)
-            $table->foreign('dept_id')->references('id')->on('department')->onDelete('cascade');
+           //$table->foreign('dept_id')->references('id')->on('departments')->onDelete('cascade');
         });
     }
 

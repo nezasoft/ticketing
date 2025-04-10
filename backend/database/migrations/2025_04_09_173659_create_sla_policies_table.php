@@ -4,11 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSlaPolicyTable extends Migration
+class CreateSlaPoliciesTable extends Migration
 {
     public function up()
     {
-        Schema::create('sla_policy', function (Blueprint $table) {
+        Schema::create('sla_policies', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name',100)->nullable();
             $table->integer('response_time_min')->nullable();
@@ -20,6 +20,6 @@ class CreateSlaPolicyTable extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('sla_policy');
+        Schema::dropIfExists('sla_policies');
     }
 }

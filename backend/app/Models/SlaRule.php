@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SlaRule extends Model
 {
-    protected $table = 'sla_rule';
+    protected $table = 'sla_rules';
 
     public $timestamps = false;
 

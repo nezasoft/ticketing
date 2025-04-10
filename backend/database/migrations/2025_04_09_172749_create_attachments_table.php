@@ -17,8 +17,8 @@ class CreateAttachmentsTable extends Migration
             $table->timestamps();
 
             // Foreign key constraints (optional, if referenced tables exist)
-            $table->foreign('ticket_id')->references('id')->on('ticket')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('auth_users')->onDelete('cascade');
+          //$table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
+          //$table->foreign('user_id')->references('id')->on('auth_users')->onDelete('cascade');
         });
     }
 

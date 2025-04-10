@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ChannelContact extends Model
 {
-    protected $table = 'channel_contact';
+    protected $table = 'channel_contacts';
 
     // Because the table uses non-standard column names for timestamps:
     public $timestamps = false;

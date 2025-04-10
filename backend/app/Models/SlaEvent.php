@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SlaEvent extends Model
 {
-    protected $table = 'sla_event';
+    protected $table = 'sla_events';
 
     public $timestamps = false;
 
