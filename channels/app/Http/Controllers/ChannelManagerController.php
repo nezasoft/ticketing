@@ -40,31 +40,23 @@ class ChannelManagerController extends Controller
         }
 
         $email = $request->input('sender');
+        $subject = $request->input('subject');
+        $description = $request->input('body');
 
         //Lets start by saving the channel Contact Information
         if($this->service->saveChannelContact($this->service::EMAIL_CHANNEL, $email)===true)
         {
-            //Generate Ticket
-
+            $priority_id = $this->service::LOW_PRIORITY;
+            //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
+            if($this->service->identifyCustomer($email))
+            {
+                $priority_id = $this->service::HIGH_PRIORITY;
+            }
+            //Save Ticket
+            $this->service->saveTicket($customer_id='',$priority_id,$this->service::EMAIL_CHANNEL, $subject, $this->service::TICKET_STATUS_NEW, $description);
         }
 
-
-
-
-        // Here you could add logic to match an incoming message with an existing ticket.
-        $ticket = Ticket::create([
-            'channel'     => 'email',
-            'source'      => $request->input('sender'),
-            'subject'     => $request->input('subject'),
-            'description' => $request->input('body'),
-            'status'      => 'new',
-        ]);
-
-        // Optionally dispatch a job for further asynchronous processing.
-        return response()->json([
-            'message'   => 'Email processed successfully.',
-            'ticket_id' => $ticket->id,
-        ], 200);
+        return $this->service->serviceResponse('success',200,'Email processed successfuly');
     }
 
     /**
@@ -79,26 +71,32 @@ class ChannelManagerController extends Controller
     public function receiveWhatsApp(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone'   => 'required|string',
-            'message' => 'required|string',
+            'phone'   => 'required|string|max:255',
+            'message' => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['error' => 'Invalid payload.'], 400);
         }
+        $phone = $request->input('phone');
+        $message = $request->input('message');
 
-        $ticket = Ticket::create([
-            'channel'     => 'whatsapp',
-            'source'      => $request->input('phone'),
-            'subject'     => 'WhatsApp Message',
-            'description' => $request->input('message'),
-            'status'      => 'new',
-        ]);
+             //Lets start by saving the channel Contact Information
+             if($this->service->saveChannelContact($this->service::WHATSAPP_CHANNEL, $phone)===true)
+             {
+                 $priority_id = $this->service::LOW_PRIORITY;
+                 //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
+                 if($this->service->identifyCustomer($phone))
+                 {
+                     $priority_id = $this->service::HIGH_PRIORITY;
+                 }
+                 //Save Ticket
+                 $this->service->saveTicket($customer_id='',$priority_id,$this->service::WHATSAPP_CHANNEL, $message, $this->service::TICKET_STATUS_NEW, $message);
+             }
 
-        return response()->json([
-            'message'   => 'WhatsApp message processed successfully.',
-            'ticket_id' => $ticket->id,
-        ], 200);
+             return $this->service->serviceResponse('success',200,'WhatsApp message processed successfully.');
+
+
     }
 
     /**
