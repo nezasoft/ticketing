@@ -14,8 +14,7 @@ class CreateChannelContactsTable extends Migration
             $table->unsignedInteger('channel_id');
             $table->string('email',45)->nullable();
             $table->string('phone',45)->nullable();
-            $table->dateTime('date_created')->nullable();
-            $table->dateTime('date_updated')->nullable();
+            $table->timestamps();
 
             //$table->foreign('channel_id')->references('id')->on('channels')->onDelete('cascade');
         });

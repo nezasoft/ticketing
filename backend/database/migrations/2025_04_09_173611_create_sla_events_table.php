@@ -15,6 +15,7 @@ class CreateSlaEventsTable extends Migration
             $table->unsignedInteger('status_id');
             $table->dateTime('due_date')->nullable();
             $table->dateTime('met_at')->nullable();
+            $table->timestamps();
 
             //$table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');
            // $table->foreign('event_type_id')->references('id')->on('event_types')->onDelete('cascade');

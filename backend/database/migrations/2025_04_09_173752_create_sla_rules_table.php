@@ -14,6 +14,7 @@ class CreateSlaRulesTable extends Migration
             $table->unsignedInteger('customer_type_id');
             $table->unsignedInteger('priority_id');
             $table->unsignedInteger('channel_id');
+            $table->timestamps();
 
             //$table->foreign('sla_policy_id')->references('id')->on('sla_policies')->onDelete('cascade');
             //$table->foreign('customer_type_id')->references('id')->on('customer_types')->onDelete('cascade');

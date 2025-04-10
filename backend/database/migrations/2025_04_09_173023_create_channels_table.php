@@ -12,6 +12,7 @@ class CreateChannelsTable extends Migration
         Schema::create('channels', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 45)->nullable();
+            $table->timestamps();
             // Charset and collation can be set in config if needed.
         });
     }

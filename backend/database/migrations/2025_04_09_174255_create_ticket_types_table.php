@@ -11,6 +11,7 @@ class CreateTicketTypesTable extends Migration
         Schema::create('ticket_types', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name',45)->nullable();
+            $table->timestamps();
         });
     }
 
