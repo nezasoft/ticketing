@@ -43,18 +43,36 @@ class ChannelManagerController extends Controller
         $subject = $request->input('subject');
         $description = $request->input('body');
 
-        //Lets start by saving the channel Contact Information
-        if($this->service->saveChannelContact($this->service::EMAIL_CHANNEL, $email)===true)
+        $ticket = $this->service->confirmTicket($subject);
+
+        if($ticket=== false)//This an entirely new thread so create a new ticket
         {
-            $priority_id = $this->service::LOW_PRIORITY;
-            //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
-            if($this->service->identifyCustomer($email))
+            //Lets start by saving the channel Contact Information
+            if($this->service->saveChannelContact($this->service::EMAIL_CHANNEL, $email)===true)
             {
-                $priority_id = $this->service::HIGH_PRIORITY;
+                $priority_id = $this->service::LOW_PRIORITY;
+                $customer_id = '';
+                //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
+                $customer = $this->service->identifyCustomer($email);
+                if($customer)
+                {
+                    $priority_id = $this->service::HIGH_PRIORITY;
+                    $customer_id = $customer->id;
+                }
+                //Save Ticket
+                $this->service->saveTicket($customer_id,$priority_id,$this->service::EMAIL_CHANNEL, $subject, $this->service::TICKET_STATUS_NEW, $description);
+
             }
-            //Save Ticket
-            $this->service->saveTicket($customer_id='',$priority_id,$this->service::EMAIL_CHANNEL, $subject, $this->service::TICKET_STATUS_NEW, $description);
+
+        }else{ //Update existing thread
+
+            //save thread
+            $thread = $this->service->saveThread($ticket->id, $description);
+
+
         }
+
+
 
         return $this->service->serviceResponse('success',200,'Email processed successfuly');
     }

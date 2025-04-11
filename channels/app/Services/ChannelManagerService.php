@@ -5,7 +5,9 @@ use App\Models\BusinessDocument;
 use App\Models\ChannelContact;
 use App\Models\Customer;
 use App\Models\Ticket;
-use Illuminate\Support\Facades\Date;
+use App\Models\TicketReply;
+use Carbon\Carbon;
+
 
 class ChannelManagerService
 {
@@ -25,7 +27,7 @@ class ChannelManagerService
             'channel_id'=> $channel_id,
             'email'=> $email,
             'phone' => $phone,
-            'created_at'=> Date::now(),
+            'created_at'=> Carbon::now(),
         ]);
 
         if($channel_contact)
@@ -61,21 +63,41 @@ class ChannelManagerService
             {
                 $ticket_no = $doc->document_no.$num;
             }
+            $this->updateTicketNumberSequence($doc->id);
             return $ticket_no;
         }
     }
 
+    public function updateTicketNumberSequence($id)
+    {
+        $doc = BusinessDocument::find($id);
+        $doc->increment('document_value');
+    }
+
     public function saveTicket($customer_id='',$priority_id,$channel_id, $subject, $status_id, $description)
     {
+        $ticket_no = $this->generateTicketNumber();
         $ticket = new Ticket;
-        $ticket->ticket_no = $this->generateTicketNumber();
+        $ticket->ticket_no = $ticket_no;
         $ticket->customer_id = $customer_id;
         $ticket->priority_id = $priority_id;
         $ticket->channel_id = $channel_id;
-        $ticket->subject = $subject;
+        $ticket->subject = $subject.'['.$ticket_no.']';
         $ticket->status = $status_id;
         $ticket->description = $description;
         $ticket->save();
+
+        //Update Ticket No
+
+    }
+
+    public function saveThread($ticket_id, $message)
+    {
+        $thread = new TicketReply;
+        $thread->ticket_id = $ticket_id;
+        $thread->reply_message = $message;
+        $thread->reply_at = Carbon::now();
+        $thread->save();
 
     }
     public function identifyCustomer($customer_ref)
@@ -84,10 +106,21 @@ class ChannelManagerService
         $customer = Customer::where('email', $customer_ref)->orWhere('phone', $customer_ref)->first();
         if($customer)
         {
-            return true;
+            return $customer;
         }
 
         return false;
+    }
+    public function confirmTicket($title)
+    {
+        $ticket = Ticket::where('title', $title)->first();
+        if($ticket)
+        {
+            return $ticket;
+
+        }
+        return false;
+
     }
     public function serviceResponse($response_type= '',$response_code= '',$response_message= '')
     {
