@@ -6,14 +6,18 @@ use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Services\ChannelManagerService;
+use App\Services\NotificationService;
 
 class ChannelManagerController extends Controller
 {
-    protected $service;
+    protected $channel;
+    protected $notify;
 
-    public function __construct(ChannelManagerService $service)
+
+    public function __construct(ChannelManagerService $channel_service, NotificationService $notify_service )
     {
-        $this->service = $service;
+        $this->channel = $channel_service;
+        $this->notify = $notify_service;
 
     }
 
@@ -43,38 +47,48 @@ class ChannelManagerController extends Controller
         $subject = $request->input('subject');
         $description = $request->input('body');
 
-        $ticket = $this->service->confirmTicket($subject);
+        $ticket = $this->channel->confirmTicket($subject);
 
         if($ticket=== false)//This an entirely new thread so create a new ticket
         {
             //Lets start by saving the channel Contact Information
-            if($this->service->saveChannelContact($this->service::EMAIL_CHANNEL, $email)===true)
+            if($this->channel->saveChannelContact($this->channel::EMAIL_CHANNEL, $email)===true)
             {
-                $priority_id = $this->service::LOW_PRIORITY;
+                $priority_id = $this->channel::LOW_PRIORITY;
                 $customer_id = '';
                 //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
-                $customer = $this->service->identifyCustomer($email);
+                $customer = $this->channel->identifyCustomer($email);
                 if($customer)
                 {
-                    $priority_id = $this->service::HIGH_PRIORITY;
+                    $priority_id = $this->channel::HIGH_PRIORITY;
                     $customer_id = $customer->id;
                 }
                 //Save Ticket
-                $this->service->saveTicket($customer_id,$priority_id,$this->service::EMAIL_CHANNEL, $subject, $this->service::TICKET_STATUS_NEW, $description);
+                $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::EMAIL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description);
+                if($ticket===true)
+                {
+                    //Send Notifications to users who belong to the department with this email address
+                    $users = $this->notify->getDepartmentUsers($email);
+                    //Send Notification
+                    $this->notify->saveNotifications($users,$this->notify::NEW_TICKET);
+                }
 
             }
 
         }else{ //Update existing thread
 
             //save thread
-            $thread = $this->service->saveThread($ticket->id, $description);
-
+            $thread = $this->channel->saveThread($ticket->id, $description);
+            if($thread==true)
+            {
+                $users = $this->notify->getDepartmentUsers($email);
+                //send notification to user
+                $this->notify->saveNotifications($users, $this->notify::NEW_REPLY);
+            }
 
         }
 
-
-
-        return $this->service->serviceResponse('success',200,'Email processed successfuly');
+        return $this->channel->serviceResponse('success',200,'Email processed successfuly');
     }
 
     /**
@@ -100,20 +114,19 @@ class ChannelManagerController extends Controller
         $message = $request->input('message');
 
              //Lets start by saving the channel Contact Information
-             if($this->service->saveChannelContact($this->service::WHATSAPP_CHANNEL, $phone)===true)
+             if($this->channel->saveChannelContact($this->channel::WHATSAPP_CHANNEL, $phone)===true)
              {
-                 $priority_id = $this->service::LOW_PRIORITY;
+                 $priority_id = $this->channel::LOW_PRIORITY;
                  //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
-                 if($this->service->identifyCustomer($phone))
+                 if($this->channel->identifyCustomer($phone))
                  {
-                     $priority_id = $this->service::HIGH_PRIORITY;
+                     $priority_id = $this->channel::HIGH_PRIORITY;
                  }
                  //Save Ticket
-                 $this->service->saveTicket($customer_id='',$priority_id,$this->service::WHATSAPP_CHANNEL, $message, $this->service::TICKET_STATUS_NEW, $message);
+                 $this->channel->saveTicket($customer_id='',$priority_id,$this->channel::WHATSAPP_CHANNEL, $message, $this->channel::TICKET_STATUS_NEW, $message);
              }
 
-             return $this->service->serviceResponse('success',200,'WhatsApp message processed successfully.');
-
+             return $this->channel->serviceResponse('success',200,'WhatsApp message processed successfully.');
 
     }
 

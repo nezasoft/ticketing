@@ -86,8 +86,13 @@ class ChannelManagerService
         $ticket->status = $status_id;
         $ticket->description = $description;
         $ticket->save();
+        
+        if($ticket)
+        {
+            return true;
+        }
 
-        //Update Ticket No
+        return false;
 
     }
 
@@ -98,6 +103,13 @@ class ChannelManagerService
         $thread->reply_message = $message;
         $thread->reply_at = Carbon::now();
         $thread->save();
+
+        if($thread)
+        {
+            return true;
+        }
+
+        return false;
 
     }
     public function identifyCustomer($customer_ref)
