@@ -43,9 +43,10 @@ class ChannelManagerController extends Controller
             return response()->json(['error' => 'Invalid payload.'], 400);
         }
 
-        $email = $request->input('sender');
+        $email  = $request->input('sender') ?? $request->input('from');
         $subject = $request->input('subject');
-        $description = $request->input('body');
+        $description    = $request->input('body-plain') ?? $request->input('body-html');
+    
 
         $ticket = $this->channel->confirmTicket($subject);
 
