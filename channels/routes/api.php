@@ -9,5 +9,5 @@ Route::get('/test', function () {
     return 'API route working';
 });
 
-Route::post('webhooks/email', [ChannelManagerController::class, 'receiveEmail']);
+Route::post('channels/email', [ChannelManagerController::class, 'receiveEmail']);
 

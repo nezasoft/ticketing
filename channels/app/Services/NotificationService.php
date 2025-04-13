@@ -14,6 +14,7 @@ class NotificationService
 
     public function saveNotifications($users,$type)
     {
+        return response()->json(['users'=> $users,'type'=> $type]);
 
         if(!empty($users))
         {
@@ -41,10 +42,11 @@ class NotificationService
         }
     }
 
-    public function getDepartmentUsers($email)
+    public function getDepartmentUsers($email_address)
     {
         $users = [];
-        $email = Email::where('email', $email)->first();
+        $email = Email::where('email', $email_address)->first();
+        return response()->json(array('users'=> $users,'email'=> $email_address));
         if ($email && $email->department) {
             $users = $email->department->users;
         }

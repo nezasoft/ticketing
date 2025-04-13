@@ -17,6 +17,7 @@ class ProcessEmailMessage implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $sender;
+    protected $to;
     protected $subject;
     protected $body;
     protected $channel;
@@ -25,13 +26,15 @@ class ProcessEmailMessage implements ShouldQueue
      * Create a new job instance.
      *
      * @param  string  $sender
+     * @param  array  $to
      * @param  string  $subject
      * @param  string  $body
      * @return void
      */
-    public function __construct(string $sender, string $subject, string $body, ChannelManagerService $channelService)
+    public function __construct(string $sender, string $subject, string $body, array $to, ChannelManagerService $channelService)
     {
         $this->sender = $sender;
+        $this->to = $to;
         $this->subject = $subject;
         $this->body = $body;
         $this->channel = $channelService;
@@ -49,6 +52,7 @@ class ProcessEmailMessage implements ShouldQueue
         $endpoint = config('services.channel_manager.email_endpoint', 'http://localhost:8000/api/webhooks/email');
         $payload = [
             'sender'  => $this->sender,
+            'recipient'  => $this->to,
             'subject' => $this->subject,
             'body'    => $this->body,
         ];

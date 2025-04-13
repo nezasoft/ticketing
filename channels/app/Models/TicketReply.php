@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TicketReply extends Model
 {
-    protected $table = 'ticket_reply';
+    protected $table = 'ticket_replies';
 
     protected $fillable = [
         'ticket_id',

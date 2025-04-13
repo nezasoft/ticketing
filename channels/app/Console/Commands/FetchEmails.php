@@ -63,6 +63,15 @@ class FetchEmails extends Command
                         $sender = $message->getFrom()[0]->mail;
                         $subject = $message->getSubject();
                         $body = $message->getTextBody();
+                        // Extract recipient details.
+                        $to_recipients = $message->getTo(); // Array of "To" recipients.
+                        $cc_recipients = $message->getCc(); // Array of "Cc" recipients.
+                        $bcc_recipients = $message->getBcc(); // Array of "Bcc" recipients.
+
+                        //Create arrays of emails.
+                        $to_emails  = array_map(fn($recipient) => $recipient->mail, $to_recipients);
+                        $cc_emails  = array_map(fn($recipient) => $recipient->mail, $cc_recipients);
+                        $bcc_emails = array_map(fn($recipient) => $recipient->mail, $bcc_recipients);
 
                         // Optionally add more metadata like folder name or account info.
                         $payload = [
@@ -71,9 +80,18 @@ class FetchEmails extends Command
                             'body'          => $body,
                             'account_name'  => $accountKey,
                         ];
+                        $payload = [
+                            'sender'        => $sender,
+                            'to'            => $to_emails,
+                            'cc'            => $cc_emails,
+                            'bcc'           => $bcc_emails,
+                            'subject'       => $subject,
+                            'body'          => $body,
+                            'account_name'  => $accountKey,
+                        ];
 
                         // Dispatch a job to process the email.
-                        ProcessEmailMessage::dispatch($payload['sender'], $payload['subject'], $payload['body']);
+                        ProcessEmailMessage::dispatch($payload['sender'], $payload['subject'], $payload['body'],$payload['to']);
                         // Mark the email as seen.
                         $message->setFlag('Seen');
                     }

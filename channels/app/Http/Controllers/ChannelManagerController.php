@@ -28,6 +28,7 @@ class ChannelManagerController extends Controller
      * Expected payload:
      * {
      *   "sender": "user@example.com",
+     *   a8"recipient" : "info@nezaoft.net, support@nezasoft.net"
      *   "subject": "Issue subject",
      *   "body": "Detailed message content"
      * }
@@ -35,18 +36,35 @@ class ChannelManagerController extends Controller
     public function receiveEmail(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'sender'  => 'required|email',
-            'subject' => 'required|string',
-            'body'    => 'required|string',
+            'sender'        => 'required|email',
+            'recipient'     => 'required|array',
+            'recipient.*'   => 'required|email',
+            'subject'       => 'required|string',
+            'body'          => 'required|string',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => 'Invalid payload.'], 400);
+            return response()->json(['error'=> $validator->errors(), 400]);
         }
 
         $email  = $request->input('sender') ?? $request->input('from');
+        $recipient = $request->input('recipient');
         $subject = $request->input('subject');
         $description    = $request->input('body-plain') ?? $request->input('body-html');
+
+        $company_email = $recipient[0] ?? ''; //Lets try to get the first item in the emails array
+        if(empty($company_email))
+        {
+            return response()->json(['error'=>'Company email has not been configured. Please setup your email accounts'],400);
+
+        }
+        $company = $this->channel->identifyCompany($company_email);
+        if(!$company)
+        {
+            return response()->json(['error'=> 'Missing company properties or configurations'],400);
+        }
+
+        $company_id = $company->company_id;
 
         DB::beginTransaction();
         try
@@ -55,7 +73,8 @@ class ChannelManagerController extends Controller
 
         if($ticket=== false)//This an entirely new thread so create a new ticket
         {
-                $this->channel->saveChannelContact($this->channel::EMAIL_CHANNEL, $email);
+                $ticket_type = $this->channel::TICKET_TYPE_GUEST;
+                $this->channel->saveChannelContact($this->channel::EMAIL_CHANNEL,$company_id ,$email);
                  //Lets start by saving the channel Contact Information
                 $priority_id = $this->channel::LOW_PRIORITY;
                 $customer_id = 0;
@@ -64,25 +83,42 @@ class ChannelManagerController extends Controller
                 if($customer)
                 {
                     $priority_id = $this->channel::HIGH_PRIORITY;
+                    $ticket_type = $this->channel::TICKET_TYPE_CUSTOMER;
                     $customer_id = $customer->id;
                 }
                 //Save Ticket
-                $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::EMAIL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description);
+                $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::EMAIL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description, $ticket_type, $company_id);
                 if($ticket===true)
                 {
-                    //Send Notifications to users who belong to the department with this email address
-                    $users = $this->notify->getDepartmentUsers($email);
-                    //Send Notification
-                    $this->notify->saveNotifications($users,$this->notify::NEW_TICKET);
+                    foreach($recipient as $to_email)
+                    {
+                        //Send Notifications to users who belong to the department with this email address
+                        $users = $this->notify->getDepartmentUsers($to_email);
+                        //Send Notification
+                        $this->notify->saveNotifications($users,$this->notify::NEW_TICKET);
+                    }
+
                 }
 
         }else{ //Update existing thread
+            $user_id= 0;
+            //First lets confirm is the response if from users email of company email
+            $user = $this->channel->identifyCompanyEmailAddress($email);
+
+            if($user)
+            {
+                $user_id = $user->id;
+            }
 
             //save thread
-            $thread = $this->channel->saveThread($ticket->id, $description);
+            $thread = $this->channel->saveThread($ticket->id, $description, $user_id);
+
             if($thread==true)
             {
+                
                 $users = $this->notify->getDepartmentUsers($email);
+                return response()->json(['error'=>$users],400);
+
                 //send notification to user
                 $this->notify->saveNotifications($users, $this->notify::NEW_REPLY);
             }

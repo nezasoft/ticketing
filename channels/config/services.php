@@ -35,7 +35,7 @@ return [
         ],
     ],
     'channel_manager' => [
-    'email_endpoint'   => env('CHANNEL_MANAGER_EMAIL_ENDPOINT', 'http://localhost/api/webhooks/email'),
+    'email_endpoint'   => env('CHANNEL_MANAGER_EMAIL_ENDPOINT', 'http://localhost/api/channels/email'),
 ],
 
 

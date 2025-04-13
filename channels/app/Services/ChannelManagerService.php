@@ -1,9 +1,11 @@
 <?php
 namespace App\Services;
 
+use App\Models\AuthUser;
 use App\Models\BusinessDocument;
 use App\Models\ChannelContact;
 use App\Models\Customer;
+use App\Models\Email;
 use App\Models\Ticket;
 use App\Models\TicketReply;
 use Carbon\Carbon;
@@ -20,17 +22,20 @@ class ChannelManagerService
     const LOW_PRIORITY = 2;
     const MEDIUM_PRIORITY = 3;
     const TICKET_STATUS_NEW = 1;
+    const TICKET_TYPE_CUSTOMER = 1;
+    const TICKET_TYPE_GUEST = 2;
 
-    public function saveChannelContact($channel_id, $email='', $phone='')
+    public function saveChannelContact($channel_id,$company_id, $email='', $phone='')
     {
        // First Confirm the contact already exists
        $contact = ChannelContact::where(['email'=> $email])->orWhere(['phone'=> $phone])->first();
        if(!$contact)
        {
-            $channel_contact = ChannelContact::create([
+             ChannelContact::create([
                 'channel_id'=> $channel_id,
                 'email'=> $email,
                 'phone' => $phone,
+                'company_id' => $company_id,
                 'created_at'=> Carbon::now(),
             ]);
        }
@@ -56,7 +61,7 @@ class ChannelManagerService
         $doc = BusinessDocument::where("doc_code",static::TICKET_CODE)->first();
         if($doc)
         {
-            $numbers = $this->generateNumber($doc->document_value, 1, 6);
+            $numbers = $this->generateNumber($doc->document_value, 1, 8);
             foreach($numbers as $num)
             {
                 $ticket_no = $doc->document_no.$num;
@@ -72,7 +77,7 @@ class ChannelManagerService
         $doc->increment('document_value');
     }
 
-    public function saveTicket($customer_id=0,$priority_id,$channel_id, $subject, $status_id, $description)
+    public function saveTicket($customer_id=0,$priority_id,$channel_id, $subject, $status_id, $description, $ticket_type, $company_id)
     {
 
         $ticket_no = $this->generateTicketNumber();
@@ -85,6 +90,8 @@ class ChannelManagerService
         $ticket->status_id = $status_id;
         $ticket->description = $description;
         $ticket->created_at = Carbon::now();
+        $ticket->ticket_type_id = $ticket_type;
+        $ticket->company_id = $company_id;
         $ticket->save();
 
         if($ticket)
@@ -96,10 +103,11 @@ class ChannelManagerService
 
     }
 
-    public function saveThread($ticket_id, $message)
+    public function saveThread($ticket_id, $message, $user_id)
     {
         $thread = new TicketReply;
         $thread->ticket_id = $ticket_id;
+        $thread->user_id = $user_id;
         $thread->reply_message = $message;
         $thread->created_at = Carbon::now();
         $thread->reply_at = Carbon::now();
@@ -124,6 +132,35 @@ class ChannelManagerService
 
         return false;
     }
+    public function identifyCompany($email)
+    {
+
+        $email = Email::where('email',$email)->first();
+        if($email)
+        {
+            return $email;
+
+        }
+        return false;
+
+    }
+
+    //This method will confirm if this email address belongs to users within the company
+    //Or external entities. If the email belongs to users within the company return thier identities
+
+    public function identifyCompanyEmailAddress($email)
+    {
+        $user = AuthUser::where('email',$email)->first();
+        
+        if($user)
+        {
+            return $user;
+        }
+
+        return false;
+    }
+
+
     public function confirmTicket($title)
     {
         $ticket = Ticket::where('subject', $title)->first();
