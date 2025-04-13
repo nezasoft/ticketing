@@ -1,10 +1,10 @@
 <?php
 namespace App\Services;
 
-use App\Models\AuthUser;
+
 use App\Models\Email;
 use App\Models\Notification;
-use App\Models\User;
+use Carbon\Carbon;
 
 class NotificationService
 {
@@ -22,6 +22,7 @@ class NotificationService
                 $notification = new Notification();
                 $notification->user_id = $user->id;
                 $notification->type_id = $type;
+                $notification->created_at = Carbon::now();
                 $notification->save();
             }
         }
@@ -34,15 +35,16 @@ class NotificationService
             $notification = new Notification();
             $notification->user_id = $user->id;
             $notification->type_id = $type;
+            $notification->created_at = Carbon::now();
+
             $notification->save();
         }
     }
 
     public function getDepartmentUsers($email)
     {
-
+        $users = [];
         $email = Email::where('email', $email)->first();
-
         if ($email && $email->department) {
             $users = $email->department->users;
         }

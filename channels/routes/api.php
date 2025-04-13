@@ -1,8 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChannelManagerController;
+use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\Route;
+
+Route::get('/test', function () {
+    return 'API route working';
+});
 
 Route::post('webhooks/email', [ChannelManagerController::class, 'receiveEmail']);
-Route::post('webhooks/whatsapp', [ChannelManagerController::class, 'receiveWhatsApp']);
-Route::post('webhooks/chatbot', [ChannelManagerController::class, 'receiveChatbot']);
+

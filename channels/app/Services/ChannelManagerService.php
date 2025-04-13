@@ -23,19 +23,17 @@ class ChannelManagerService
 
     public function saveChannelContact($channel_id, $email='', $phone='')
     {
-        $channel_contact = ChannelContact::create([
-            'channel_id'=> $channel_id,
-            'email'=> $email,
-            'phone' => $phone,
-            'created_at'=> Carbon::now(),
-        ]);
-
-        if($channel_contact)
-        {
-            return true;
-        }
-
-        return false;
+       // First Confirm the contact already exists
+       $contact = ChannelContact::where(['email'=> $email])->orWhere(['phone'=> $phone])->first();
+       if(!$contact)
+       {
+            $channel_contact = ChannelContact::create([
+                'channel_id'=> $channel_id,
+                'email'=> $email,
+                'phone' => $phone,
+                'created_at'=> Carbon::now(),
+            ]);
+       }
     }
 
     public function generateRandomString()
@@ -58,7 +56,7 @@ class ChannelManagerService
         $doc = BusinessDocument::where("doc_code",static::TICKET_CODE)->first();
         if($doc)
         {
-            $numbers = $this->generateNumber($doc->document_value, 1, 8);
+            $numbers = $this->generateNumber($doc->document_value, 1, 6);
             foreach($numbers as $num)
             {
                 $ticket_no = $doc->document_no.$num;
@@ -74,19 +72,21 @@ class ChannelManagerService
         $doc->increment('document_value');
     }
 
-    public function saveTicket($customer_id='',$priority_id,$channel_id, $subject, $status_id, $description)
+    public function saveTicket($customer_id=0,$priority_id,$channel_id, $subject, $status_id, $description)
     {
+
         $ticket_no = $this->generateTicketNumber();
         $ticket = new Ticket;
         $ticket->ticket_no = $ticket_no;
         $ticket->customer_id = $customer_id;
         $ticket->priority_id = $priority_id;
         $ticket->channel_id = $channel_id;
-        $ticket->subject = $subject.'['.$ticket_no.']';
-        $ticket->status = $status_id;
+        $ticket->subject ='['.$subject.'] - '.$ticket_no;
+        $ticket->status_id = $status_id;
         $ticket->description = $description;
+        $ticket->created_at = Carbon::now();
         $ticket->save();
-        
+
         if($ticket)
         {
             return true;
@@ -101,6 +101,7 @@ class ChannelManagerService
         $thread = new TicketReply;
         $thread->ticket_id = $ticket_id;
         $thread->reply_message = $message;
+        $thread->created_at = Carbon::now();
         $thread->reply_at = Carbon::now();
         $thread->save();
 
@@ -125,7 +126,7 @@ class ChannelManagerService
     }
     public function confirmTicket($title)
     {
-        $ticket = Ticket::where('title', $title)->first();
+        $ticket = Ticket::where('subject', $title)->first();
         if($ticket)
         {
             return $ticket;

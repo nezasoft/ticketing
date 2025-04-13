@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use App\Services\ChannelManagerService;
 use App\Services\NotificationService;
 
@@ -46,17 +47,18 @@ class ChannelManagerController extends Controller
         $email  = $request->input('sender') ?? $request->input('from');
         $subject = $request->input('subject');
         $description    = $request->input('body-plain') ?? $request->input('body-html');
-    
 
-        $ticket = $this->channel->confirmTicket($subject);
+        DB::beginTransaction();
+        try
+        {
+            $ticket = $this->channel->confirmTicket($subject);
 
         if($ticket=== false)//This an entirely new thread so create a new ticket
         {
-            //Lets start by saving the channel Contact Information
-            if($this->channel->saveChannelContact($this->channel::EMAIL_CHANNEL, $email)===true)
-            {
+                $this->channel->saveChannelContact($this->channel::EMAIL_CHANNEL, $email);
+                 //Lets start by saving the channel Contact Information
                 $priority_id = $this->channel::LOW_PRIORITY;
-                $customer_id = '';
+                $customer_id = 0;
                 //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
                 $customer = $this->channel->identifyCustomer($email);
                 if($customer)
@@ -74,8 +76,6 @@ class ChannelManagerController extends Controller
                     $this->notify->saveNotifications($users,$this->notify::NEW_TICKET);
                 }
 
-            }
-
         }else{ //Update existing thread
 
             //save thread
@@ -88,8 +88,17 @@ class ChannelManagerController extends Controller
             }
 
         }
+        DB::commit();
 
         return $this->channel->serviceResponse('success',200,'Email processed successfuly');
+
+        }catch(\Exception $e)
+        {
+            DB::rollback();
+            return response()->json(['error'=> $e->getMessage()],400);
+        }
+
+
     }
 
     /**
