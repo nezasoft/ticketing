@@ -150,11 +150,12 @@ class ChannelManagerService
 
     public function identifyCompanyEmailAddress($email)
     {
-        $user = AuthUser::where('email',$email)->first();
-        
-        if($user)
+
+        $company = Email::where('email',$email)->first();
+
+        if($company)
         {
-            return $user;
+            return $company;
         }
 
         return false;

@@ -38,4 +38,9 @@ class AuthUser extends Authenticatable
     {
         return $this->hasMany(TicketReply::class, 'user_id');
     }
+
+    public function emails()
+    {
+        return $this->hasMany(Email::class,'dept_id','dept_id');
+    }
 }

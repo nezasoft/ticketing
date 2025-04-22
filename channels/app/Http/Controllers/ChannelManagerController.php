@@ -61,7 +61,7 @@ class ChannelManagerController extends Controller
         $company = $this->channel->identifyCompany($company_email);
         if(!$company)
         {
-            return response()->json(['error'=> 'Missing company properties or configurations'],400);
+            $company = $this->channel->identifyCompany($email); // in scenarios where the sender is from  the organization and not an external user / entity
         }
 
         $company_id = $company->company_id;
@@ -88,7 +88,7 @@ class ChannelManagerController extends Controller
                 }
                 //Save Ticket
                 $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::EMAIL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description, $ticket_type, $company_id);
-                if($ticket===true)
+                if($ticket==true)
                 {
                     foreach($recipient as $to_email)
                     {
@@ -104,20 +104,20 @@ class ChannelManagerController extends Controller
             $user_id= 0;
             //First lets confirm is the response if from users email of company email
             $user = $this->channel->identifyCompanyEmailAddress($email);
-
             if($user)
             {
                 $user_id = $user->id;
             }
+
+            //we need to
 
             //save thread
             $thread = $this->channel->saveThread($ticket->id, $description, $user_id);
 
             if($thread==true)
             {
-                
+
                 $users = $this->notify->getDepartmentUsers($email);
-                return response()->json(['error'=>$users],400);
 
                 //send notification to user
                 $this->notify->saveNotifications($users, $this->notify::NEW_REPLY);
