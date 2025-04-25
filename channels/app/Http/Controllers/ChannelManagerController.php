@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Services\ChannelManagerService;
+use App\Services\EmailService;
 use App\Services\NotificationService;
+
 
 class ChannelManagerController extends Controller
 {
@@ -50,7 +52,7 @@ class ChannelManagerController extends Controller
         $email  = $request->input('sender') ?? $request->input('from');
         $recipient = $request->input('recipient');
         $subject = $request->input('subject');
-        $description    = $request->input('body-plain') ?? $request->input('body-html');
+        $description    = $request->input('body') ?? $request->input('body-html');
 
         $company_email = $recipient[0] ?? ''; //Lets try to get the first item in the emails array
         if(empty($company_email))
@@ -62,10 +64,12 @@ class ChannelManagerController extends Controller
         if(!$company)
         {
             $company = $this->channel->identifyCompany($email); // in scenarios where the sender is from  the organization and not an external user / entity
+            if(!$company){ //lets fetch using the second email in the recipient list
+                $company_email = $recipient[1] ?? '';
+                $company = $this->channel->identifyCompany($company_email);
+            }
         }
-
         $company_id = $company->company_id;
-
         DB::beginTransaction();
         try
         {
@@ -97,6 +101,8 @@ class ChannelManagerController extends Controller
                         //Send Notification
                         $this->notify->saveNotifications($users,$this->notify::NEW_TICKET);
                     }
+                    //send feedback to sender
+
 
                 }
 
@@ -208,5 +214,14 @@ class ChannelManagerController extends Controller
             'message'   => 'Chatbot message processed successfully.',
             'ticket_id' => $ticket->id,
         ], 200);
+    }
+
+    public function sendConfirmationEmail($email, $subject, $body)
+    {
+        $mailer = new EmailService();
+        $sent = $mailer->sendmail($email, $subject, $body);
+
+        return $sent ? "Email sent successfully." : "Email failed to send";
+
     }
 }

@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS `api_settings`;
 CREATE TABLE IF NOT EXISTS `api_settings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `key` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `company_id` int(11) NOT NULL DEFAULT 0,
   `value` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -57,6 +58,7 @@ CREATE TABLE IF NOT EXISTS `auth_users` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `company_id` int(11) NOT NULL DEFAULT 0,
   `password_hash` blob DEFAULT NULL,
   `phone` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `dept_id` int(10) unsigned NOT NULL,
@@ -64,11 +66,13 @@ CREATE TABLE IF NOT EXISTS `auth_users` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table rt_oris.auth_users: ~0 rows (approximately)
 DELETE FROM `auth_users`;
 /*!40000 ALTER TABLE `auth_users` DISABLE KEYS */;
+INSERT INTO `auth_users` (`id`, `name`, `email`, `company_id`, `password_hash`, `phone`, `dept_id`, `status`, `created_at`, `updated_at`) VALUES
+	(1, 'Walter Adamba', 'wadamba@yahoo.com', 1, NULL, '0724802834', 1, 1, '2025-04-13 12:23:03', '2025-04-13 12:23:04');
 /*!40000 ALTER TABLE `auth_users` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.business_docs
@@ -80,14 +84,16 @@ CREATE TABLE IF NOT EXISTS `business_docs` (
   `document_no` varchar(20) DEFAULT NULL,
   `document_value` int(11) DEFAULT NULL,
   `doc_code` char(2) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
--- Dumping data for table rt_oris.business_docs: ~1 rows (approximately)
+-- Dumping data for table rt_oris.business_docs: ~0 rows (approximately)
 DELETE FROM `business_docs`;
 /*!40000 ALTER TABLE `business_docs` DISABLE KEYS */;
-INSERT INTO `business_docs` (`id`, `company_id`, `document_name`, `document_no`, `document_value`, `doc_code`) VALUES
-	(34, 1, 'Ticket', '100000', 1, 'TK');
+INSERT INTO `business_docs` (`id`, `company_id`, `document_name`, `document_no`, `document_value`, `doc_code`, `created_at`, `updated_at`) VALUES
+	(34, 1, 'Ticket', '1', 2, 'TK', '2025-04-13 15:21:18', '2025-04-22 02:49:00');
 /*!40000 ALTER TABLE `business_docs` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.cache
@@ -126,11 +132,19 @@ CREATE TABLE IF NOT EXISTS `channels` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table rt_oris.channels: ~0 rows (approximately)
+-- Dumping data for table rt_oris.channels: ~6 rows (approximately)
 DELETE FROM `channels`;
 /*!40000 ALTER TABLE `channels` DISABLE KEYS */;
+INSERT INTO `channels` (`id`, `name`, `created_at`, `updated_at`) VALUES
+	(1, 'Portal', '2025-04-13 11:52:46', '2025-04-13 11:52:47'),
+	(2, 'Email', '2025-04-13 11:52:45', '2025-04-13 11:52:48'),
+	(3, 'Whatsapp', '2025-04-13 11:52:43', '2025-04-13 11:52:48'),
+	(4, 'Chatbot', '2025-04-13 11:52:44', '2025-04-13 11:52:49'),
+	(5, 'Phone', '2025-04-13 11:52:43', '2025-04-13 11:52:50'),
+	(6, 'Twitter', '2025-04-13 11:52:42', '2025-04-13 11:52:51'),
+	(7, 'Facebook', '2025-04-13 11:52:41', '2025-04-13 11:52:51');
 /*!40000 ALTER TABLE `channels` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.channel_contacts
@@ -140,14 +154,17 @@ CREATE TABLE IF NOT EXISTS `channel_contacts` (
   `channel_id` int(10) unsigned NOT NULL,
   `email` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `phone` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table rt_oris.channel_contacts: ~0 rows (approximately)
 DELETE FROM `channel_contacts`;
 /*!40000 ALTER TABLE `channel_contacts` DISABLE KEYS */;
+INSERT INTO `channel_contacts` (`id`, `channel_id`, `email`, `phone`, `company_id`, `created_at`, `updated_at`) VALUES
+	(1, 2, 'walter.omedo@gmail.com', '', 1, '2025-04-14 19:16:55', NULL);
 /*!40000 ALTER TABLE `channel_contacts` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.companies
@@ -164,11 +181,13 @@ CREATE TABLE IF NOT EXISTS `companies` (
   `active` int(1) DEFAULT 0,
   `days` int(3) DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 -- Dumping data for table rt_oris.companies: ~0 rows (approximately)
 DELETE FROM `companies`;
 /*!40000 ALTER TABLE `companies` DISABLE KEYS */;
+INSERT INTO `companies` (`id`, `name`, `website`, `email`, `phy_add`, `phone`, `client_no`, `company_logo`, `active`, `days`) VALUES
+	(2, 'Nezasoft Technologies', 'www.nezasoft.net', 'info@nezasoft.net', 'Westlands Nairobi', '0727129606', NULL, NULL, 1, 0);
 /*!40000 ALTER TABLE `companies` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.country_code
@@ -439,13 +458,16 @@ CREATE TABLE IF NOT EXISTS `customers` (
   `email` varchar(45) NOT NULL,
   `phone` varchar(45) NOT NULL,
   `client_no` varchar(45) DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
   `account_no` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 -- Dumping data for table rt_oris.customers: ~0 rows (approximately)
 DELETE FROM `customers`;
 /*!40000 ALTER TABLE `customers` DISABLE KEYS */;
+INSERT INTO `customers` (`id`, `name`, `email`, `phone`, `client_no`, `company_id`, `account_no`) VALUES
+	(1, 'Walter Adamba Omedo', 'walter.omedo@gmail.com', '0724802834', 'C001', 1, 'C001/2');
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.customer_types
@@ -455,6 +477,7 @@ CREATE TABLE IF NOT EXISTS `customer_types` (
   `name` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -470,28 +493,30 @@ CREATE TABLE IF NOT EXISTS `departments` (
   `name` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table rt_oris.departments: ~0 rows (approximately)
+-- Dumping data for table rt_oris.departments: ~3 rows (approximately)
 DELETE FROM `departments`;
 /*!40000 ALTER TABLE `departments` DISABLE KEYS */;
-INSERT INTO `departments` (`id`, `name`, `created_at`, `updated_at`) VALUES
-	(1, 'Management', '2025-04-11 06:20:13', '2025-04-11 06:20:19'),
-	(2, 'Customer Care', '2025-04-11 06:20:14', '2025-04-11 06:20:14'),
-	(3, 'Technical Support', '2025-04-11 06:20:37', '2025-04-11 06:20:38');
+INSERT INTO `departments` (`id`, `name`, `created_at`, `updated_at`, `company_id`) VALUES
+	(1, 'Management', '2025-04-11 06:20:13', '2025-04-11 06:20:19', NULL),
+	(2, 'Customer Care', '2025-04-11 06:20:14', '2025-04-11 06:20:14', NULL),
+	(3, 'Technical Support', '2025-04-11 06:20:37', '2025-04-11 06:20:38', NULL);
 /*!40000 ALTER TABLE `departments` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.emails
 DROP TABLE IF EXISTS `emails`;
 CREATE TABLE IF NOT EXISTS `emails` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `email_address` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `email_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `department` int(10) unsigned DEFAULT NULL,
-  `priority` int(10) unsigned DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `dept_id` int(10) unsigned DEFAULT NULL,
+  `priority_id` int(10) unsigned DEFAULT NULL,
+  `company_id` int(10) unsigned DEFAULT NULL,
   `help_topic` int(10) unsigned DEFAULT NULL,
-  `user_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `username` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `fetching_host` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `fetching_port` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -518,19 +543,19 @@ CREATE TABLE IF NOT EXISTS `emails` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `department` (`department`,`priority`,`help_topic`),
-  KEY `department_2` (`department`,`priority`,`help_topic`),
-  KEY `priority` (`priority`),
+  KEY `department` (`dept_id`,`priority_id`,`help_topic`),
+  KEY `department_2` (`dept_id`,`priority_id`,`help_topic`),
+  KEY `priority` (`priority_id`),
   KEY `help_topic` (`help_topic`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=DYNAMIC;
 
--- Dumping data for table rt_oris.emails: ~0 rows (approximately)
+-- Dumping data for table rt_oris.emails: ~3 rows (approximately)
 DELETE FROM `emails`;
 /*!40000 ALTER TABLE `emails` DISABLE KEYS */;
-INSERT INTO `emails` (`id`, `email_address`, `email_name`, `department`, `priority`, `help_topic`, `user_name`, `password`, `fetching_host`, `fetching_port`, `fetching_protocol`, `fetching_encryption`, `mailbox_protocol`, `imap_config`, `folder`, `sending_host`, `sending_port`, `sending_protocol`, `sending_encryption`, `smtp_validate`, `smtp_authentication`, `internal_notes`, `auto_response`, `fetching_status`, `move_to_folder`, `delete_email`, `do_nothing`, `sending_status`, `authentication`, `header_spoofing`, `created_at`, `updated_at`) VALUES
-	(1, 'info@nezasoft.net', 'Nezasoft Email', 1, 3, NULL, NULL, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL),
-	(2, 'support@nezasoft.net', 'Technical Support', 3, 1, NULL, NULL, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL),
-	(3, 'customer_care@nezasoft.net', 'Customer Care', 2, 2, NULL, NULL, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL);
+INSERT INTO `emails` (`id`, `email`, `name`, `dept_id`, `priority_id`, `company_id`, `help_topic`, `username`, `password`, `fetching_host`, `fetching_port`, `fetching_protocol`, `fetching_encryption`, `mailbox_protocol`, `imap_config`, `folder`, `sending_host`, `sending_port`, `sending_protocol`, `sending_encryption`, `smtp_validate`, `smtp_authentication`, `internal_notes`, `auto_response`, `fetching_status`, `move_to_folder`, `delete_email`, `do_nothing`, `sending_status`, `authentication`, `header_spoofing`, `created_at`, `updated_at`) VALUES
+	(1, 'info@nezasoft.net', 'Nezasoft Email', 1, 3, 1, NULL, 'info@nezasoft.net', '#info2016', 'saver.vivawebhost.com', '993', 'imap', 'tls', '', '', '', '', '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL),
+	(2, 'support@nezasoft.net', 'Technical Support', 3, 1, 1, NULL, NULL, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL),
+	(3, 'customer_care@nezasoft.net', 'Customer Care', 2, 2, 1, NULL, NULL, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL);
 /*!40000 ALTER TABLE `emails` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.event_types
@@ -692,12 +717,15 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `type_id` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ROW_FORMAT=DYNAMIC;
 
 -- Dumping data for table rt_oris.notifications: ~0 rows (approximately)
 DELETE FROM `notifications`;
 /*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
+INSERT INTO `notifications` (`id`, `user_id`, `type_id`, `created_at`, `updated_at`, `company_id`) VALUES
+	(1, 1, 3, '2025-04-22 02:49:00', '2025-04-22 02:49:00', NULL);
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.notification_types
@@ -761,6 +789,7 @@ CREATE TABLE IF NOT EXISTS `roles` (
   `name` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -783,9 +812,11 @@ CREATE TABLE IF NOT EXISTS `sessions` (
   KEY `sessions_last_activity_index` (`last_activity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table rt_oris.sessions: ~0 rows (approximately)
+-- Dumping data for table rt_oris.sessions: ~1 rows (approximately)
 DELETE FROM `sessions`;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
+INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
+	('dJ0HCVuqv53puRCDFYlwKz1EbbhbdnJRhCS1gu5o', NULL, '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiaVl6Umo1bTYxV1oxYlk5bXQ4Y3A4TzhxbGZPd0I5SGk2WVJyWkczeiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzU6Imh0dHA6Ly9sb2NhbGhvc3QvdGlja2V0aW5nL2NoYW5uZWxzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1744529981);
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.sla_events
@@ -796,6 +827,7 @@ CREATE TABLE IF NOT EXISTS `sla_events` (
   `event_type_id` int(10) unsigned NOT NULL,
   `status_id` int(10) unsigned NOT NULL,
   `due_date` datetime DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
   `met_at` datetime DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -815,6 +847,7 @@ CREATE TABLE IF NOT EXISTS `sla_policies` (
   `response_time_min` int(11) DEFAULT NULL,
   `resolve_time_min` int(11) DEFAULT NULL,
   `is_default` tinyint(4) DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -835,6 +868,7 @@ CREATE TABLE IF NOT EXISTS `sla_rules` (
   `channel_id` int(10) unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -937,19 +971,23 @@ CREATE TABLE IF NOT EXISTS `tickets` (
   `customer_id` int(10) unsigned DEFAULT NULL,
   `priority_id` int(10) unsigned NOT NULL,
   `channel_id` int(10) unsigned NOT NULL,
+  `ticket_type_id` int(10) unsigned NOT NULL,
   `subject` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status_id` int(10) unsigned NOT NULL,
+  `company_id` int(11) unsigned NOT NULL,
   `description` mediumtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `first_response_at` datetime DEFAULT NULL,
   `resolved_at` datetime DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table rt_oris.tickets: ~0 rows (approximately)
 DELETE FROM `tickets`;
 /*!40000 ALTER TABLE `tickets` DISABLE KEYS */;
+INSERT INTO `tickets` (`id`, `ticket_no`, `customer_id`, `priority_id`, `channel_id`, `ticket_type_id`, `subject`, `status_id`, `company_id`, `description`, `first_response_at`, `resolved_at`, `created_at`, `updated_at`) VALUES
+	(1, '100000001', 1, 1, 2, 1, '[Test Email Ticketing System] - 100000001', 1, 1, NULL, NULL, NULL, '2025-04-22 02:49:00', '2025-04-22 02:49:00');
 /*!40000 ALTER TABLE `tickets` ENABLE KEYS */;
 
 -- Dumping structure for table rt_oris.ticket_assignments
@@ -1017,11 +1055,13 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table rt_oris.users: ~0 rows (approximately)
+-- Dumping data for table rt_oris.users: ~1 rows (approximately)
 DELETE FROM `users`;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
+	(1, 'Walter Adamba', 'wadamba@yahoo.com', '2025-04-13 12:20:08', '', NULL, '2025-04-13 12:20:15', '2025-04-13 12:20:16');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
