@@ -10,4 +10,6 @@ Route::get('/test', function () {
 });
 
 Route::post('channels/email', [ChannelManagerController::class, 'receiveEmail']);
+Route::post('channels/portal', [ChannelManagerController::class, 'receiveWebPortal']);
+Route::post('channels/whatsapp', [ChannelManagerController::class, 'receiveWhatsApp']);
 

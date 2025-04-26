@@ -12,23 +12,26 @@ class NotificationService
     const NEW_REPLY = 2;
     const NEW_TICKET =3;
 
-    public function saveNotifications($users,$type)
+    public function saveNotifications($users, $type)
     {
-
-
-        if(!empty($users))
-        {
-            foreach($users as $user)
-            {
-                $notification = new Notification();
-                $notification->user_id = $user->id;
-                $notification->type_id = $type;
-                $notification->created_at = Carbon::now();
-                $notification->save();
+        // If a single user is passed, wrap it into an array
+        if (is_object($users)) {
+            $users = [$users];
+        }
+    
+        if (!empty($users) && is_iterable($users)) {
+            foreach ($users as $user) {
+                if (is_object($user) && isset($user->id)) {
+                    $notification = new Notification();
+                    $notification->user_id = $user->id;
+                    $notification->type_id = $type;
+                    $notification->created_at = Carbon::now();
+                    $notification->save();
+                }
             }
         }
-
     }
+    
     public function saveNotification($user,$type)
     {
         if(!empty($user))

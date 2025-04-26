@@ -5,9 +5,11 @@ use App\Models\AuthUser;
 use App\Models\BusinessDocument;
 use App\Models\ChannelContact;
 use App\Models\Customer;
+use App\Models\Department;
 use App\Models\Email;
 use App\Models\Ticket;
 use App\Models\TicketReply;
+use App\Models\WhatsApp;
 use Carbon\Carbon;
 
 
@@ -22,6 +24,7 @@ class ChannelManagerService
     const LOW_PRIORITY = 2;
     const MEDIUM_PRIORITY = 3;
     const TICKET_STATUS_NEW = 1;
+    const TICKET_STATUS_PENDING = 3;
     const TICKET_TYPE_CUSTOMER = 1;
     const TICKET_TYPE_GUEST = 2;
 
@@ -96,7 +99,7 @@ class ChannelManagerService
 
         if($ticket)
         {
-            return true;
+            return $ticket;
         }
 
         return false;
@@ -115,7 +118,7 @@ class ChannelManagerService
 
         if($thread)
         {
-            return true;
+            return $thread;
         }
 
         return false;
@@ -161,6 +164,17 @@ class ChannelManagerService
         return false;
     }
 
+    public function identifyCompanyWhatsAppBusiness($phone)
+    {
+        $company = WhatsApp::with('company')->where('phone_no_id',$phone)->first();
+        if($company)
+        {
+            return $company;
+
+        }
+        return false;
+    }
+
 
     public function confirmTicket($title)
     {
@@ -179,6 +193,65 @@ class ChannelManagerService
             $response_type => 'true',
             'message'   => $response_message,
         ], $response_code);
+    }
+
+    public function getDepartmentUsersByUserId($user_id)
+    {
+        $user = AuthUser::find($user_id);
+        if($user)
+        {
+            //Lets Get his department id
+            $dept_id = $user->dept_id;
+            $department = Department::with('emails')->with('authUsers')->where('id', $dept_id)->first();
+            if($department)
+            {
+                return $department;
+            }
+            
+            return false;
+        }
+        return false;
+    }
+
+    public function getDepartmentUsersByDepartmentId($department_id)
+    {
+        $department = Department::with('emails')->with('authUsers')->where('id', $department_id)->first();
+        if($department)
+        {
+            return $department;
+        }
+        return false;
+    }
+
+    public function getDepartmentUsersByEmail($email)
+    {
+        $department = Department::with(['emails', 'authUsers'])
+            ->whereHas('emails', function($query) use ($email) {
+                $query->where('email', $email);
+            })
+            ->first();
+    
+        if ($department) {
+            return $department;
+        }
+    
+        return false;
+    }
+    
+    //This method is used to validate WhatsApp Business IDs
+    public function validateWhatsAppBusiness($phone_no_id)
+    {
+        $wb = WhatsApp::where(['phone_no_id'=>$phone_no_id])->first();
+        if($wb)
+        {
+            return $wb;
+        }
+        return false;
+    }
+
+    public function sendConfirmationSMS($phone, $message)
+    {
+        return ;
     }
 
 }

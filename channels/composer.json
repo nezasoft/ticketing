@@ -11,6 +11,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "phpmailer/phpmailer": "^6.10",
+        "twilio/sdk": "^8.5",
         "tymon/jwt-auth": "^2.2",
         "webklex/laravel-imap": "^6.1"
     },
