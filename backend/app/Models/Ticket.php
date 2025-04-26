@@ -16,12 +16,18 @@ class Ticket extends Model
         'channel_id',
         'subject',
         'status_id',
+        'ticket_type_id',
+        'company_id',
         'description',
         'first_response_at',
         'resolved_at',
     ];
 
-    // Relationships
+    // Relationships'
+    public function company()
+    {
+        return $this->belongsTo(Company::class,'company_id');
+    }
     public function priority()
     {
         return $this->belongsTo(Priority::class, 'priority_id');

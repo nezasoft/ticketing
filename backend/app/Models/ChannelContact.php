@@ -16,13 +16,20 @@ class ChannelContact extends Model
         'channel_id',
         'email',
         'phone',
-        'date_created',
-        'date_updated',
+        'company_id',
+        'created_at',
+        'updated_at',
     ];
 
     // Relationships
     public function channel()
     {
         return $this->belongsTo(Channel::class, 'channel_id');
+    }
+
+    public function company()
+    {
+
+        return $this->belongsTo(Company::class,'company_id');
     }
 }
