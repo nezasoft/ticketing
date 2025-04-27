@@ -26,6 +26,9 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::prefix('settings')->controller(SettingsController::class)->group(function () {
         Route::get('/priorities','getPriorities')->name('settings.priorities');
+        Route::get('/ticket_types','getTicketTypes')->name('settings.ticket_types');
+        Route::get('/status','getTicketStatus')->name('settings.status');
+        Route::get('/notification_types','getNotificationTypes')->name('settings.notification_types');
 
     });
 
