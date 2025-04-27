@@ -2,12 +2,13 @@
 namespace App\Services;
 
 class BackendService {
-    
-    public function serviceResponse($response_type= '',$response_code= '',$response_message= '')
+
+    public function serviceResponse($response_type= '',$response_code= '',$response_message= '', $data=[])
     {
         return response()->json([
             $response_type => 'true',
             'message'   => $response_message,
+            'data'=> $data,
         ], $response_code);
     }
 

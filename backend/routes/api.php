@@ -11,15 +11,21 @@ Route::get('/test', function () {
     return 'API route working';
 });
 
+
 Route::prefix('user')->controller(AuthController::class)->group(function () {
     Route::post('/recover', 'recover')->name('user.recover');
-    Route::post('/login', 'login')->name('user.login');
+    Route::post('/login', 'login')->name('login');
     Route::post('/register', 'register')->name('user.register');
 });
 
 Route::middleware(['auth:api'])->group(function () {
     Route::prefix('email')->controller(AuthController::class)->group(function () {
         Route::post('/create', 'create')->name('email.create');
+
+    });
+
+    Route::prefix('settings')->controller(SettingsController::class)->group(function () {
+        Route::get('/priorities','getPriorities')->name('settings.priorities');
 
     });
 

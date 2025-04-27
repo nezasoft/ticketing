@@ -16,7 +16,7 @@ class AuthUser extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name',
         'email',
-        'password_hash', 
+        'password_hash',
         'phone',
         'dept_id',
         'company_id',
@@ -62,6 +62,9 @@ class AuthUser extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return []; // You can add custom claims here if needed
+        return [
+            'user_id'=> $this->id,
+            'company_id'=> $this->company_id,
+        ]; // You can add custom claims here if needed
     }
 }

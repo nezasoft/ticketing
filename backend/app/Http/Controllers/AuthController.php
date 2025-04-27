@@ -18,7 +18,9 @@ class AuthController extends Controller
     {
         $this->apiService = $apiservice;
 
+
     }
+
 
     public function login(Request $request)
     {
@@ -38,6 +40,7 @@ class AuthController extends Controller
             if ($user && Hash::check($request->password, $user->password_hash)) {
                 // Issue token
                 $token = auth('api')->login($user); // Ensure 'api' guard is configured properly
+
                 $expires_in = (int) (auth('api')->factory()->getTTL() * 60); // Fix the multiplication
                 return response()->json([
                     'success' => true,
