@@ -7,8 +7,7 @@ use App\Services\BackendService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+
 use Hash;
 use DB;
 class AuthController extends Controller
@@ -21,6 +20,44 @@ class AuthController extends Controller
 
     }
 
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "email" => "required|email|exists:auth_users,email",
+            "password" => "required|string|max:255"
+        ]);
+
+        if ($validator->fails()) {
+            return $this->apiService->serviceResponse('error', 400, $validator->errors());
+        }
+
+        try {
+            // Authenticate User
+            $user = AuthUser::where('email', $request->email)->firstOrFail(); // Ensure a user is found
+
+            if ($user && Hash::check($request->password, $user->password_hash)) {
+                // Issue token
+                $token = auth('api')->login($user); // Ensure 'api' guard is configured properly
+                $expires_in = (int) (auth('api')->factory()->getTTL() * 60); // Fix the multiplication
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Authentication Successful!',
+                    'access_token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => $expires_in,
+                ]);
+            }
+
+            return $this->apiService->serviceResponse('error', 400, 'Invalid credentials supplied');
+
+        } catch (\Exception $e) {
+            \Log::error("Login error: " . $e->getMessage()); // Log the error message
+            return $this->apiService->serviceResponse('error', 400, $e->getMessage());
+        }
+    }
+
+
+
     public function recover(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -31,7 +68,6 @@ class AuthController extends Controller
         }
 
         $email = $request->input('Email');
-
 
         try
         {

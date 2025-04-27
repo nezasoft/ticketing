@@ -1,5 +1,4 @@
 <?php
-// app/Models/AuthUser.php
 
 namespace App\Models;
 
@@ -7,7 +6,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Notifications\CustomResetPassword;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-class AuthUser extends Authenticatable
+use Tymon\JWTAuth\Contracts\JWTSubject;
+
+class AuthUser extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
     protected $table = 'auth_users';
@@ -15,9 +16,10 @@ class AuthUser extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password_hash',
+        'password_hash', 
         'phone',
         'dept_id',
+        'company_id',
         'status',
     ];
 
@@ -46,9 +48,20 @@ class AuthUser extends Authenticatable
     {
         return $this->hasMany(Email::class,'dept_id','dept_id');
     }
+
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new CustomResetPassword($token));
     }
 
+    // Implement JWTSubject methods
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return []; // You can add custom claims here if needed
+    }
 }

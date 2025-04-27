@@ -17,5 +17,14 @@ Route::prefix('user')->controller(AuthController::class)->group(function () {
     Route::post('/register', 'register')->name('user.register');
 });
 
+Route::middleware(['auth:api'])->group(function () {
+    Route::prefix('email')->controller(AuthController::class)->group(function () {
+        Route::post('/create', 'create')->name('email.create');
+
+    });
+
+    // other secured routes...
+});
+
 
 
