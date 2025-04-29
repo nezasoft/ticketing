@@ -31,8 +31,11 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('/notification_types','getNotificationTypes')->name('settings.notification_types');
 
     });
-
-    // other secured routes...
+    Route::prefix('contacts')->controller(ChannelContactController::class)->group(function () {
+        Route::post('/list','getContactList')->name('contacts.list');
+        Route::post('/create','createChanneContact')->name('contacts.create');
+        Route::post('/edit','updateChannelContact')->name('contacts.edit');
+    });
 });
 
 
