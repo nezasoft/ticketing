@@ -9,7 +9,7 @@ class Priority extends Model
 {
     protected $table = 'priorities';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = ['name'];
 

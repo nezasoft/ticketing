@@ -56,6 +56,11 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/edit', 'edit')->name('customer.edit');
         Route::post('/import', 'import')->name('customer.import');
     });
+    Route::prefix('email')->controller(EmailController::class)->group(function () {
+        Route::post('/list', 'index')->name('email.list');
+        Route::post('/create', 'create')->name('email.create');
+        Route::post('/edit', 'edit')->name('email.edit');
+    });
 });
 
 
