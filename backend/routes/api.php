@@ -15,7 +15,9 @@ Route::get('/test', function () {
 Route::prefix('user')->controller(AuthController::class)->group(function () {
     Route::post('/recover', 'recover')->name('user.recover');
     Route::post('/login', 'login')->name('login');
-    Route::post('/register', 'register')->name('user.register');
+    Route::post('/create', 'create')->name('user.create');
+    Route::post('/code', 'sendVerificationCode')->name('user.code');
+    Route::post('/verify', 'verifyEmail')->name('user.verify');
 });
 
 Route::middleware(['auth:api'])->group(function () {
@@ -35,6 +37,10 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/list','getContactList')->name('contacts.list');
         Route::post('/create','createChanneContact')->name('contacts.create');
         Route::post('/edit','updateChannelContact')->name('contacts.edit');
+        Route::post('/delete','deleteChannelContact')->name('contacts.delete');
+    });
+    Route::prefix('user')->controller(AuthController::class)->group(function () {
+        Route::post('/edit', 'edit')->name('user.edit');
     });
 });
 

@@ -67,4 +67,6 @@ class AuthUser extends Authenticatable implements JWTSubject
             'company_id'=> $this->company_id,
         ]; // You can add custom claims here if needed
     }
+
+    public $timestamps = true;
 }

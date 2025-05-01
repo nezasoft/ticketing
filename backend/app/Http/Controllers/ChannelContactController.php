@@ -96,5 +96,26 @@ class ChannelContactController extends Controller
         return $this->service->serviceResponse('error', 404, 'Channel contact not found.');
     }
 
+    public function deleteChannelContact(Request $request)
+    {
+        $validator = Validator::make($request->only('ContactID'), [
+            'ContactID' => 'required|integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->service->serviceResponse('error', 400, $validator->errors());
+        }
+
+        //Find channel contact by id
+        $channel_contact = ChannelContact::find($request->ContactID);
+        if($channel_contact)
+        {
+            $channel_contact->delete();
+            return $this->service->serviceResponse('success', 200, 'Request processed successfully!');
+        }
+        return $this->service->serviceResponse('error', 404, 'Channel contact not found.');
+
+    }
+
 
 }

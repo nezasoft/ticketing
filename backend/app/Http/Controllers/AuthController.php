@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuthUser;
+use App\Models\EmailVerificationCode;
 use App\Services\BackendService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
@@ -40,7 +42,6 @@ class AuthController extends Controller
             if ($user && Hash::check($request->password, $user->password_hash)) {
                 // Issue token
                 $token = auth('api')->login($user); // Ensure 'api' guard is configured properly
-
                 $expires_in = (int) (auth('api')->factory()->getTTL() * 60); // Fix the multiplication
                 return response()->json([
                     'success' => true,
@@ -58,9 +59,6 @@ class AuthController extends Controller
             return $this->apiService->serviceResponse('error', 400, $e->getMessage());
         }
     }
-
-
-
     public function recover(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -69,22 +67,17 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return  $this->apiService->serviceResponse('error',400,$validator->errors());
         }
-
         $email = $request->input('Email');
-
         try
         {
             $status = Password::sendResetLink($request->only("Email"));
-
             if($status==Password::RESET_LINK_SENT)
             {
                 //Retrieve the token from the password resets table
                 $token = DB::table('password_reset_tokens')->where('email',$email)->value('token');//extract only the token value
-
                 return $this->apiService->serviceResponse('success',200,'We have sent instructions on how to recover your password to your email');
             }
             return $this->apiService->serviceResponse('error',400,'There was a problem resetting your password!');
-
 
         }catch(\Exception $e)
         {
@@ -128,5 +121,131 @@ class AuthController extends Controller
      // Delete the used reset record to invalidate the token
      DB::table('password_reset_tokens')->where('email', $request->email)->delete();
      return back()->with('success', 'Your password has been updated successfully!');
+     }
+
+     public function edit(Request $request)
+     {
+
+     }
+
+     public function create(Request $request)
+     {
+        $messages = ['phone.regex' => 'The phone number must be in international format (e.g., +14155552671).'];
+        $validator = Validator::make($request->all(), [
+            "email" => "required|email|unique:auth_users,email",
+            "name" => "required|string|max:255",
+            "phone" => [
+            'required',
+            'regex:/^[1-9]\d{1,14}$/'
+            ],
+            "company_id" => "required|integer|min:1",
+            "dept_id" => "required|integer|min:1",
+        ],$messages);
+        if ($validator->fails()) {
+            return $this->apiService->serviceResponse('error', 400, $validator->errors());
+        }
+        $password = $this->generateRandomPassword();
+        $user = new AuthUser();
+        $user ->email = $request->email;
+        $user->name = $request->name;
+        $user->phone = $request->phone;
+        $user->company_id = $request->company_id;
+        $user->dept_id = $request->dept_id;
+        $user->password_hash = Hash::make($password);
+
+        if($user->save())
+        {
+            //Send user their default credentials
+            $data = [
+                "name"=> $request->name,
+                "email"=> $request->email,
+                "password" => $password
+            ];
+            $template ="registration-password";
+
+            if($this->apiService->sendEmail($request->email,$template, $data))
+            {
+                return $this->apiService->serviceResponse("success",200,"User account created successfully!");
+            }
+
+        }
+        return $this->apiService->serviceResponse("error",400,"User account not created please try again");
+
+     }
+
+     public function verifyEmail(Request $request)
+     {
+        $validator = Validator::make($request->all(), [
+            "email" => "required|email|exists:email_verification_codes",
+            "code"=> "required|integer|min:1",
+        ]);
+        if ($validator->fails()) {
+            return $this->apiService->serviceResponse('error', 400, $validator->errors());
+        }
+
+      $code = EmailVerificationCode::where('email',$request->email)->where('code', $request->code)->first();
+      if($code)
+      {
+        $expiration = 4; //4 Minutes max
+        //confirm is code is still valid and not
+        if (now()->diffInMinutes($code->created_at) > $expiration) {
+            return $this->apiService->serviceResponse('error',400,'The verification has expired. Please request a new one');
+        }
+        //Delete code
+        $code->delete();
+        return $this->apiService->serviceResponse('success',200,'Email verification successful!');
+      }
+      return $this->apiService->serviceResponse('error',400,'Email verification failed!');
+     }
+
+     public function sendVerificationCode(Request $request)
+     {
+        $validator = Validator::make($request->all(), [
+            "email" => "required|email",
+            "name"=> "required|string|max:255",
+        ]);
+
+        if ($validator->fails()) {
+            return $this->apiService->serviceResponse('error', 400, $validator->errors());
+        }
+
+        $verification_code = $this->generateRandomNumber();
+        $name = $request->name;
+
+        $array = explode(" ",$name);
+        $name = $array[0] ?? $name;
+
+        $code = new EmailVerificationCode();
+        $code->email = $request->email;
+        $code->code = $verification_code;
+
+
+        if($code->save())
+        {
+            //Send code to email
+            $data = ["code"=>$verification_code,"name"=>$name];
+            $template = "email-verification";
+            if($this->apiService->sendEmail($request->email,$template, $data))
+            {
+                return $this->apiService->serviceResponse("success",200,"Verification code sent to your email");
+            }
+        }
+
+        return $this->apiService->serviceResponse("error",400,"Error sending verification code. Please try again!!!");
+
+     }
+
+     public function generateRandomPassword()
+     {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*';
+        $password = collect(str_split($characters))->shuffle()->take(12)->implode('');
+        return $password;
+     }
+
+     public function generateRandomNumber()
+     {
+        return random_int(100000, 999999);
+
+
      }
 }
