@@ -7,7 +7,7 @@ class Role extends Model
 {
     protected $table = 'roles';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = ['name'];
 }

@@ -42,6 +42,12 @@ Route::middleware(['auth:api'])->group(function () {
     Route::prefix('user')->controller(AuthController::class)->group(function () {
         Route::post('/edit', 'edit')->name('user.edit');
     });
+    Route::prefix('department')->controller(DepartmentController::class)->group(function () {
+        Route::post('/list', 'index')->name('department.index');
+        Route::post('/create', 'create')->name('department.create');
+        Route::post('/edit', 'edit')->name('department.edit');
+        Route::post('/delete', 'delete')->name('department.delete');
+    });
 });
 
 

@@ -125,6 +125,38 @@ class AuthController extends Controller
 
      public function edit(Request $request)
      {
+        $messages = ['phone.regex' => 'The phone number must be in international format (e.g., +14155552671).'];
+        $validator = Validator::make($request->all(), [
+            "email" => "required|email|email",
+            "name" => "required|string|max:255",
+            "phone" => [
+            'required',
+            'regex:/^[1-9]\d{1,14}$/'
+            ],
+            "company_id" => "required|integer|min:1",
+            "dept_id" => "required|integer|min:1",
+            "user_id" => "required|integer|min:1",
+            "status" => "required|integer",
+        ],$messages);
+        if ($validator->fails()) {
+            return $this->apiService->serviceResponse('error', 400, $validator->errors());
+        }
+        $user = AuthUser::find($request->user_id);
+        if($user)
+        {
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->phone = $request->phone;
+            $user->dept_id = $request->dept_id;
+            $user->status = $request->status;
+
+            if($user->save())
+            {
+                return $this->apiService->serviceResponse('success',200, 'Request processed successfully');
+            }
+
+        }
+        return $this->apiService->serviceResponse('error',400, 'No record found for user');
 
      }
 
