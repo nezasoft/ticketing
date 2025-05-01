@@ -136,6 +136,7 @@ class AuthController extends Controller
             "company_id" => "required|integer|min:1",
             "dept_id" => "required|integer|min:1",
             "user_id" => "required|integer|min:1",
+            "role_id" => "required|integer|exists:roles,id",
             "status" => "required|integer",
         ],$messages);
         if ($validator->fails()) {
@@ -149,6 +150,7 @@ class AuthController extends Controller
             $user->phone = $request->phone;
             $user->dept_id = $request->dept_id;
             $user->status = $request->status;
+            $user->role_id = $request->role_id;
 
             if($user->save())
             {
@@ -172,6 +174,7 @@ class AuthController extends Controller
             ],
             "company_id" => "required|integer|min:1",
             "dept_id" => "required|integer|min:1",
+            "role_id" => "required|integer|exists:roles,id"
         ],$messages);
         if ($validator->fails()) {
             return $this->apiService->serviceResponse('error', 400, $validator->errors());
@@ -184,6 +187,7 @@ class AuthController extends Controller
         $user->company_id = $request->company_id;
         $user->dept_id = $request->dept_id;
         $user->password_hash = Hash::make($password);
+        $user->role_id = $request->role_id;
 
         if($user->save())
         {

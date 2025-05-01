@@ -19,7 +19,7 @@ class DepartmentController extends Controller
     public function index(Request $request)
     {
         $validator = Validator::make($request->only('company_id'), [
-            'company_id' => 'required|integer|min:1',
+            'company_id' => 'required|integer|exists:companies,id',
         ]);
         if ($validator->fails()) {
             return $this->service->serviceResponse('error', 400, $validator->errors());

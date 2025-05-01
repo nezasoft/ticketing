@@ -4,6 +4,9 @@ use App\Models\Template;
 use App\Models\TemplateType;
 class BackendService {
 
+    const SUCCESS_MESSAGE = 'Request processed successfully!';
+    const FAILED_MESSAGE = 'Failed to process your request. Please try again!';
+
     public function serviceResponse($response_type= '',$response_code= '',$response_message= '', $data=[])
     {
         return response()->json([

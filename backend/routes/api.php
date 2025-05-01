@@ -31,6 +31,8 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('/ticket_types','getTicketTypes')->name('settings.ticket_types');
         Route::get('/status','getTicketStatus')->name('settings.status');
         Route::get('/notification_types','getNotificationTypes')->name('settings.notification_types');
+        Route::get('/roles','getRoles')->name('settings.roles');
+
 
     });
     Route::prefix('contacts')->controller(ChannelContactController::class)->group(function () {
@@ -47,6 +49,12 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/create', 'create')->name('department.create');
         Route::post('/edit', 'edit')->name('department.edit');
         Route::post('/delete', 'delete')->name('department.delete');
+    });
+    Route::prefix('customer')->controller(CustomerController::class)->group(function () {
+        Route::post('/list', 'index')->name('customer.list');
+        Route::post('/create', 'create')->name('customer.create');
+        Route::post('/edit', 'edit')->name('customer.edit');
+        Route::post('/import', 'import')->name('customer.import');
     });
 });
 

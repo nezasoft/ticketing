@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\NotificationType;
 use App\Models\Priority;
+use App\Models\Role;
 use App\Models\Status;
 use App\Models\TicketType;
 use App\Services\BackendService;
@@ -92,6 +93,24 @@ class SettingsController extends Controller
                 ];
             }
             return $this->service->serviceResponse('success',200, 'Success',$data);
+        }
+        return $this->service->serviceResponse('error',400,'No records found');
+    }
+
+    public function getRoles()
+    {
+        $data = [];
+        $records = Role::where('id','>',1)->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $data[] = [
+                    'id'=> $record->id,
+                    'name'=> $record->name
+                ];
+            }
+            return $this->service->serviceResponse('success',200, '',$data);
         }
         return $this->service->serviceResponse('error',400,'No records found');
     }
