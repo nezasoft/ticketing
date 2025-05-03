@@ -52,4 +52,93 @@ class EmailController extends Controller
         return $this->service->serviceResponse('error', 400,'No records found');
 
     }
+
+    public function edit(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email_id' => 'required|integer|exists:emails,id',
+            'name'=> 'required|string|max:255',
+            'email'=> 'required|email',
+            'dept_id'=> 'required|integer|exists:departments,id',
+            'priority_id' => 'required|integer|exists:priorities,id',
+            'company_id' => 'required|integer|exists:companies,id',
+            'username'=> 'required|string|max:255',
+            'password'=> 'required|string|max:255',
+            'host' => 'required|string|max:255',
+            'port'=> 'required|integer',
+            'protocol'=>'required|string|max:255',
+            'encryption'=> 'required|string|max:255'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->service->serviceResponse('error',400, $validator->errors());
+        }
+
+        $email = Email::find($request->email_id);
+        if($email)
+        {
+            $email->name = $request->name;
+            $email->email = $request->email;
+            $email->dept_id = $request->dept_id;
+            $email->priority_id = $request->priority_id;
+            $email->company_id = $request->company_id;
+            $email->username = $request->username;
+            $email->password = $request->password;
+            $email->fetching_host = $request->host;
+            $email->fetching_port = $request->port;
+            $email->fetching_protocol = $request->protocol;
+            $email->fetching_encryption = $request->encryption;
+
+            if($email->save())
+            {
+                return $this->service->serviceResponse('success',200,$this->service::SUCCESS_MESSAGE);
+
+            }
+
+        }
+        return $this->service->serviceResponse('success',200,$this->service::FAILED_MESSAGE);
+
+    }
+
+    public function create(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name'=> 'required|string|max:255',
+            'email'=> 'required|email|unique:emails,email',
+            'dept_id'=> 'required|integer|exists:departments,id',
+            'priority_id' => 'required|integer|exists:priorities,id',
+            'company_id' => 'required|integer|exists:companies,id',
+            'username'=> 'required|string|max:255',
+            'password'=> 'required|string|max:255',
+            'host' => 'required|string|max:255',
+            'port'=> 'required|integer',
+            'protocol'=>'required|string|max:255',
+            'encryption'=> 'required|string|max:255'
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->service->serviceResponse('error',400, $validator->errors());
+        }
+
+        $email = new Email();
+        $email->name = $request->name;
+        $email->email = $request->email;
+        $email->dept_id = $request->dept_id;
+        $email->priority_id = $request->priority_id;
+        $email->company_id = $request->company_id;
+        $email->username = $request->username;
+        $email->password = $request->password;
+        $email->fetching_host = $request->host;
+        $email->fetching_port = $request->port;
+        $email->fetching_protocol = $request->protocol;
+        $email->fetching_encryption = $request->encryption;
+
+        if($email->save())
+        {
+            return $this->service->serviceResponse('success',200, $this->service::SUCCESS_MESSAGE);
+        }
+        return $this->service->serviceResponse('error',400, $this->service::FAILED_MESSAGE);
+    }
 }
