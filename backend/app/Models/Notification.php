@@ -10,8 +10,15 @@ class Notification extends Model
 
     protected $fillable = ['user_id','type_id'];
 
-    public function notification_types()
+    public function type()
     {
-        return $this->belongsTo(NotificationType::class);
+        return $this->belongsTo(NotificationType::class,"type_id");
     }
+
+    public function user()
+    {
+        return $this->belongsTo(AuthUser::class,"user_id");
+    }
+
+
 }

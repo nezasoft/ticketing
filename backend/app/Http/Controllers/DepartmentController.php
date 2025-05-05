@@ -22,7 +22,7 @@ class DepartmentController extends Controller
             'company_id' => 'required|integer|exists:companies,id',
         ]);
         if ($validator->fails()) {
-            return $this->service->serviceResponse('error', 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
         }
 
         $data = [];
@@ -39,7 +39,7 @@ class DepartmentController extends Controller
 
         }
 
-        return $this->service->serviceResponse('success',200,'Success', $data);
+        return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Success', $data);
     }
 
     public function create(Request $request)
@@ -49,7 +49,7 @@ class DepartmentController extends Controller
             'name' => 'required|string|max:255',
         ]);
         if ($validator->fails()) {
-            return $this->service->serviceResponse('error', 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
         }
 
         $dept = new Department();
@@ -58,10 +58,10 @@ class DepartmentController extends Controller
 
         if($dept->save())
         {
-            return $this->service->serviceResponse('success',200, 'Request processed successfully');
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, 'Request processed successfully');
         }
 
-        return $this->service->serviceResponse('error',400, 'Failed processing this request. Please try again!');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Failed processing this request. Please try again!');
 
     }
 
@@ -72,7 +72,7 @@ class DepartmentController extends Controller
             'name' => 'required|string|max:255',
         ]);
         if ($validator->fails()) {
-            return $this->service->serviceResponse('error', 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
         }
 
         $dept = Department::find($request->dept_id);
@@ -80,9 +80,9 @@ class DepartmentController extends Controller
 
         if($dept->save())
         {
-            return $this->service->serviceResponse('success',200,'Request processed successfuly');
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Request processed successfuly');
         }
-        return $this->service->serviceResponse('error',400, 'Failed processing this request. Please try again!');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Failed processing this request. Please try again!');
 
     }
 
@@ -93,15 +93,15 @@ class DepartmentController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->service->serviceResponse('error', 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
         }
         $dept = Department::find($request->dept_id);
 
         if($dept->delete())
         {
-            return $this->service->serviceResponse('success',200,'Request processed successfuly');
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Request processed successfuly');
         }
-        return $this->service->serviceResponse('error',400, 'Failed processing this request. Please try again!');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Failed processing this request. Please try again!');
 
     }
 }

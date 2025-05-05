@@ -61,6 +61,11 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/create', 'create')->name('email.create');
         Route::post('/edit', 'edit')->name('email.edit');
     });
+    Route::prefix('notification')->controller(NotificationController::class)->group(function () {
+        Route::post('/list', 'index')->name('notification.list');
+        Route::post('/create', 'create')->name('notification.create');
+        Route::post('/edit', 'edit')->name('notification.edit');
+    });
 });
 
 

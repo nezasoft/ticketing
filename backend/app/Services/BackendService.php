@@ -6,11 +6,13 @@ class BackendService {
 
     const SUCCESS_MESSAGE = 'Request processed successfully!';
     const FAILED_MESSAGE = 'Failed to process your request. Please try again!';
+    const SUCCESS_FLAG = true;
+    const FAILED_FLAG = false;
 
     public function serviceResponse($response_type= '',$response_code= '',$response_message= '', $data=[])
     {
         return response()->json([
-            $response_type => 'true',
+            'success' => $response_type,
             'message'   => $response_message,
             'data'=> $data,
         ], $response_code);

@@ -32,7 +32,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->apiService->serviceResponse('error', 400, $validator->errors());
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 400, $validator->errors());
         }
 
         try {
@@ -43,6 +43,10 @@ class AuthController extends Controller
                 // Issue token
                 $token = auth('api')->login($user); // Ensure 'api' guard is configured properly
                 $expires_in = (int) (auth('api')->factory()->getTTL() * 60); // Fix the multiplication
+                $created_at = Carbon::parse($user->created_at);
+                $created_at = $created_at->format('jS M Y g:i a');
+                $updated_at = Carbon::parse($user->updated_at);
+                $updated_at = $updated_at->format('jS M Y g:i a');
                 return response()->json([
                     'success' => true,
                     'message' => 'Authentication Successful!',
@@ -55,19 +59,19 @@ class AuthController extends Controller
                         'phone' => $user->phone,
                         'company_id' => $user->company_id,
                         'dept_id' =>$user->dept_id,
-                        'created_at'=> $user->created_at,
-                        'updated_at' => $user->updated_at,
+                        'created_at'=> $created_at,
+                        'updated_at' => $updated_at,
                         'change_password' => $user->change_password,
                         'role_id' => $user->role_id
                     ]
                 ]);
             }
 
-            return $this->apiService->serviceResponse('error', 400, 'Invalid credentials supplied');
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 400, 'Invalid credentials supplied');
 
         } catch (\Exception $e) {
             \Log::error("Login error: " . $e->getMessage()); // Log the error message
-            return $this->apiService->serviceResponse('error', 400, $e->getMessage());
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 400, $e->getMessage());
         }
     }
     public function recover(Request $request)
@@ -76,7 +80,7 @@ class AuthController extends Controller
             "Email"=> "required|email|exists:auth_users,email",
         ]);
         if ($validator->fails()) {
-            return  $this->apiService->serviceResponse('error',400,$validator->errors());
+            return  $this->apiService->serviceResponse($this->apiService::FAILED_FLAG,400,$validator->errors());
         }
         $email = $request->input('Email');
         try
@@ -86,13 +90,13 @@ class AuthController extends Controller
             {
                 //Retrieve the token from the password resets table
                 $token = DB::table('password_reset_tokens')->where('email',$email)->value('token');//extract only the token value
-                return $this->apiService->serviceResponse('success',200,'We have sent instructions on how to recover your password to your email');
+                return $this->apiService->serviceResponse($this->apiService::SUCCESS_FLAG,200,'We have sent instructions on how to recover your password to your email');
             }
-            return $this->apiService->serviceResponse('error',400,'There was a problem resetting your password!');
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG,400,'There was a problem resetting your password!');
 
         }catch(\Exception $e)
         {
-            return $this->apiService->serviceResponse('error',400,'There was a problem resetting your password!'.$e->getMessage());
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG,400,'There was a problem resetting your password!'.$e->getMessage());
 
         }
     }
@@ -165,11 +169,11 @@ class AuthController extends Controller
 
             if($user->save())
             {
-                return $this->apiService->serviceResponse('success',200, 'Request processed successfully');
+                return $this->apiService->serviceResponse($this->apiService::SUCCESS_FLAG,200, 'Request processed successfully');
             }
 
         }
-        return $this->apiService->serviceResponse('error',400, 'No record found for user');
+        return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG,400, 'No record found for user');
 
      }
 
@@ -188,7 +192,7 @@ class AuthController extends Controller
             "role_id" => "required|integer|exists:roles,id"
         ],$messages);
         if ($validator->fails()) {
-            return $this->apiService->serviceResponse('error', 400, $validator->errors());
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 400, $validator->errors());
         }
         $password = $this->generateRandomPassword();
         $user = new AuthUser();
@@ -212,11 +216,11 @@ class AuthController extends Controller
 
             if($this->apiService->sendEmail($request->email,$template, $data))
             {
-                return $this->apiService->serviceResponse("success",200,"User account created successfully!");
+                return $this->apiService->serviceResponse($this->apiService::SUCCESS_FLAG,200,"User account created successfully!");
             }
 
         }
-        return $this->apiService->serviceResponse("error",400,"User account not created please try again");
+        return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG,400,"User account not created please try again");
 
      }
 
@@ -227,7 +231,7 @@ class AuthController extends Controller
             "code"=> "required|integer|min:1",
         ]);
         if ($validator->fails()) {
-            return $this->apiService->serviceResponse('error', 400, $validator->errors());
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 400, $validator->errors());
         }
 
       $code = EmailVerificationCode::where('email',$request->email)->where('code', $request->code)->first();
@@ -236,13 +240,13 @@ class AuthController extends Controller
         $expiration = 4; //4 Minutes max
         //confirm is code is still valid and not
         if (now()->diffInMinutes($code->created_at) > $expiration) {
-            return $this->apiService->serviceResponse('error',400,'The verification has expired. Please request a new one');
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG,400,'The verification has expired. Please request a new one');
         }
         //Delete code
         $code->delete();
-        return $this->apiService->serviceResponse('success',200,'Email verification successful!');
+        return $this->apiService->serviceResponse($this->apiService::SUCCESS_FLAG,200,'Email verification successful!');
       }
-      return $this->apiService->serviceResponse('error',400,'Email verification failed!');
+      return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG,400,'Email verification failed!');
      }
 
      public function sendVerificationCode(Request $request)
@@ -253,7 +257,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->apiService->serviceResponse('error', 400, $validator->errors());
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 400, $validator->errors());
         }
 
         $verification_code = $this->generateRandomNumber();
@@ -274,11 +278,11 @@ class AuthController extends Controller
             $template = "email-verification";
             if($this->apiService->sendEmail($request->email,$template, $data))
             {
-                return $this->apiService->serviceResponse("success",200,"Verification code sent to your email");
+                return $this->apiService->serviceResponse($this->apiService::SUCCESS_FLAG,200,"Verification code sent to your email");
             }
         }
 
-        return $this->apiService->serviceResponse("error",400,"Error sending verification code. Please try again!!!");
+        return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG,400,"Error sending verification code. Please try again!!!");
 
      }
 

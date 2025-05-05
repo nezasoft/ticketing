@@ -24,7 +24,7 @@ class CustomerController extends Controller
             'company_id' => 'required|integer|exists:companies,id',
         ]);
         if ($validator->fails()) {
-            return $this->service->serviceResponse('error', 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
         }
 
         $data =[];
@@ -43,10 +43,10 @@ class CustomerController extends Controller
                 ];
             }
 
-            return $this->service->serviceResponse('success',200,'Success', $data);
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Success', $data);
         }
 
-        return $this->service->serviceResponse('error',400,'No record found');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,'No record found');
     }
 
     public function create(Request $request)
@@ -64,7 +64,7 @@ class CustomerController extends Controller
             'account_no' => 'nullable|string|max:255'
         ],$messages);
         if ($validator->fails()) {
-            return $this->service->serviceResponse('error', 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
         }
 
         $customer = new Customer();
@@ -77,11 +77,11 @@ class CustomerController extends Controller
 
         if($customer->save())
         {
-            return $this->service->serviceResponse('success',200,$this->service::SUCCESS_MESSAGE);
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,$this->service::SUCCESS_MESSAGE);
 
         }
 
-        return $this->service->serviceResponse('error',400,$this->service::FAILED_MESSAGE);
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,$this->service::FAILED_MESSAGE);
     }
 
     public function edit(Request $request)
@@ -100,7 +100,7 @@ class CustomerController extends Controller
             'account_no' => 'nullable|string|max:255'
         ],$messages);
         if ($validator->fails()) {
-            return $this->service->serviceResponse('error', 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
         }
 
         $customer = Customer::find( $request->customer_id );
@@ -115,10 +115,10 @@ class CustomerController extends Controller
 
             if($customer->save())
             {
-                return $this->service->serviceResponse('success',200,$this->service::SUCCESS_MESSAGE);
+                return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,$this->service::SUCCESS_MESSAGE);
             }
         }
-         return $this->service->serviceResponse('error',400,$this->service::FAILED_MESSAGE);
+         return $this->service->serviceResponse($this->service::FAILED_FLAG,400,$this->service::FAILED_MESSAGE);
 
     }
 
@@ -137,9 +137,9 @@ class CustomerController extends Controller
         try {
             $companyId = $request->input('company_id');
             Excel::import(new CustomersImport($companyId), $request->file('file'));
-            return $this->service->serviceResponse('success',200,$this->service::SUCCESS_MESSAGE);
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,$this->service::SUCCESS_MESSAGE);
         } catch (\Exception $e) {
-            return $this->service->serviceResponse('error',400,$this->service::FAILED_MESSAGE);
+            return $this->service->serviceResponse($this->service::FAILED_FLAG,400,$this->service::FAILED_MESSAGE);
         }
 
     }

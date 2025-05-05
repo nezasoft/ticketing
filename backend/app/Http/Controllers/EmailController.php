@@ -22,7 +22,7 @@ class EmailController extends Controller
             'company_id' => 'required|integer|exists:companies,id',
         ]);
         if ($validator->fails()) {
-            return $this->service->serviceResponse('error', 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
         }
 
         $emails = Email::with(['department','priority'])->where('company_id',$request->company_id)->get();
@@ -47,9 +47,9 @@ class EmailController extends Controller
                     ];
 
             }
-            return $this->service->serviceResponse('success', 200,'Success', $records);
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200,'Success', $records);
         }
-        return $this->service->serviceResponse('error', 400,'No records found');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG, 400,'No records found');
 
     }
 
@@ -72,7 +72,7 @@ class EmailController extends Controller
 
         if ($validator->fails())
         {
-            return $this->service->serviceResponse('error',400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $validator->errors());
         }
 
         $email = Email::find($request->email_id);
@@ -92,12 +92,12 @@ class EmailController extends Controller
 
             if($email->save())
             {
-                return $this->service->serviceResponse('success',200,$this->service::SUCCESS_MESSAGE);
+                return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,$this->service::SUCCESS_MESSAGE);
 
             }
 
         }
-        return $this->service->serviceResponse('success',200,$this->service::FAILED_MESSAGE);
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,$this->service::FAILED_MESSAGE);
 
     }
 
@@ -119,7 +119,7 @@ class EmailController extends Controller
 
         if ($validator->fails())
         {
-            return $this->service->serviceResponse('error',400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $validator->errors());
         }
 
         $email = new Email();
@@ -137,8 +137,8 @@ class EmailController extends Controller
 
         if($email->save())
         {
-            return $this->service->serviceResponse('success',200, $this->service::SUCCESS_MESSAGE);
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, $this->service::SUCCESS_MESSAGE);
         }
-        return $this->service->serviceResponse('error',400, $this->service::FAILED_MESSAGE);
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $this->service::FAILED_MESSAGE);
     }
 }
