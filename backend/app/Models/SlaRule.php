@@ -9,22 +9,14 @@ class SlaRule extends Model
 {
     protected $table = 'sla_rules';
 
-    public $timestamps = false;
-
-    protected $fillable = [
-        'sla_policy_id',
-        'customer_type_id',
-        'priority_id',
-        'channel_id',
-    ];
 
     // Relationships
-    public function slaPolicy()
+    public function policy()
     {
         return $this->belongsTo(SlaPolicy::class, 'sla_policy_id');
     }
 
-    public function customerType()
+    public function type()
     {
         return $this->belongsTo(CustomerType::class, 'customer_type_id');
     }
@@ -37,5 +29,10 @@ class SlaRule extends Model
     public function channel()
     {
         return $this->belongsTo(Channel::class, 'channel_id');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class,'company_id');
     }
 }

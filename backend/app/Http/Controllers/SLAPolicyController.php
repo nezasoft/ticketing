@@ -46,8 +46,66 @@ class SLAPolicyController extends Controller
 
     public function create(Request $request)
     {
-        
+        $validator = Validator::make($request->all(), [
+            'name'=> 'required|string|max:255|unique:sla_policies,name',
+            'response_time'=> 'required|integer|min:1',
+            'resolve_time'=> 'required|integer|min:1',
+            'is_default'=>'required|integer|min:0',
+            'company_id'=> 'required|integer|exists:companies,id'
+
+        ]);
+
+        if ($validator->fails())
+        {
+            return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $validator->errors());
+        }
+         $sla_policy = new SlaPolicy;
+         $sla_policy->name = $request->input('name');
+         $sla_policy->response_time_min = $request->input('response_time');
+         $sla_policy->resolve_time_min = $request->input('resolve_time_min');
+         $sla_policy->is_default = $request->input('is_default');
+         $sla_policy->company_id = $request->input('company_id');
+
+         if($sla_policy->save())
+         {
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, $this->service::SUCCESS_MESSAGE);
+         }
+
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $this->service::FAILED_MESSAGE);
+
     }
 
+    public function edit(Request $request)
+    {
+            $validator = Validator::make($request->all(), [
+            'name'=> 'required|string|max:255',
+            'response_time'=> 'required|integer|min:1',
+            'resolve_time'=> 'required|integer|min:1',
+            'is_default'=>'required|integer|min:0',
+            'company_id'=> 'required|integer|exists:companies,id',
+            'policy_id' => 'required|integer|exists:sla_policies,id'
+            ]);
+
+            if ($validator->fails())
+            {
+                return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $validator->errors());
+            }
+
+            $sla_policy = SLAPolicy::find($request->policy_id);
+            if($sla_policy)
+            {
+                $sla_policy->name = $request->name;
+                $sla_policy->response_time_min = $request->response_time;
+                $sla_policy->resolve_time_min = $request->resolve_time;
+                $sla_policy->is_default = $request->is_default;
+                $sla_policy->company_id = $request->company_id;
+                if($sla_policy->save())
+                {
+                    return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200, $this->service::SUCCESS_MESSAGE);
+                }
+            }
+            return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $this->service::FAILED_MESSAGE);
+
+    }
 
 }
