@@ -62,7 +62,7 @@ class SLARuleController extends Controller
         }
 
         $sla_rule = new SlaRule;
-        $sla_rule->company_id = $request->companyid;
+        $sla_rule->company_id = $request->company_id;
         $sla_rule->sla_policy_id = $request->sla_policy_id;
         $sla_rule->priority_id =$request->priority_id;
         $sla_rule->channel_id = $request->channel_id;

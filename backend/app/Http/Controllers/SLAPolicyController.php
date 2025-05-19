@@ -9,12 +9,9 @@ use Illuminate\Support\Facades\Validator;
 class SLAPolicyController extends Controller
 {
     protected $service;
-
-
     public function __construct(BackendService $backendService)
     {
         $this->service = $backendService;
-
     }
 
     public function index(Request $request)
@@ -31,6 +28,7 @@ class SLAPolicyController extends Controller
             foreach($records as $rec) {
                 $data[] = [
                     'id'=> $rec->id,
+                    'name' => $rec->name,
                     'response_time_min' => $rec->response_time_min,
                     'resolve_time_min'=> $rec->resolve_time_min,
                     'company_id'=> $rec->company_id,
@@ -41,7 +39,6 @@ class SLAPolicyController extends Controller
 
         }
         return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,$this->service::SUCCESS_MESSAGE, $data);
-
     }
 
     public function create(Request $request)
@@ -62,7 +59,7 @@ class SLAPolicyController extends Controller
          $sla_policy = new SlaPolicy;
          $sla_policy->name = $request->input('name');
          $sla_policy->response_time_min = $request->input('response_time');
-         $sla_policy->resolve_time_min = $request->input('resolve_time_min');
+         $sla_policy->resolve_time_min = $request->input('resolve_time');
          $sla_policy->is_default = $request->input('is_default');
          $sla_policy->company_id = $request->input('company_id');
 
@@ -105,6 +102,25 @@ class SLAPolicyController extends Controller
                 }
             }
             return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $this->service::FAILED_MESSAGE);
+
+    }
+
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->only('item_id'), [
+            'item_id' => 'required|integer|exists:policies,id',
+        ]);
+        if ($validator->fails()) {
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+        }
+
+        $policy = SLAPolicy::find($request->item_id);
+
+        if($policy->delete())
+        {
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Request processed successfuly');
+        }
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Failed processing this request. Please try again!');
 
     }
 

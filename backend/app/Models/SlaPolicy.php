@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SlaPolicy extends Model
 {
-    protected $table = 'sla_policy';
+    protected $table = 'sla_policies';
 
     protected $fillable = [
         'name',

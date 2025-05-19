@@ -66,6 +66,18 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/create', 'create')->name('notification.create');
         Route::post('/edit', 'edit')->name('notification.edit');
     });
+    Route::prefix('slapolicy')->controller(SLAPolicyController::class)->group(function () {
+        Route::post('/list', 'index')->name('slapolicy.list');
+        Route::post('/create', 'create')->name('slapolicy.create');
+        Route::post('/edit', 'edit')->name('slapolicy.edit');
+        Route::post('/delete', 'delete')->name('slapolicy.delete');
+    });
+    Route::prefix('slarule')->controller(SLARuleController::class)->group(function () {
+        Route::post('/list', 'index')->name('slarule.list');
+        Route::post('/create', 'create')->name('slarule.create');
+        Route::post('/edit', 'edit')->name('slarule.edit');
+        Route::post('/delete', 'delete')->name('slarule.delete');
+    });
 });
 
 
