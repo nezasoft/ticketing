@@ -7,6 +7,9 @@ use App\Models\ChannelContact;
 use App\Models\Customer;
 use App\Models\Department;
 use App\Models\Email;
+use App\Models\SlaEvent;
+use App\Models\SlaPolicy;
+use App\Models\SlaRule;
 use App\Models\Ticket;
 use App\Models\TicketReply;
 use App\Models\WhatsApp;
@@ -27,6 +30,18 @@ class ChannelManagerService
     const TICKET_STATUS_PENDING = 3;
     const TICKET_TYPE_CUSTOMER = 1;
     const TICKET_TYPE_GUEST = 2;
+
+    const SLA_EVENT_TYPE_TICKET_CREATED = 1;
+    const SLA_EVENT_TYPE_FIRST_RESPONSE_SENT = 2;
+    const SLA_EVENT_TYPE_TICKET_ASSIGNED = 3;
+    const SLA_EVENT_TYPE_TICKET_STATUS_CHANGED = 4;
+    const SLA_EVENT_TYPE_TICKET_CUSTOMER_RESPONSE = 5;
+    const SLA_EVENT_TYPE_TICKET_RESOLVED = 6;
+    const SLA_EVENT_TYPE_TICKET_SLA_BREACH = 7;
+    const SLA_EVENT_TYPE_TICKET_ESCALATION = 8;
+
+    const PREMIUM_CUSTOMER = 1;
+    const REGULAR_CUSTOMER = 2;
 
     public function saveChannelContact($channel_id,$company_id, $email='', $phone='')
     {
@@ -80,7 +95,7 @@ class ChannelManagerService
         $doc->increment('document_value');
     }
 
-    public function saveTicket($customer_id=0,$priority_id,$channel_id, $subject, $status_id, $description, $ticket_type, $company_id)
+    public function saveTicket($customer_id=0,$priority_id,$channel_id, $subject, $status_id, $description, $ticket_type, $company_id,$dept_id)
     {
 
         $ticket_no = $this->generateTicketNumber();
@@ -95,6 +110,7 @@ class ChannelManagerService
         $ticket->created_at = Carbon::now();
         $ticket->ticket_type_id = $ticket_type;
         $ticket->company_id = $company_id;
+        $ticket->dept_id = $dept_id;
         $ticket->save();
 
         if($ticket)
@@ -252,6 +268,45 @@ class ChannelManagerService
     public function sendConfirmationSMS($phone, $message)
     {
         return ;
+    }
+
+    public function SLADueDate($sla_id, $start_date, $event_type)
+    {
+        $sla_min = 0;
+        $sla_policy = SlaPolicy::find($sla_id);
+        if($sla_policy)
+        {
+            if($event_type==static::SLA_EVENT_TYPE_TICKET_CREATED)
+            {
+                $sla_min = (int)$sla_policy->response_time_min;
+            }elseif($event_type==static::SLA_EVENT_TYPE_TICKET_ASSIGNED)
+            {
+                $sla_min = (int)$sla_policy->resolve_time_min;
+            }           
+        }
+        $due_date = date('Y-m-d H:i:s', strtotime("+{$sla_min} minutes", strtotime($start_date)));
+        return $due_date;
+    }
+
+    public function logSLAEvent($ticket_id, $sla_id, $event_type, $ticket_status,$company_id)
+    {
+        //Lets trigger an SLA Event based on this customers profile
+        $sla_event = new SlaEvent; 
+        $sla_event->ticket_id = $ticket_id;
+        $sla_event->event_type_id = $event_type;
+        $sla_event->status_id = $ticket_status;
+        $sla_event->due_date = $this->SLADueDate($sla_id, Carbon::now(), $event_type);
+        $sla_event->company_id = $company_id;
+        $sla_event->sla_policy_id = $sla_id;
+        $sla_event->save();
+    }
+
+    public function findSLARule($priority_id, $channel, $customer_type): ?SlaRule
+    {
+
+        $sla_rule = SlaRule::with('policy')->where('priority_id',$priority_id)->where('channel_id',$channel)->where('customer_type_id',$customer_type)->first();
+       
+        return $sla_rule;
     }
 
 }

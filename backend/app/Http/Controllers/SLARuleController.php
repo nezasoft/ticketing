@@ -9,13 +9,10 @@ use Illuminate\Support\Facades\Validator;
 class SLARuleController extends Controller
 {
     protected $service;
-
     public function __construct(BackendService $service)
     {
         $this->service = $service;
-
     }
-
     public function index(Request $request)
     {
         $validator = Validator::make($request->only('company_id'), [
@@ -29,20 +26,7 @@ class SLARuleController extends Controller
             $query->where('id', $request->company_id);
             })->get();
 
-        if(count($records) > 0) {
-            foreach ($records as $record) {
-                $data[] = [
-                    'id'=> $record->id,
-                    'sla_policy' => $record->policy->name,
-                    'customer_type'=> $record->type->name,
-                    'priority'=> $record->priority->name,
-                    'channel'=> $record->channel->name,
-                ];
-            }
-        }
-
         return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200, $this->service::SUCCESS_MESSAGE, $data);
-
     }
 
     public function create(Request $request)
@@ -55,7 +39,6 @@ class SLARuleController extends Controller
             'company_id'=> 'required|integer|exists:companies,id'
 
         ]);
-
         if ($validator->fails())
         {
             return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $validator->errors());
@@ -86,16 +69,12 @@ class SLARuleController extends Controller
             'channel_id'=> 'required|integer|exists:channels,id',
             'company_id'=> 'required|integer|exists:companies,id',
             'rule_id'=> 'required|integer|exists:sla_rules,id'
-
         ]);
-
         if ($validator->fails())
         {
             return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $validator->errors());
         }
-
         $sla_rule = SLARule::find($request->rule_id);
-
         if($sla_rule)
         {
             $sla_rule->priority_id =$request->priority_id;
@@ -104,14 +83,11 @@ class SLARuleController extends Controller
             $sla_rule->priority_id = $request->priority_id;
             $sla_rule->channel_id = $request->channel_id;
             $sla_rule->company_id = $request->company_id;
-
             if($sla_rule->save())
             {
                 return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, $this->service::SUCCESS_MESSAGE);
             }
         }
-
         return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $this->service::FAILED_MESSAGE);
-
     }
 }

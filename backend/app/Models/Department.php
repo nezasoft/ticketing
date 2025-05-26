@@ -7,7 +7,7 @@ class Department extends Model
 {
     protected $table = 'departments';
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     protected $fillable = ['name'];
 
@@ -21,6 +21,4 @@ class Department extends Model
     {
         return $this->hasMany(Email::class,'dept_id');
     }
-
-
 }

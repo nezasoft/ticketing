@@ -48,18 +48,23 @@ class Ticket extends Model
         return $this->hasMany(Attachment::class, 'ticket_id');
     }
 
-    public function slaEvents()
+    public function events()
     {
         return $this->hasMany(SlaEvent::class, 'ticket_id');
     }
 
-    public function ticketAssignments()
+    public function assignments()
     {
         return $this->hasMany(TicketAssignment::class, 'ticket_id');
     }
 
-    public function ticketReplies()
+    public function replies()
     {
         return $this->hasMany(TicketReply::class, 'ticket_id');
+    }
+
+    public function dept()
+    {
+        return $this->belongsTo(Department::class,'dept_id');
     }
 }

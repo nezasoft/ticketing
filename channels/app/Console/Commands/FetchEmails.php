@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Webklex\IMAP\ClientManager;
 use App\Models\Email;
 use App\Jobs\ProcessEmailMessage;
+use Webklex\IMAP\Facades\Client;
 
 class FetchEmails extends Command
 {
@@ -14,9 +14,8 @@ class FetchEmails extends Command
 
     public function handle()
     {
-        // Retrieve all email settings from the database.
-        $emailAccounts = Email::all();
-
+        // Retrieve all email settings from the database for active email accounts
+        $emailAccounts = Email::where('active',1)->get();
         if ($emailAccounts->isEmpty()) {
             $this->info('No email settings found.');
             return;
@@ -35,71 +34,48 @@ class FetchEmails extends Command
                 'protocol'      => $setting->fetching_protocol
                 //'protocol'      => 'imap' // or 'pop3'
             ];
-
-            // Create a new ClientManager instance and create an account on the fly.
-            $clientManager = new ClientManager();
-            // Using a dynamic account key; here we use the account name.
-            $accountKey = $setting->email_name;
-            // Add the configuration dynamically.
-            $client = $clientManager->make([
-                $accountKey => $config,
-            ]);
-
+        
             try {
-                // Connect to the IMAP server for this account.
-                $client->getAccount($accountKey)->connect();
 
-                // Get all folders of this account.
-                $folders = $client->getAccount($accountKey)->getFolders();
+                $client = Client::make($config);
+                $client->connect();
+                $folders = $client->getFolders();
                 foreach ($folders as $folder) {
-                    // Optionally, you may want to filter folders (e.g., only INBOX or similar).
                     if ($folder->name !== $setting->default_folder) {
                         continue;
                     }
-                    // Retrieve unseen emails.
+
                     $messages = $folder->query()->unseen()->get();
                     foreach ($messages as $message) {
-                        // Extract email data.
                         $sender = $message->getFrom()[0]->mail;
                         $subject = $message->getSubject();
                         $body = $message->getTextBody();
-                        // Extract recipient details.
-                        $to_recipients = $message->getTo(); // Array of "To" recipients.
-                        $cc_recipients = $message->getCc(); // Array of "Cc" recipients.
-                        $bcc_recipients = $message->getBcc(); // Array of "Bcc" recipients.
-
-                        //Create arrays of emails.
-                        $to_emails  = array_map(fn($recipient) => $recipient->mail, $to_recipients);
-                        $cc_emails  = array_map(fn($recipient) => $recipient->mail, $cc_recipients);
-                        $bcc_emails = array_map(fn($recipient) => $recipient->mail, $bcc_recipients);
-
-                        // Optionally add more metadata like folder name or account info.
+                        $to_emails  = array_map(fn($r) => $r->mail, $message->getTo());
+                        $cc_emails  = array_map(fn($r) => $r->mail, $message->getCc());
+                        $bcc_emails = array_map(fn($r) => $r->mail, $message->getBcc());
                         $payload = [
-                            'sender'        => $sender,
-                            'subject'       => $subject,
-                            'body'          => $body,
-                            'account_name'  => $accountKey,
+                            'sender' => $sender,
+                            'to' => $to_emails,
+                            'cc' => $cc_emails,
+                            'bcc' => $bcc_emails,
+                            'subject' => $subject,
+                            'body' => $body,
+                            'account_name' => $setting->email_name,
                         ];
-                        $payload = [
-                            'sender'        => $sender,
-                            'to'            => $to_emails,
-                            'cc'            => $cc_emails,
-                            'bcc'           => $bcc_emails,
-                            'subject'       => $subject,
-                            'body'          => $body,
-                            'account_name'  => $accountKey,
-                        ];
+                        ProcessEmailMessage::dispatch(
+                            $payload['sender'],
+                            $payload['subject'],
+                            $payload['body'],
+                            $payload['to']
+                        );
 
-                        // Dispatch a job to process the email.
-                        ProcessEmailMessage::dispatch($payload['sender'], $payload['subject'], $payload['body'],$payload['to']);
-                        // Mark the email as seen.
                         $message->setFlag('Seen');
                     }
                 }
 
-                $this->info("Emails fetched and queued successfully for account: {$accountKey}");
+                $this->info("Emails fetched and queued for account: {$setting->email_name}");
             } catch (\Exception $e) {
-                $this->error("Error processing account: {$accountKey}. Error: " . $e->getMessage());
+                $this->error("Error for account {$setting->email_name}: " . $e->getMessage());
             }
         }
     }

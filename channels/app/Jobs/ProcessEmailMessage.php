@@ -49,7 +49,7 @@ class ProcessEmailMessage implements ShouldQueue
     {
 
         //Send Request to Channel Manager Endpoint
-        $endpoint = config('services.channel_manager.email_endpoint', 'http://localhost:8000/api/channels/email');
+        $endpoint = config('services.channel_manager.email_endpoint', 'http://localhost:8080/api/channels/email');
         $payload = [
             'sender'  => $this->sender,
             'recipient'  => $this->to,

@@ -78,6 +78,12 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/edit', 'edit')->name('slarule.edit');
         Route::post('/delete', 'delete')->name('slarule.delete');
     });
+     Route::prefix('tickets')->controller(TicketController::class)->group(function () {
+        Route::post('/list', 'index')->name('tickets.list');
+        Route::post('/create', 'create')->name('tickets.create');
+        Route::post('/edit', 'edit')->name('tickets.edit');
+        Route::post('/delete', 'delete')->name('tickets.delete');
+    });
 });
 
 
