@@ -18,11 +18,11 @@ class ChannelManagerController extends Controller
 {
     protected $channel;
     protected $notify;
- 
+
     public function __construct(ChannelManagerService $channel_service, NotificationService $notify_service)
     {
         $this->channel = $channel_service;
-        $this->notify = $notify_service;    
+        $this->notify = $notify_service;
     }
 
     /**
@@ -108,8 +108,8 @@ class ChannelManagerController extends Controller
                     $ticket_type = $this->channel::TICKET_TYPE_CUSTOMER;
                     $customer_id = $customer->id;
                     $customer_name = $customer->name;
-                    $customer_type = $this->channel::PREMIUM_CUSTOMER;        
-                    
+                    $customer_type = $this->channel::PREMIUM_CUSTOMER;
+
                 }
                 //Save Ticket
                 $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::EMAIL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description, $ticket_type, $company_id,$dept_id);
@@ -124,7 +124,7 @@ class ChannelManagerController extends Controller
                         //Lets trigger an SLA Event based on this customers profile
                         $this->channel->logSLAEvent($ticket->id, $sla_id, $this->channel::SLA_EVENT_TYPE_TICKET_CREATED, $this->channel::SLA_EVENT_TYPE_TICKET_CREATED,$company_id);
                     }
-                     
+
                     foreach($recipient as $to_email)
                     {
                         //Send Notifications to users who belong to the department with this email address
@@ -144,7 +144,7 @@ class ChannelManagerController extends Controller
                 }
 
         }else{ //Update existing thread
-          
+
             //save thread
             $thread = $this->channel->saveThread($ticket->id, $description, $user_id);
             if($thread)
@@ -154,7 +154,7 @@ class ChannelManagerController extends Controller
                     //Make sure this is the initial response
                     if($ticket->first_response_at==null)
                     {
-                        //trigger sla event 
+                        //trigger sla event
                         $ticket->customer_id == 0  ? $customer_type = $this->channel::REGULAR_CUSTOMER : $customer_type = $this->channel::PREMIUM_CUSTOMER;
                         //Get the appropriate  sla policy based on these basic parameters
                         $sla_rule = $this->channel->findSLARule($ticket->priority_id, $this->channel::EMAIL_CHANNEL, $customer_type);
@@ -167,7 +167,7 @@ class ChannelManagerController extends Controller
                         }
 
                     }
-                    
+
                 $users = $this->notify->getDepartmentUsers($email);
                 //send notification to user
                 $this->notify->saveNotifications($users, $this->notify::NEW_REPLY);
@@ -188,20 +188,20 @@ class ChannelManagerController extends Controller
                         $ticket->status_id = $this->channel::TICKET_STATUS_PENDING;
                         $ticket->save();
                     }
-                    
-              
+
+
                     //Send email response to the customer  / client
                     $message = '<p>Dear '.$customer_name.',  '.$description.' </p><p>Kind Regards,</p><p>'.ucwords(strtolower($support_name)).' Team</p>';
                     foreach($recipient as $to_email)
                     {
-                        $this->sendConfirmationEmail($to_email,$ticket->subject,$message);                        
+                        $this->sendConfirmationEmail($to_email,$ticket->subject,$message);
                     }
 
                 }else{
                     return $this->channel->serviceResponse('error',400,'Ticket not found!');
 
-                }              
-                        
+                }
+
             }
 
         }
@@ -211,7 +211,7 @@ class ChannelManagerController extends Controller
         {
             DB::rollback();
             return $this->channel->serviceResponse('error',400,$e->getMessage());
-          
+
         }
 
 
@@ -247,20 +247,20 @@ class ChannelManagerController extends Controller
             }
             if(!$user)
             {
-       
+
                 return  $this->channel->serviceResponse('error',400,'Request from invalid user');
             }
 
             $list_users = [];
             $department_users = $this->channel->getDepartmentUsersByDepartmentId($department_id);
-            
+
             if($department_users){
                 $list_users = $department_users->authUsers;
-            }       
+            }
 
             DB::beginTransaction();
             try{
-                $ticket = $this->channel->confirmTicket($subject);               
+                $ticket = $this->channel->confirmTicket($subject);
                 if($ticket=== false)//This an entirely new thread so create a new ticket
                 {
                         $ticket_type = $this->channel::TICKET_TYPE_GUEST;
@@ -280,14 +280,14 @@ class ChannelManagerController extends Controller
                             $customer_name = $customer->name;
                             $customer_type = $this->channel::PREMIUM_CUSTOMER;
                         }
-                        
+
                         //Save Ticket
                         $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::PORTAL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description, $ticket_type, $company_id,$department_id);
                         if($ticket)
                         {
                              //Get the appropriate  sla policy based on these basic parameters
                             $sla_rule = $this->channel->findSLARule($priority_id, $this->channel::PORTAL_CHANNEL, $customer_type);
-    
+
                             //Trigger sla events only if the sla rules and policies have been configured by the entity
                             if($sla_rule)
                             {
@@ -296,7 +296,7 @@ class ChannelManagerController extends Controller
                                 $this->channel->logSLAEvent($ticket->id, $sla_id, $this->channel::SLA_EVENT_TYPE_TICKET_CREATED, $this->channel::SLA_EVENT_TYPE_TICKET_CREATED,$company_id);
                             }
                             foreach($list_users as $user)
-                            {                       
+                            {
                                 //Send Notification
                                 $this->notify->saveNotifications($user,$this->notify::NEW_TICKET);
                                 //Send Email to team
@@ -312,7 +312,7 @@ class ChannelManagerController extends Controller
                         }
 
                 }else{ //Update existing thread
-                    $support_name = $department_users->name;             
+                    $support_name = $department_users->name;
                     //save thread
                     $thread = $this->channel->saveThread($ticket->id, $description, $user_id);
                     if($thread)
@@ -322,7 +322,7 @@ class ChannelManagerController extends Controller
                         //Make sure this is the initial response
                         if($ticket->first_response_at==null)
                         {
-                            //trigger sla event 
+                            //trigger sla event
                             $ticket->customer_id == 0  ? $customer_type = $this->channel::REGULAR_CUSTOMER : $customer_type = $this->channel::PREMIUM_CUSTOMER;
                             //Get the appropriate  sla policy based on these basic parameters
                             $sla_rule = $this->channel->findSLARule($ticket->priority_id, $this->channel::PORTAL_CHANNEL, $customer_type);
@@ -359,7 +359,7 @@ class ChannelManagerController extends Controller
                             $message = '<p>Dear '.$customer_name.',  '.$description.' </p><p>Kind Regards,</p><p>'.ucwords(strtolower($support_name)).' Team</p>';
 
                             if(!empty($email)){
-                                $this->sendConfirmationEmail($email,$ticket->subject,$message); 
+                                $this->sendConfirmationEmail($email,$ticket->subject,$message);
                             }
 
                             if(!empty($phone)){
@@ -367,14 +367,16 @@ class ChannelManagerController extends Controller
                                 //$this->channel->sendConfirmationSMS($phone,$message);
                                 //alternatively send whatsapp message
                                 /*uncomment once the system goes live */
-                                //$this->sendWhatsAppMessage($company_id, $phone, $message);
+                                if (env('APP_ENV') === 'production') {
+                                        $this->sendWhatsAppMessage($company_id, 'whatsapp:+'.$phone, $message);
+                                }
 
                             }
 
                         }else{
                             return $this->channel->serviceResponse('error',400,'Ticket not found');
-                        }                     
-                                                                                                  
+                        }
+
                 }
 
                 }
@@ -422,7 +424,7 @@ class ChannelManagerController extends Controller
      */
     public function receiveWhatsApp(Request $request)
     {
-        
+
 
         $validator = Validator::make($request->all(), [
             'From'=> 'required|string|max:255',
@@ -431,7 +433,7 @@ class ChannelManagerController extends Controller
             'ProfileName'=> 'required|string|max:255',
             'WaId'=> 'required|string|max:255',
             'MessageType'=> 'required|string|max:255',
-        
+
         ]);
 
         if ($validator->fails()) {
@@ -475,9 +477,9 @@ class ChannelManagerController extends Controller
                 $list_users = $department_users->authUsers;
         }
 
-        
+
         DB::beginTransaction();
-        try 
+        try
         {
             $ticket = $this->channel->confirmTicket($message);
             $support_name = $company->company->name;
@@ -526,15 +528,15 @@ class ChannelManagerController extends Controller
 
                             foreach($list_users as $user)
                             {
-                        
+
                                 //Send Notification
-                            $this->notify->saveNotifications($user,$this->notify::NEW_TICKET);   
+                            $this->notify->saveNotifications($user,$this->notify::NEW_TICKET);
                                 //Send Email to team
                                 $this->sendConfirmationEmail($user->email,$ticket->subject,$message);
                             }
                             //send feedback to sender
                             $message = 'Dear '.$customer_name.',  we have received your request. Our team will reach out to you in regards to the subject matter.
-                            Please use this ticket no to track the status of your ticket. 
+                            Please use this ticket no to track the status of your ticket.
                             Ticket No: '.$ticket->ticket_no.'
                             Kind Regards,
                             '.ucwords(strtolower($support_name));
@@ -552,7 +554,7 @@ class ChannelManagerController extends Controller
         {
             DB::rollback();
             return $this->channel->serviceResponse('error',400,$e->getMessage());
-          
+
         }
 
     }
