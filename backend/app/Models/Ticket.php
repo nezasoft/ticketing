@@ -67,4 +67,11 @@ class Ticket extends Model
     {
         return $this->belongsTo(Department::class,'dept_id');
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class,'customer_id');
+
+
+    }
 }

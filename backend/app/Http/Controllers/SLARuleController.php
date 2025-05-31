@@ -25,6 +25,21 @@ class SLARuleController extends Controller
         $records = SlaRule::with(['policy','type','priority','channel'])->whereHas('company', function ($query) use ($request) {
             $query->where('id', $request->company_id);
             })->get();
+        if(!empty($records))
+        {
+            foreach($records as $record)
+            {
+                $data[] = [
+                    'id' => $record->id,
+                    'policy' => $record->policy->name ?? '',
+                    'customer_type' => $record->type->name,
+                    'priority' => $record->priority->name ?? '',
+                    'channel' => $record->channel->name ?? '',
+                    'response_time' => $record->policy->response_time_min ?? '',
+                    'resolve_time' => $record->policy->resolve_time_min
+                ];
+            }
+        }
 
         return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200, $this->service::SUCCESS_MESSAGE, $data);
     }

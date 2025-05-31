@@ -22,7 +22,7 @@ class SlaEvent extends Model
         return $this->belongsTo(Ticket::class, 'ticket_id');
     }
 
-    public function eventType()
+    public function type()
     {
         return $this->belongsTo(EventType::class, 'event_type_id');
     }
