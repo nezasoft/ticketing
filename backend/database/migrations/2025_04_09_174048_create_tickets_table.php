@@ -16,6 +16,8 @@ class CreateTicketsTable extends Migration
             $table->unsignedInteger('priority_id');
             $table->unsignedInteger('channel_id');
             $table->string('subject',200)->nullable();
+            $table->string('phone',20)->nullable();
+            $table->string('email',20)->nullable();
             $table->unsignedInteger('status_id');
             $table->mediumText('description')->nullable();
             $table->dateTime('first_response_at')->nullable();

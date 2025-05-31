@@ -83,7 +83,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/show', 'show')->name('tickets.show');
         Route::post('/create', 'create')->name('tickets.create');
         Route::post('/edit', 'edit')->name('tickets.edit');
-        Route::post('/delete', 'delete')->name('tickets.delete');
+        Route::post('/reply', 'reply')->name('tickets.reply');
     });
 });
 

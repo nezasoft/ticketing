@@ -19,8 +19,6 @@ class AuthController extends Controller
     public function __construct(BackendService $apiservice)
     {
         $this->apiService = $apiservice;
-
-
     }
 
 

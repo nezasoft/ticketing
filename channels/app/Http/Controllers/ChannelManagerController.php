@@ -56,6 +56,7 @@ class ChannelManagerController extends Controller
         $subject = $request->input('subject');
         $description    = $request->input('body') ?? $request->input('body-html');
         $user_id = $request->input('user_id');
+        $phone = '';
         if(empty($user_id))
         {
             $user_id = 0;
@@ -112,7 +113,7 @@ class ChannelManagerController extends Controller
 
                 }
                 //Save Ticket
-                $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::EMAIL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description, $ticket_type, $company_id,$dept_id);
+                $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::EMAIL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description, $ticket_type, $company_id,$dept_id,$phone,$email);
                 if($ticket)
                 {
                     //Get the appropriate  sla policy based on these basic parameters
@@ -282,7 +283,7 @@ class ChannelManagerController extends Controller
                         }
 
                         //Save Ticket
-                        $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::PORTAL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description, $ticket_type, $company_id,$department_id);
+                        $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::PORTAL_CHANNEL, $subject, $this->channel::TICKET_STATUS_NEW, $description, $ticket_type, $company_id,$department_id,$phone, $email);
                         if($ticket)
                         {
                              //Get the appropriate  sla policy based on these basic parameters
@@ -513,7 +514,7 @@ class ChannelManagerController extends Controller
                     $customer_type = $this->channel::PREMIUM_CUSTOMER;
                 }
                 //Save Ticket
-                $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::WHATSAPP_CHANNEL, $message, $this->channel::TICKET_STATUS_NEW, $message, $ticket_type, $company_id,$department_id);
+                $ticket = $this->channel->saveTicket($customer_id,$priority_id,$this->channel::WHATSAPP_CHANNEL, $message, $this->channel::TICKET_STATUS_NEW, $message, $ticket_type, $company_id,$department_id,$from, $email);
                 if($ticket)
                 {
                             //Get the appropriate  sla policy based on these basic parameters

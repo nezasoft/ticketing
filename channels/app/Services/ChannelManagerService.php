@@ -95,7 +95,7 @@ class ChannelManagerService
         $doc->increment('document_value');
     }
 
-    public function saveTicket($customer_id=0,$priority_id,$channel_id, $subject, $status_id, $description, $ticket_type, $company_id,$dept_id)
+    public function saveTicket($customer_id=0,$priority_id,$channel_id, $subject, $status_id, $description, $ticket_type, $company_id,$dept_id,$phone='',$email='')
     {
 
         $ticket_no = $this->generateTicketNumber();
@@ -111,6 +111,8 @@ class ChannelManagerService
         $ticket->ticket_type_id = $ticket_type;
         $ticket->company_id = $company_id;
         $ticket->dept_id = $dept_id;
+        $ticket->phone = $phone;
+        $ticket->email = $email;
         $ticket->save();
 
         if($ticket)
@@ -223,7 +225,7 @@ class ChannelManagerService
             {
                 return $department;
             }
-            
+
             return false;
         }
         return false;
@@ -246,14 +248,14 @@ class ChannelManagerService
                 $query->where('email', $email);
             })
             ->first();
-    
+
         if ($department) {
             return $department;
         }
-    
+
         return false;
     }
-    
+
     //This method is used to validate WhatsApp Business IDs
     public function validateWhatsAppBusiness($phone_no_id)
     {
@@ -282,7 +284,7 @@ class ChannelManagerService
             }elseif($event_type==static::SLA_EVENT_TYPE_TICKET_ASSIGNED)
             {
                 $sla_min = (int)$sla_policy->resolve_time_min;
-            }           
+            }
         }
         $due_date = date('Y-m-d H:i:s', strtotime("+{$sla_min} minutes", strtotime($start_date)));
         return $due_date;
@@ -291,7 +293,7 @@ class ChannelManagerService
     public function logSLAEvent($ticket_id, $sla_id, $event_type, $ticket_status,$company_id)
     {
         //Lets trigger an SLA Event based on this customers profile
-        $sla_event = new SlaEvent; 
+        $sla_event = new SlaEvent;
         $sla_event->ticket_id = $ticket_id;
         $sla_event->event_type_id = $event_type;
         $sla_event->status_id = $ticket_status;
@@ -305,7 +307,7 @@ class ChannelManagerService
     {
 
         $sla_rule = SlaRule::with('policy')->where('priority_id',$priority_id)->where('channel_id',$channel)->where('customer_type_id',$customer_type)->first();
-       
+
         return $sla_rule;
     }
 

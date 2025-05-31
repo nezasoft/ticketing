@@ -6,6 +6,7 @@ use App\Models\Attachment;
 use App\Models\AuthUser;
 use App\Models\Company;
 use App\Models\SlaEvent;
+use App\Models\Department;
 use App\Models\Ticket;
 use App\Models\TicketAssignment;
 use App\Models\TicketReply;
@@ -47,6 +48,8 @@ class TicketController extends Controller
                 $data[] = [
                 'id' => $record->id,
                 'ticket_no' => $record->ticket_no,
+                'email' => $record->email ?? '',
+                'phone' => $record->phone ?? '',
                 'subject' => $record->subject,
                 'description' => $record->description,
                 'first_response' => Carbon::parse($record->first_response_at)->format('d M Y h:i:s a'),
@@ -158,6 +161,8 @@ class TicketController extends Controller
             $data[] = [
                     'id' => $record->id,
                     'ticket_no' => $record->ticket_no,
+                    'phone' => $record->phone ?? '',
+                    'email' => $record->email ?? '',
                     'subject' => $record->subject,
                     'description' => $record->description,
                     'first_response' => Carbon::parse($record->first_response_at)->format('d M Y h:i:s a'),
@@ -192,7 +197,7 @@ class TicketController extends Controller
                 'required',
                 'regex:/^\+\d{10,15}$/'
             ],
-            'email'=> 'nullable|email|max:100',
+            'email'=> 'nullable|email|max:500',
             'description'=> 'required|string|min:10|max:65535',
         ], [
             'phone.regex' => 'Phone number must include the country code and start with a + sign.',
@@ -215,6 +220,8 @@ class TicketController extends Controller
 
         $user = AuthUser::find($user_id);
         $company = Company::find($company_id);
+        $dept= Department::find($dept_id);
+
         $list_users = [];
         $department_users = $this->ticket_service->getDepartmentUsersByDepartmentId($dept_id);
 
@@ -224,30 +231,26 @@ class TicketController extends Controller
         DB::beginTransaction();
         try
         {
-            $ticket = $this->ticket_service->confirmTicket($subject);
-            if($ticket=== false)//This an entirely new thread so create a new ticket
-                {
+
                         $ticket_type = $this->ticket_service::TICKET_TYPE_GUEST;
                         $this->ticket_service->saveChannelContact($this->ticket_service::PORTAL_CHANNEL,$company_id ,$email, $phone);
                         //Lets start by saving the channel Contact Information
                         $customer_type = $this->ticket_service::REGULAR_CUSTOMER;
                         //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
                         $customer = $this->ticket_service->identifyCustomer($phone);
-                        $customer_name = " Esteemed Client";
+                        $customer_name = "Esteemed Client";
                         if($customer)
                         {
                             $customer_id = $customer->id;
                             $customer_name = $customer->name;
                             $customer_type = $this->ticket_service::PREMIUM_CUSTOMER;
                         }
-
                         //Save Ticket
-                        $ticket = $this->ticket_service->saveTicket($customer_id,$priority_id,$this->ticket_service::PORTAL_CHANNEL, $subject, $this->ticket_service::TICKET_STATUS_NEW, $description, $ticket_type, $company_id,$dept_id);
+                        $ticket = $this->ticket_service->saveTicket($customer_id,$priority_id,$this->ticket_service::PORTAL_CHANNEL, $subject, $this->ticket_service::TICKET_STATUS_NEW, $description, $ticket_type, $company_id,$dept_id, $phone, $email);
                         if($ticket)
                         {
                              //Get the appropriate  sla policy based on these basic parameters
                             $sla_rule = $this->ticket_service->findSLARule($priority_id, $this->ticket_service::PORTAL_CHANNEL, $customer_type);
-
                             //Trigger sla events only if the sla rules and policies have been configured by the entity
                             if($sla_rule)
                             {
@@ -262,19 +265,160 @@ class TicketController extends Controller
                                 //Send Email to team
                                 $this->sendConfirmationEmail($user->email,$ticket->subject,$description);
                             }
-                            //send feedback to sender
-                            $message = '<p>Dear '.$customer_name.',  we have received your request. Our team will reach out to you in regards to the subject matter.
-                            Please use this ticket no to track the status of your ticket. </p>
-                            <p> Ticket No: <strong>'.$ticket->ticket_no.'<strong></p>
-                            <p>Kind Regards,</p>
-                            <p>'.ucwords(strtolower($department_users->name)).'</p>';
-                            $this->sendConfirmationEmail($email,$ticket->subject,$message);
+                            if(!empty($email))
+                            {
+                                //send feedback to sender
+                                $data = ["ticket_no"=>$ticket->ticket_no,"name"=>$customer_name,"department"=>$dept->name];
+                                $template = "create-ticket";
+                                $this->service->sendEmail($email,$template, $data);
+                            }
                         }
+                 DB::commit();
+                 return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200,'Ticket raised successfully' );
 
-                }else{ //Update existing thread
+        }catch(\Exception $e){
+            DB::rollback();
+        }
+    }
+
+    public function edit(Request $request)
+    {
+         $validator = Validator::make($request->all(), [
+            'ticket_id' => 'required|integer|exists:tickets,id',
+            'user_id'=> 'required|integer|exists:auth_users,id',
+            'status_id'=> 'required|integer|exists:statuses,id',
+            'customer_id'=> 'required|integer',
+            'dept_id'=> 'required|integer|exists:departments,id',
+            'priority_id'=> 'required|integer|exists:priorities,id',
+            'ticket_type_id'=> 'required|integer|exists:ticket_types,id',
+            'phone' => [
+                'required',
+                'regex:/^\+\d{10,15}$/'
+            ],
+            'email'=> 'nullable|email|max:50',
+        ], [
+            'phone.regex' => 'Phone number must include the country code and start with a + sign.',
+        ]);
+        if($validator->fails())
+        {
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+        }
+        //Get ticket details
+        $ticket = Ticket::find($request->ticket_id);
+        if($ticket)
+        {
+            $ticket->customer_id = $request->customer_id;
+            $ticket->dept_id = $request->dept_id;
+            $ticket->priority_id = $request->priority_id;
+            $ticket->ticket_type_id = $request->ticket_type_id;
+            $ticket->status_id = $request->status_id;
+            $ticket->updated_at = Carbon::now();
+
+            if($ticket->save())
+            {
+                $dept = Department::find($request->dept_id);
+                $list_users = [];
+                $department_users = $this->ticket_service->getDepartmentUsersByDepartmentId($request->dept_id);
+
+                if($department_users){
+                    $list_users = $department_users->authUsers;
+                }
+                //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
+                $customer = $this->ticket_service->identifyCustomer($request->phone);
+                $customer_name = "Esteemed Client";
+                if($customer)
+                {
+                    $customer_id = $customer->id;
+                    $customer_name = $customer->name;
+                    $customer_type = $this->ticket_service::PREMIUM_CUSTOMER;
+                }
+                //If the ticket is closed then we need to trigger the appropriate SLA Event and send customer email notification
+                if($ticket->status_id==$this->ticket_service::SLA_EVENT_TYPE_TICKET_CLOSED)
+                {
+                            //Get the appropriate  sla policy based on these basic parameters
+                            $sla_rule = $this->ticket_service->findSLARule($ticket->priority_id, $this->ticket_service::PORTAL_CHANNEL, $customer_type);
+                            //Trigger sla events only if the sla rules and policies have been configured by the entity
+                            if($sla_rule)
+                            {
+                                $sla_id = $sla_rule->policy->id;
+                                //Lets trigger an SLA Event based on this customers profile
+                                $this->ticket_service->logSLAEvent($ticket->id, $sla_id, $this->ticket_service::SLA_EVENT_TYPE_TICKET_CLOSED, $request->status_id,$ticket->company_id);
+                            }
+                            foreach($list_users as $user)
+                            {
+                                $description = 'Ticket  <strong>'.$ticket->ticket_no.'-'.$ticket->subject.'</strong> has been closed ';
+                                //Send Notification
+                                $this->ticket_service->saveNotifications($user,$this->ticket_service::TICKET_CLOSED);
+                                //Send Email to team
+                                $this->sendConfirmationEmail($user->email,$ticket->subject,$description);
+                            }
+                            if(!empty($email))
+                            {
+                                //send feedback to sender
+                                $data = ["ticket_no"=>$ticket->ticket_no,"agent_sign"=>$dept->name,"content"=>$description];
+                                $template = "ticket-reply";
+                                $this->service->sendEmail($request->email,$template, $data);
+                            }
+                }elseif($ticket->status_id==$this->ticket_service::SLA_EVENT_TYPE_TICKET_RESOLVED)
+                {
+                            //Get the appropriate  sla policy based on these basic parameters
+                            $sla_rule = $this->ticket_service->findSLARule($ticket->priority_id, $this->ticket_service::PORTAL_CHANNEL, $customer_type);
+                            //Trigger sla events only if the sla rules and policies have been configured by the entity
+                            if($sla_rule)
+                            {
+                                $sla_id = $sla_rule->policy->id;
+                                //Lets trigger an SLA Event based on this customers profile
+                                $this->ticket_service->logSLAEvent($ticket->id, $sla_id, $this->ticket_service::SLA_EVENT_TYPE_TICKET_RESOLVED, $request->status_id,$ticket->company_id);
+                            }
+                            foreach($list_users as $user)
+                            {
+                                $description = 'Ticket  <strong>'.$ticket->ticket_no.'-'.$ticket->subject.'</strong> has been resolved ';
+                                //Send Notification
+                                $this->ticket_service->saveNotifications($user,$this->ticket_service::TICKET_RESOLVED);
+                                //Send Email to team
+                                $this->sendConfirmationEmail($user->email,$ticket->subject,$description);
+                            }
+                            if(!empty($email))
+                            {
+                                //send feedback to sender
+                                $data = ["ticket_no"=>$ticket->ticket_no,"department"=>$dept->name];
+                                $template = "close-ticket";
+                                $this->service->sendEmail($request->email,$template, $data);
+                            }
+                }
+                return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Request processed successfuly');
+            }
+        }
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Failed processing this request. Please try again!');
+
+    }
+
+    public function reply(Request $request)
+    {
+         $validator = Validator::make($request->all(), [
+            'ticket_id' => 'required|integer|exists:tickets,id',
+            'user_id'=> 'required|integer|exists:auth_users,id',
+            'description' => 'required|string|min:10|max:65535',
+            'agent_signature' => 'required|string|max:20'
+        ]);
+        if($validator->fails())
+        {
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+        }
+
+        $ticket = Ticket::find($request->ticket_id);
+        if($ticket)
+        {
+            $user = AuthUser::find($request->user_id);
+            $list_users = [];
+            $department_users = $this->ticket_service->getDepartmentUsersByDepartmentId($ticket->dept_id);
+
+            if($department_users){
+                $list_users = $department_users->authUsers;
+            }
                     $support_name = $department_users->name;
                     //save thread
-                    $thread = $this->ticket_service->saveThread($ticket->id, $description, $user_id);
+                    $thread = $this->ticket_service->saveThread($ticket->id, $request->description, $request->user_id);
                     if($thread)
                     {
                         //Get ticket details
@@ -285,7 +429,7 @@ class TicketController extends Controller
                             //trigger sla event
                             $ticket->customer_id == 0  ? $customer_type = $this->ticket_service::REGULAR_CUSTOMER : $customer_type = $this->ticket_service::PREMIUM_CUSTOMER;
                             //Get the appropriate  sla policy based on these basic parameters
-                            $sla_rule = $this->ticket_service->findSLARule($ticket->priority_id, $this->ticket_service::PORTAL_CHANNEL, $customer_type);
+                            $sla_rule = $this->ticket_service->findSLARule($ticket->priority_id, $ticket->channel_id, $customer_type);
                             //Trigger sla events only if the sla rules and policies have been configured by the entity
                             if($sla_rule)
                             {
@@ -297,53 +441,41 @@ class TicketController extends Controller
                         }
                         //send notification to user
                         $this->ticket_service->saveNotifications($list_users, $this->ticket_service::NEW_REPLY);
-                        //Get Customer Details
-                        $customer = $this->ticket_service->identifyCustomer($phone);
-                        $customer_name = "Esteemed Client";
-                        if($customer)
-                        {
-                            $customer_id = $customer->id;
-                            $customer_name = $customer->name;
-                        }
+
                         if($ticket)
                         {
+
                             //check if the ticket has been responded to
                             if($ticket->first_response_at==null)
                             {
                                 $ticket->first_response_at = Carbon::now();
-                                $ticket->status_id  = $this->ticket_service::TICKET_STATUS_PENDING;
-                                $ticket->save();
                             }
+                            $ticket->status_id  = $this->ticket_service::TICKET_STATUS_PENDING;
+                            $ticket->save();
                             //Send email response to the customer  / client
-                            $message = '<p>Dear '.$customer_name.',  '.$description.' </p><p>Kind Regards,</p><p>'.ucwords(strtolower($support_name)).' Team</p>';
-
-                            if(!empty($email)){
-                                $this->sendConfirmationEmail($email,$ticket->subject,$message);
+                            if(!empty($ticket->email)){
+                                $data = ["ticket_no"=>$ticket->ticket_no,"agent_sign"=>$request->agent_signature,"content"=>$request->description];
+                                $template = "ticket-reply";
+                                $this->service->sendEmail($ticket->email,$template, $data);
                             }
-                            if(!empty($phone)){
+                            if(!empty($ticket->phone)){
                                 //send customer SMS
                                 //$this->channel->sendConfirmationSMS($phone,$message);
                                 //alternatively send whatsapp message
-
                                 if (env('APP_ENV') === 'production') {
-                                        $this->sendWhatsAppMessage($company_id, 'whatsapp:+'.$phone, $message);
+                                        $this->sendWhatsAppMessage($ticket->company_id, 'whatsapp:+'.$ticket->phone, $request->description);
                                 }
                             }
+                            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Request processed successfuly');
 
                         }else{
 
                              return $this->service->serviceResponse($this->service::FAILED_FLAG, 400,'Ticket not found' );
                         }
-
                 }
-
-                }
-                DB::commit();
-                 return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200,'Ticket raised successfully' );
-
-        }catch(\Exception $e){
-            DB::rollback();
         }
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Failed processing this request. Please try again!');
+
     }
 
      public function sendConfirmationEmail($email, $subject, $body)

@@ -36,8 +36,9 @@ class TicketService
     const SLA_EVENT_TYPE_TICKET_STATUS_CHANGED = 4;
     const SLA_EVENT_TYPE_TICKET_CUSTOMER_RESPONSE = 5;
     const SLA_EVENT_TYPE_TICKET_RESOLVED = 6;
-    const SLA_EVENT_TYPE_TICKET_SLA_BREACH = 7;
-    const SLA_EVENT_TYPE_TICKET_ESCALATION = 8;
+    const SLA_EVENT_TYPE_TICKET_CLOSED = 7;
+    const SLA_EVENT_TYPE_TICKET_SLA_BREACH = 8;
+    const SLA_EVENT_TYPE_TICKET_ESCALATION = 9;
 
     const PREMIUM_CUSTOMER = 1;
     const REGULAR_CUSTOMER = 2;
@@ -45,6 +46,9 @@ class TicketService
     const REGISTRATION = 1;
     const NEW_REPLY = 2;
     const NEW_TICKET =3;
+    const TICKET_CLOSED = 4;
+    const TICKET_RESOLVED = 5;
+
 
     public function saveChannelContact($channel_id,$company_id, $email='', $phone='')
     {
@@ -98,7 +102,7 @@ class TicketService
         $doc->increment('document_value');
     }
 
-    public function saveTicket($customer_id=0,$priority_id,$channel_id, $subject, $status_id, $description, $ticket_type, $company_id,$dept_id)
+    public function saveTicket($customer_id=0,$priority_id,$channel_id, $subject, $status_id, $description, $ticket_type, $company_id,$dept_id, $phone='', $email='')
     {
 
         $ticket_no = $this->generateTicketNumber();
@@ -114,6 +118,8 @@ class TicketService
         $ticket->ticket_type_id = $ticket_type;
         $ticket->company_id = $company_id;
         $ticket->dept_id = $dept_id;
+        $ticket->phone = $phone;
+        $ticket->email = $email;
         $ticket->save();
 
         if($ticket)
