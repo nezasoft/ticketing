@@ -17,19 +17,25 @@ use Carbon\Carbon;
 class TicketService
 {
 
-     const PORTAL_CHANNEL = 1;
+    //Channel Types
+    const PORTAL_CHANNEL = 1;
     const EMAIL_CHANNEL = 2;
     const WHATSAPP_CHANNEL = 3;
     const CHATBOT_CHANNEL = 4;
     const TICKET_CODE = 'TK';
+    //Priorities
     const HIGH_PRIORITY = 1;
     const LOW_PRIORITY = 2;
     const MEDIUM_PRIORITY = 3;
+    //Ticket Status
     const TICKET_STATUS_NEW = 1;
+    const TICKET_STATUS_RESOLVED = 2;
     const TICKET_STATUS_PENDING = 3;
+     const TICKET_STATUS_ARCHIVED = 4;
+    const TICKET_STATUS_CLOSED = 5;
     const TICKET_TYPE_CUSTOMER = 1;
     const TICKET_TYPE_GUEST = 2;
-
+    //SLA Events
     const SLA_EVENT_TYPE_TICKET_CREATED = 1;
     const SLA_EVENT_TYPE_FIRST_RESPONSE_SENT = 2;
     const SLA_EVENT_TYPE_TICKET_ASSIGNED = 3;
@@ -43,6 +49,7 @@ class TicketService
     const PREMIUM_CUSTOMER = 1;
     const REGULAR_CUSTOMER = 2;
 
+    //Notifications
     const REGISTRATION = 1;
     const NEW_REPLY = 2;
     const NEW_TICKET =3;
@@ -111,7 +118,7 @@ class TicketService
         $ticket->customer_id = $customer_id;
         $ticket->priority_id = $priority_id;
         $ticket->channel_id = $channel_id;
-        $ticket->subject ='['.$subject.'] - '.$ticket_no;
+        $ticket->subject = $subject.'- ['.$ticket_no.']';
         $ticket->status_id = $status_id;
         $ticket->description = $description;
         $ticket->created_at = Carbon::now();

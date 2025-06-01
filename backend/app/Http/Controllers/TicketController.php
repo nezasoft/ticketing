@@ -319,11 +319,11 @@ class TicketController extends Controller
                 $dept = Department::find($request->dept_id);
                 $list_users = [];
                 $department_users = $this->ticket_service->getDepartmentUsersByDepartmentId($request->dept_id);
-
                 if($department_users){
                     $list_users = $department_users->authUsers;
                 }
                 //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
+                $customer_type = $this->ticket_service::REGULAR_CUSTOMER;
                 $customer = $this->ticket_service->identifyCustomer($request->phone);
                 $customer_name = "Esteemed Client";
                 if($customer)
@@ -333,7 +333,7 @@ class TicketController extends Controller
                     $customer_type = $this->ticket_service::PREMIUM_CUSTOMER;
                 }
                 //If the ticket is closed then we need to trigger the appropriate SLA Event and send customer email notification
-                if($ticket->status_id==$this->ticket_service::SLA_EVENT_TYPE_TICKET_CLOSED)
+                if($ticket->status_id==$this->ticket_service::TICKET_STATUS_CLOSED)
                 {
                             //Get the appropriate  sla policy based on these basic parameters
                             $sla_rule = $this->ticket_service->findSLARule($ticket->priority_id, $this->ticket_service::PORTAL_CHANNEL, $customer_type);
@@ -355,11 +355,11 @@ class TicketController extends Controller
                             if(!empty($email))
                             {
                                 //send feedback to sender
-                                $data = ["ticket_no"=>$ticket->ticket_no,"agent_sign"=>$dept->name,"content"=>$description];
-                                $template = "ticket-reply";
+                                $data = ["ticket_no"=>$ticket->ticket_no,"department"=>$dept->name];
+                                $template = "close-ticket";
                                 $this->service->sendEmail($request->email,$template, $data);
                             }
-                }elseif($ticket->status_id==$this->ticket_service::SLA_EVENT_TYPE_TICKET_RESOLVED)
+                }elseif($ticket->status_id==$this->ticket_service::TICKET_STATUS_RESOLVED)
                 {
                             //Get the appropriate  sla policy based on these basic parameters
                             $sla_rule = $this->ticket_service->findSLARule($ticket->priority_id, $this->ticket_service::PORTAL_CHANNEL, $customer_type);
@@ -382,7 +382,7 @@ class TicketController extends Controller
                             {
                                 //send feedback to sender
                                 $data = ["ticket_no"=>$ticket->ticket_no,"department"=>$dept->name];
-                                $template = "close-ticket";
+                                $template = "resolve-ticket";
                                 $this->service->sendEmail($request->email,$template, $data);
                             }
                 }
@@ -437,14 +437,11 @@ class TicketController extends Controller
                                 //Lets trigger an SLA Event based on this customers profile
                                 $this->ticket_service->logSLAEvent($ticket->id, $sla_id, $this->ticket_service::SLA_EVENT_TYPE_FIRST_RESPONSE_SENT, $this->ticket_service::SLA_EVENT_TYPE_FIRST_RESPONSE_SENT,$company_id);
                             }
-
                         }
                         //send notification to user
                         $this->ticket_service->saveNotifications($list_users, $this->ticket_service::NEW_REPLY);
-
                         if($ticket)
                         {
-
                             //check if the ticket has been responded to
                             if($ticket->first_response_at==null)
                             {

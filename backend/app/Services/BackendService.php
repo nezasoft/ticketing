@@ -20,9 +20,7 @@ class BackendService {
 
     public function sendEmail($email, $template, array $data)
     {
-
         $template = $this->emailTemplate($template);
-
         if(!$template)
         {
             return $this->serviceResponse('error',400,'Email Template not found!');
@@ -32,7 +30,6 @@ class BackendService {
         $sent = $mailer->sendmail($email, $template->subject, $body);
         return $sent ? true : false;
     }
-
     public function emailTemplate($template_type)
     {
         $template = Template::with('template_type')->whereHas('template_type', function ($query) use ($template_type) {
@@ -43,7 +40,6 @@ class BackendService {
         }
         return $template;
     }
-
     public function replacePlaceholders($text, array $data)
     {
         foreach ($data as $key => $value) {
@@ -51,11 +47,6 @@ class BackendService {
         }
         return $text;
     }
-
-
-
-
-
 
 }
 ?>
