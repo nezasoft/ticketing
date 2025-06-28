@@ -37,7 +37,7 @@ class TicketController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
         $data = [];
         $records = Ticket::with('company','priority','status','channel','dept')->where('company_id',$request->company_id)->get();
@@ -75,7 +75,7 @@ class TicketController extends Controller
 
         if($validator->fails())
         {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
         $data = [];
         $events =  [];
@@ -204,7 +204,7 @@ class TicketController extends Controller
         ]);
         if($validator->fails())
         {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
 
         $user_id = $request->user_id;
@@ -301,7 +301,7 @@ class TicketController extends Controller
         ]);
         if($validator->fails())
         {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
         //Get ticket details
         $ticket = Ticket::find($request->ticket_id);
@@ -389,7 +389,7 @@ class TicketController extends Controller
                 return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Request processed successfuly');
             }
         }
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Failed processing this request. Please try again!');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200, 'Failed processing this request. Please try again!');
 
     }
 

@@ -24,7 +24,7 @@ class CustomerController extends Controller
             'company_id' => 'required|integer|exists:companies,id',
         ]);
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
 
         $data =[];
@@ -46,7 +46,7 @@ class CustomerController extends Controller
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Success', $data);
         }
 
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,'No record found');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200,'No record found');
     }
 
     public function create(Request $request)
@@ -64,7 +64,7 @@ class CustomerController extends Controller
             'account_no' => 'nullable|string|max:255'
         ],$messages);
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
 
         $customer = new Customer();
@@ -81,7 +81,7 @@ class CustomerController extends Controller
 
         }
 
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,$this->service::FAILED_MESSAGE);
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200,$this->service::FAILED_MESSAGE);
     }
 
     public function edit(Request $request)
@@ -100,7 +100,7 @@ class CustomerController extends Controller
             'account_no' => 'nullable|string|max:255'
         ],$messages);
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
 
         $customer = Customer::find( $request->customer_id );
@@ -118,7 +118,7 @@ class CustomerController extends Controller
                 return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,$this->service::SUCCESS_MESSAGE);
             }
         }
-         return $this->service->serviceResponse($this->service::FAILED_FLAG,400,$this->service::FAILED_MESSAGE);
+         return $this->service->serviceResponse($this->service::FAILED_FLAG,200,$this->service::FAILED_MESSAGE);
 
     }
 

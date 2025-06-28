@@ -19,7 +19,7 @@ class SLARuleController extends Controller
             'company_id' => 'required|integer|exists:companies,id',
         ]);
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
         $data= [];
         $records = SlaRule::with(['policy','type','priority','channel'])->whereHas('company', function ($query) use ($request) {
@@ -56,7 +56,7 @@ class SLARuleController extends Controller
         ]);
         if ($validator->fails())
         {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG,200, $validator->errors());
         }
 
         $sla_rule = new SlaRule;
@@ -71,7 +71,7 @@ class SLARuleController extends Controller
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, $this->service::SUCCESS_MESSAGE);
         }
 
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $this->service::FAILED_MESSAGE);
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200, $this->service::FAILED_MESSAGE);
 
     }
 
@@ -87,7 +87,7 @@ class SLARuleController extends Controller
         ]);
         if ($validator->fails())
         {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG,400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG,200, $validator->errors());
         }
         $sla_rule = SLARule::find($request->rule_id);
         if($sla_rule)
@@ -103,6 +103,6 @@ class SLARuleController extends Controller
                 return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, $this->service::SUCCESS_MESSAGE);
             }
         }
-        return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $this->service::FAILED_MESSAGE);
+        return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $this->service::FAILED_MESSAGE);
     }
 }

@@ -1,26 +1,64 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {BrowserRouter as Router,Routes,Route,Navigate,} from 'react-router-dom';
+import { AuthProvider, AuthContext } from './context/AuthContext';
+import Login from './auth/login';
+import Register from './auth/Register';
+import RecoverPassword from './auth/RecoverPassword';
 
-function App() {
+import Dashboard from './pages/Dashboard';
+import Tickets from './pages/Tickets';
+import TicketView from './pages/TicketView';
+import TicketForm from './pages/TicketForm';
+
+// A simple private route wrapper for React Router v6
+const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  const { token } = React.useContext(AuthContext);
+  return token ? children : <Navigate to="/login" replace />;
+};
+
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/recover" element={<RecoverPassword />} />
+          <Route
+            path="/dashboard" element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/tickets" element={
+              <PrivateRoute>
+                <Tickets />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/tickets/:id"
+            element={
+              <PrivateRoute>
+                <TicketView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/create-ticket"
+            element={
+              <PrivateRoute>
+                <TicketForm />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;

@@ -9,7 +9,7 @@ export interface Ticket{
     status_id: number;
     company_id: number;
     dept_id: number;
-    description?: string;
+    description: string;
     first_response_at?: string;
     resolved_at?: string;
     created_at?:string;
@@ -17,8 +17,13 @@ export interface Ticket{
     sla_policy_id:number;
     sla_duration:number;
     escalated_at?: string;
-    phone?:string;
-    email?:string;
+    phone?: string;
+    email?: string;
+    priority: string;
+    status: string;
+    channel: string;
+    dept: string;
+    company: string;
     
 }
 
@@ -71,18 +76,45 @@ export interface company_id{
     days: number;
 }
 
-export interface AuthContextType
-{
+export interface AuthContextType {
     user: AuthUser | null;
     token: string | null;
-    login: (email: string,password: string) => Promise<void>;
+    login: (email: string, password: string) => Promise<GenericResponse<{ user: AuthUser; token: string }>>;
     logout: () => void;
+    register: (email: string, password: string, phone: string, name: string) => Promise<GenericResponse<any>>;
+    recover: (email: string) => Promise<GenericResponse<any>>;
+    loading: boolean;
 }
+export interface TicketContextType {
+    ticket: Ticket | null;
+    listTickets: (company_id: number) => Promise<GenericResponse<Ticket[]>>;
+    editTicket: (ticket_id: number,data: Partial<Ticket>) => Promise<GenericResponse<Ticket | null>>;
+    viewTicket: (ticket_id: number, data: null) => Promise<GenericResponse<Ticket | null>>;
+    newTicket: (company_id: number, data: Partial<Ticket>) => Promise<GenericResponse<Ticket | null>>;
+    deleteTicket: (ticket_id: number) => Promise<GenericResponse<null>>;
+    loading: boolean;
+}
+
 
 export interface ApiResponse<T>
 {
     data: T;
     message: string;
 }
+
+export interface LoginResponse {
+    success: boolean;
+    message: string;
+    data: AuthUser;
+    token: string;
+}
+
+export interface GenericResponse<T>
+{
+    success: boolean;
+    message: string;
+    data: T;
+}
+
 
 

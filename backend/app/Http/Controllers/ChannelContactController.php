@@ -25,7 +25,7 @@ class ChannelContactController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
         $records = [];
         $records = ChannelContact::with(['channel', 'company'])->where('company_id', $request->CompanyID)->get();
@@ -33,7 +33,7 @@ class ChannelContactController extends Controller
         {
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200,'Success', $records);
         }
-        return $this->service->serviceResponse($this->service::FAILED_FLAG, 400,'No records found');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG, 200,'No records found');
 
     }
 
@@ -47,7 +47,7 @@ class ChannelContactController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
         $channel_contact = new ChannelContact();
         $channel_contact->company_id = $request->CompanyID;
@@ -63,7 +63,7 @@ class ChannelContactController extends Controller
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, 'Request processed successfully!');
         }
 
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Error occured while processing request!');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200, 'Error occured while processing request!');
 
     }
 
@@ -77,7 +77,7 @@ class ChannelContactController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
 
         $channel_contact = ChannelContact::find($request->ContactID);
@@ -103,7 +103,7 @@ class ChannelContactController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
 
         //Find channel contact by id

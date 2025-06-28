@@ -36,7 +36,7 @@ class SettingsController extends Controller
             }
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, 'Success',$data);
         }
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,'No records found!');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200,'No records found!');
 
     }
 
@@ -55,7 +55,7 @@ class SettingsController extends Controller
             }
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, 'Success',$data);
         }
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,'No records found!');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200,'No records found!');
 
     }
 
@@ -74,7 +74,7 @@ class SettingsController extends Controller
             }
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, 'Success',$data);
         }
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,'No records found');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200,'No records found');
     }
 
     public function getNotificationTypes()
@@ -94,7 +94,7 @@ class SettingsController extends Controller
             }
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, 'Success',$data);
         }
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,'No records found');
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200,'No records found');
     }
 
     public function getRoles()

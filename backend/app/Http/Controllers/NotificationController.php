@@ -22,7 +22,7 @@ class NotificationController extends Controller
             'user_id' => 'required|integer|exists:auth_users,id',
         ]);
         if ($validator->fails()) {
-            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
 
         $data = [];
