@@ -1,7 +1,7 @@
 import React from 'react';
 import {BrowserRouter as Router,Routes,Route,Navigate,} from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
-import Login from './auth/login';
+import Login from './auth/Login';
 import Register from './auth/Register';
 import RecoverPassword from './auth/RecoverPassword';
 
