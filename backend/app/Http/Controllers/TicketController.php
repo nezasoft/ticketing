@@ -40,7 +40,7 @@ class TicketController extends Controller
             return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
         $data = [];
-        $records = Ticket::with('company','priority','status','channel','dept')->where('company_id',$request->company_id)->get();
+        $records = Ticket::with('company','priority','status','channel','dept')->where('company_id',$request->company_id)->orderBy('id','desc')->get();
         if(!empty($records))
         {
             foreach($records as $record)
@@ -83,7 +83,10 @@ class TicketController extends Controller
         $attachments = [];
         $replies = [];
 
-        //Get Ticket Details
+        try 
+        {
+
+             //Get Ticket Details
         $record = Ticket::with('company','priority','status','attachments','channel','events','assignments','replies','dept')->where('id', $request->ticket_id)->first();
         if($record)
         {
@@ -132,7 +135,8 @@ class TicketController extends Controller
                         'reply_at' => Carbon::parse($reply->reply_at)->format('d M Y h:i:s a'),
                         'created_at' => Carbon::parse($reply->created_at)->format('d M Y h:i:s a'),
                         'updated_at' => Carbon::parse($reply->updated_at)->format('d M Y h:i:s a'),
-                        'user' => $reply->user->name ?? ''
+                        'user' => $reply->user->name ?? '',
+                        'email' => $reply->user->email ?? ''
 
                     ];
                 }
@@ -180,7 +184,17 @@ class TicketController extends Controller
             ];
         }
         return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,$this->service::SUCCESS_MESSAGE, $data);
+        } catch (\Throwable $e) {
+            \Log::error('Ticket fetch failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error',
+            ], 500);
+        }
 
+        
+
+       
     }
 
     public function create(Request $request)
@@ -278,6 +292,7 @@ class TicketController extends Controller
 
         }catch(\Exception $e){
             DB::rollback();
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200,'A problem occured while raising this ticket. Please try again.' );
         }
     }
 
@@ -395,11 +410,12 @@ class TicketController extends Controller
 
     public function reply(Request $request)
     {
-         $validator = Validator::make($request->all(), [
+        // Validate request input
+        $validator = Validator::make($request->all(), [
             'ticket_id' => 'required|integer|exists:tickets,id',
             'user_id'=> 'required|integer|exists:auth_users,id',
             'description' => 'required|string|min:10|max:65535',
-            'agent_signature' => 'required|string|max:20'
+            'attachments.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx,zip|max:5120' // max 5MB
         ]);
         if($validator->fails())
         {
@@ -410,78 +426,104 @@ class TicketController extends Controller
         if($ticket)
         {
             $user = AuthUser::find($request->user_id);
+            
             $list_users = [];
             $department_users = $this->ticket_service->getDepartmentUsersByDepartmentId($ticket->dept_id);
 
             if($department_users){
                 $list_users = $department_users->authUsers;
             }
-                    $support_name = $department_users->name;
-                    //save thread
-                    $thread = $this->ticket_service->saveThread($ticket->id, $request->description, $request->user_id);
-                    if($thread)
-                    {
-                        //Get ticket details
-                        $ticket = Ticket::find($thread->ticket_id);
-                        //Make sure this is the initial response
-                        if($ticket->first_response_at==null)
-                        {
-                            //trigger sla event
-                            $ticket->customer_id == 0  ? $customer_type = $this->ticket_service::REGULAR_CUSTOMER : $customer_type = $this->ticket_service::PREMIUM_CUSTOMER;
-                            //Get the appropriate  sla policy based on these basic parameters
-                            $sla_rule = $this->ticket_service->findSLARule($ticket->priority_id, $ticket->channel_id, $customer_type);
-                            //Trigger sla events only if the sla rules and policies have been configured by the entity
-                            if($sla_rule)
-                            {
-                                $sla_id = $sla_rule->policy->id;
-                                //Lets trigger an SLA Event based on this customers profile
-                                $this->ticket_service->logSLAEvent($ticket->id, $sla_id, $this->ticket_service::SLA_EVENT_TYPE_FIRST_RESPONSE_SENT, $this->ticket_service::SLA_EVENT_TYPE_FIRST_RESPONSE_SENT,$company_id);
-                            }
-                        }
-                        //send notification to user
-                        $this->ticket_service->saveNotifications($list_users, $this->ticket_service::NEW_REPLY);
-                        if($ticket)
-                        {
-                            //check if the ticket has been responded to
-                            if($ticket->first_response_at==null)
-                            {
-                                $ticket->first_response_at = Carbon::now();
-                            }
-                            $ticket->status_id  = $this->ticket_service::TICKET_STATUS_PENDING;
-                            $ticket->save();
-                            //Send email response to the customer  / client
-                            if(!empty($ticket->email)){
-                                $data = ["ticket_no"=>$ticket->ticket_no,"agent_sign"=>$request->agent_signature,"content"=>$request->description];
-                                $template = "ticket-reply";
-                                $this->service->sendEmail($ticket->email,$template, $data);
-                            }
-                            if(!empty($ticket->phone)){
-                                //send customer SMS
-                                //$this->channel->sendConfirmationSMS($phone,$message);
-                                //alternatively send whatsapp message
-                                if (env('APP_ENV') === 'production') {
-                                        $this->sendWhatsAppMessage($ticket->company_id, 'whatsapp:+'.$ticket->phone, $request->description);
-                                }
-                            }
-                            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Request processed successfuly');
 
-                        }else{
-
-                             return $this->service->serviceResponse($this->service::FAILED_FLAG, 400,'Ticket not found' );
-                        }
+            $support_name = $department_users->name;
+            if($user)
+            {
+                $agent_signature = $user->name ?? ''; 
+            }else{
+                $agent_signature = $support_name;
+            }
+            
+            // save thread
+            $thread = $this->ticket_service->saveThread($ticket->id, $request->description, $request->user_id);
+            if($thread)
+            {
+                //Handle attachments
+                if ($request->hasFile('attachments')) {
+                    foreach ($request->file('attachments') as $file) {
+                        $path = $file->store('attachments', 'public'); 
+                        //saveThreadAttachment must be defined in your ticket service
+                        $this->ticket_service->saveThreadAttachment($thread->id, $ticket->id,$request->user_id,
+                         [
+                            'filename'   => $file->getClientOriginalName(),
+                            'path'       => $path,
+                            'mime_type'  => $file->getClientMimeType(),
+                            'size'       => $file->getSize(),
+                        ]);
+                    }
                 }
-        }
-        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Failed processing this request. Please try again!');
 
+                // Get ticket details
+                $ticket = Ticket::find($thread->ticket_id);
+                // Make sure this is the initial response
+                if($ticket->first_response_at==null)
+                {
+                    // trigger sla event
+                    $ticket->customer_id == 0  ? $customer_type = $this->ticket_service::REGULAR_CUSTOMER : $customer_type = $this->ticket_service::PREMIUM_CUSTOMER;
+                    // Get the appropriate sla policy based on these basic parameters
+                    $sla_rule = $this->ticket_service->findSLARule($ticket->priority_id, $ticket->channel_id, $customer_type);
+                    // Trigger sla events only if the sla rules and policies have been configured by the entity
+                    if($sla_rule)
+                    {
+                        $sla_id = $sla_rule->policy->id;
+                        // Lets trigger an SLA Event based on this customers profile
+                        $this->ticket_service->logSLAEvent($ticket->id, $sla_id, $this->ticket_service::SLA_EVENT_TYPE_FIRST_RESPONSE_SENT, $this->ticket_service::SLA_EVENT_TYPE_FIRST_RESPONSE_SENT, $ticket->company_id);
+                    }
+                }
+                // send notification to user
+                $this->ticket_service->saveNotifications($list_users, $this->ticket_service::NEW_REPLY);
+                if($ticket)
+                {
+                    // check if the ticket has been responded to
+                    if($ticket->first_response_at==null)
+                    {
+                        $ticket->first_response_at = Carbon::now();
+                    }
+                    $ticket->status_id  = $this->ticket_service::TICKET_STATUS_PENDING;
+                    $ticket->save();
+
+                    // Send email response to the customer / client
+                    if(!empty($ticket->email)){
+                        $data = ["ticket_no"=>$ticket->ticket_no,"agent_sign"=>$agent_signature,"content"=>$request->description];
+                        $template = "ticket-reply";
+                        $this->service->sendEmail($ticket->email, $template, $data);
+                    }
+
+                    if(!empty($ticket->phone)){
+                        // send customer SMS
+                        //$this->channel->sendConfirmationSMS($phone,$message);
+                        // alternatively send whatsapp message
+                        if (env('APP_ENV') === 'production') {
+                            $this->sendWhatsAppMessage($ticket->company_id, 'whatsapp:+'.$ticket->phone, $request->description);
+                        }
+                    }
+
+                    return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200, 'Request processed successfuly');
+
+                }else{
+                    return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, 'Ticket not found');
+                }
+            }
+        }
+
+        return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, 'Failed processing this request. Please try again!');
     }
 
-     public function sendConfirmationEmail($email, $subject, $body)
+
+    
+    public function sendConfirmationEmail($email, $subject, $body)
     {
         $mailer = new EmailService();
         $sent = $mailer->sendmail($email, $subject, $body);
-
         return $sent ? "Email sent successfully." : "Email failed to send";
-
     }
     public function sendWhatsAppMessage($company_id, $to, $message)
     {

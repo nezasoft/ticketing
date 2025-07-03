@@ -38,11 +38,18 @@ const Register: React.FC = () => {
       {/* Left Panel (Form) */}
       <div className="w-full md:w-1/2 flex items-center justify-center px-6 bg-white">
         <div className="max-w-md w-full space-y-6">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-800">Register Account</h1>
-            <p className="text-sm text-gray-500">Get your Oris RT account now.</p>
+          <div className="mb-8 mt-2">
+          <div className="flex items-center mb-4">
+            <div className="w-8 h-8 bg-indigo-600 rounded shadow-md flex items-center justify-center text-white mr-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zm0 5l10 5-10 5-10-5 10-5zm0 10l10-5v10L12 22l-10-5V12l10 5z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Oris RT</h1>
           </div>
-
+          <h2 className="text-xl font-semibold mb-1">Register Account</h2>
+          <p className="text-sm text-gray-500">Get your Oris RT account now.</p>
+        </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">Name</label>

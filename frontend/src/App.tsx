@@ -9,7 +9,9 @@ import Dashboard from './pages/Dashboard';
 import Tickets from './pages/Tickets';
 import TicketView from './pages/TicketView';
 import TicketForm from './pages/TicketForm';
-
+import { TicketProvider } from './context/TicketContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // A simple private route wrapper for React Router v6
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
@@ -18,8 +20,11 @@ const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) 
 
 const App: React.FC = () => {
   return (
+    
     <AuthProvider>
-      <Router>
+      <TicketProvider>
+        <ToastContainer position="top-right" autoClose={3000} />
+        <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -57,6 +62,9 @@ const App: React.FC = () => {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
+
+      </TicketProvider>
+      
     </AuthProvider>
   );
 };

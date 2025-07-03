@@ -53,6 +53,7 @@ class AuthController extends Controller
                         'token_type' => 'bearer',
                         'expires_in' => $expires_in,
                         'user'=> [
+                        'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
                         'phone' => $user->phone,
@@ -69,7 +70,7 @@ class AuthController extends Controller
                 ]);
             }
 
-            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 200, 'Invalid credentials supplied');
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 200, 'Invalid email / password');
 
         } catch (\Exception $e) {
             \Log::error("Login error: " . $e->getMessage()); // Log the error message

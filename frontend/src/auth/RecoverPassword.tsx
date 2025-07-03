@@ -26,7 +26,6 @@ const RecoverPassword: React.FC = () =>
           const response = await recover(email);
           if (response.success) {
             setFeedback({ type: 'success', message: 'Password reset successful. Check your email for more instructions' });
-            navigate('/register');
           } else {
             setFeedback({ type: 'error', message: response.message || 'Reset password failed.' });
           }
@@ -41,15 +40,13 @@ const RecoverPassword: React.FC = () =>
     };
 
 return (
-    <div className="h-screen grid grid-cols-1 md:grid-cols-2">
+    <div className="h-screen grid grid-cols-1 md:grid-cols-2 dark:bg-zinc-900 text-gray-800 dark:text-white">
       {/* Left Panel */}
       <div className="flex flex-col justify-center px-10">
         <div className="mb-8">
           <div className="flex items-center mb-4">
-            <div className="w-8 h-8 bg-indigo-600 rounded shadow-md flex items-center justify-center text-white mr-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zm0 5l10 5-10 5-10-5 10-5zm0 10l10-5v10L12 22l-10-5V12l10 5z" />
-              </svg>
+            <div className="w-8 h-8  rounded shadow-md flex items-center justify-center text-white mr-2">
+              <img src="logo.png" alt="Logo" className="w-6 h-6 ltr:mr-2 rtl:ml-2" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">Oris RT</h1>
           </div>

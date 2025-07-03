@@ -1,5 +1,7 @@
 <?php
 namespace App\Services;
+
+use App\Models\Attachment;
 use App\Models\AuthUser;
 use App\Models\BusinessDocument;
 use App\Models\ChannelContact;
@@ -343,13 +345,18 @@ class TicketService
         $users = AuthUser::whereHas('emails', function($query) use ($email_address) {
             $query->where('email', $email_address);
         })->get();
-
-       /* return response()->json([
-            'users' => $users,
-            'email' => $email_address,
-        ]);*/
-
         return $users;
     }
-
+    public function saveThreadAttachment(int $thread_id=0, int $ticket_id, int $user_id, array $data)
+    {
+        $attachment = new Attachment();
+        $attachment->ticket_id = $ticket_id;
+        $attachment->thread_id = $thread_id;
+        $attachment->user_id = $user_id;
+        $attachment->file_name = $data['filename'];
+        $attachment->file_path = $data['path'];
+        $attachment->file_size = $data['size'] ?? null;
+        $attachment->mime_type = $data['mime_type'] ?? null;
+        $attachment->save();
+    }
 }

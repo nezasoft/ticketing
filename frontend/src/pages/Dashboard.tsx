@@ -19,8 +19,9 @@ const Dashboard: React.FC = () =>
         {
             try
             {
-                const response = await api.get<{data: Ticket[]}>('/tickets');
-                setTickets(response.data.data);
+               /* const response = await api.post<{data: Ticket[]}>('/tickets/list');
+                console.log(response);
+                setTickets(response.data.data);*/
 
             }catch (error)
             {
