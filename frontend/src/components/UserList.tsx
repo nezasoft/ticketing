@@ -7,58 +7,54 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { toast } from 'react-toastify';
-import { TicketContext } from '../context/TicketContext';
+import { SettingContext } from '../context/SettingContext';
 import DOMPurify from 'dompurify';
 // Dummy types and pagination logic. Replace with actual types and data handling.
-type Ticket = {
+type AuthUser = {
   id: number;
-  ticket_no: string;
-  created_at?: string;
-  email?: string;
-  phone?: string;
-  subject?: string;
-  description: string;
-  priority: string;
-  status: string;
-  channel: string;
-  dept: string;
-  company: string;
+  name: string;
+  email: string;
+  phone: string;
+  department: string;
+  role: string;
+  active: string;
+  date_created: string;
 };
 
-type TicketListProps = {
-  tickets: Ticket[];
+type AuthUserListProps = {
+  users: AuthUser[];
 };
 
-const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
+const UserList: React.FC<AuthUserListProps> = ({ users }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [selectedUser, setSelectedUser] = useState<AuthUser | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
-  const ticketCtx = useContext(TicketContext);
+  const settingCtx = useContext(SettingContext);
   const itemsPerPage = 10;
 
-  const filteredTickets = tickets.filter(ticket =>
-    ticket.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.ticket_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.channel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(user =>
+    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.active.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const paginatedTickets = filteredTickets.slice(
+  const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
  
   const navigate = useNavigate();
-  const handleEdit = (ticketId: number) => {
-    // Navigate to the ticket edit page
-    navigate(`/tickets/${ticketId}/edit`);
+  const handleEdit = (userId: number) => {
+    // Navigate to the user edit page
+    navigate(`/users/${userId}/edit`);
   };
-  const handleView = (ticketId: number) => {
-    // Navigate to the ticket detail page
-    navigate(`/tickets/${ticketId}`);
+  const handleView = (userId: number) => {
+    // Navigate to the user detail page
+    navigate(`/users/${userId}`);
   };
 
   const handleDelete = async (ticketId: number) => {
@@ -66,16 +62,16 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
   if (!confirmDelete) return;
   try 
   {
-    const response = await ticketCtx?.deleteTicket?.(ticketId);
+    const response = await settingCtx?.deleteUser?.(userId);
     if (response?.success && response.data) {
-        toast.success("Ticket deleted successfully!");
+        toast.success("User deleted successfully!");
     } else {
-        toast.error("Failed to delete ticket.");
+        toast.error("Failed to delete user.");
     }
     // Optionally refresh or update list
   } catch (error) {
-    console.error("Failed to delete ticket:", error);
-    toast.error("Failed to delete ticket.");
+    console.error("Failed to delete user:", error);
+    toast.error("Failed to delete user.");
   }
 };
 
@@ -83,36 +79,37 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
 const handleExportToExcel = () => {
   // use filteredTickets to export only what the user sees
   const worksheet = XLSX.utils.json_to_sheet(
-    filteredTickets.map(t => ({
-      'Ticket ID': t.ticket_no,
-      Subject:    t.subject || '',
-      Email:      t.email   || '',
-      Phone:      t.phone   || '',
-      Channel:    t.channel,
-      Priority:   t.priority,
-      Status:     t.status,
+    filteredUsers.map(u => ({
+      Name:    u.name || '',
+      Email:      u.email   || '',
+      Phone:      u.phone   || '',
+      Department: u.department   || '',
+      Role:      u.role   || '',
+      Active:      u.active   || '',
+      Date:      u.date_created   || '',
+
     }))
   );
 
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Tickets');
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
   const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
   const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  saveAs(blob, 'tickets.xlsx');
+  saveAs(blob, 'users.xlsx');
 };
 
 // PDF:
 const handleExportToPDF = () => {
   const doc = new jsPDF();
-  const tableColumn = ['Ticket ID', 'Subject', 'Email', 'Phone', 'Channel', 'Priority', 'Status'];
-  const tableRows = filteredTickets.map(t => [
-    t.ticket_no,
-    t.subject   || '',
-    t.email     || '',
-    t.phone     || '',
-    t.channel,
-    t.priority,
-    t.status,
+  const tableColumn = ['Name', 'Email', 'Phone', 'Department', 'Role', 'Active','Date'];
+  const tableRows = filteredUsers.map(u => [
+      u.name || '',
+      u.email   || '',
+      u.phone   || '',
+      u.department   || '',
+      u.role   || '',
+      u.active   || '',
+      u.date_created   || ''
   ]);
 
   autoTable(doc, {
@@ -120,7 +117,7 @@ const handleExportToPDF = () => {
     body: tableRows,
   });
 
-  doc.save('tickets.pdf');
+  doc.save('users.pdf');
 };
 
 const statusClassMap: Record<string, string> = {
@@ -134,7 +131,7 @@ const priorityClassMap: Record<string, string> = {
   Medium: 'bg-yellow-100 text-yellow-600',
   High: 'bg-red-200 text-red-700',
 };
-  const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   return (
     <div className="p-4">
       <div className="flex flex-wrap gap-2 items-center justify-between mb-4">
@@ -180,54 +177,49 @@ const priorityClassMap: Record<string, string> = {
         <table className="min-w-full text-sm text-gray-700 dark:text-gray-200">
           <thead className="bg-gray-100 dark:bg-zinc-800">
             <tr className="text-xs">
-              <th className="px-4 py-3 text-left">Ticket ID</th>
-              <th className="px-4 py-3 text-left">Date / Time</th>
-              <th className="px-4 py-3 text-left">Subject</th>
-              <th className="px-4 py-3 text-left">Channel</th>
-              <th className="px-4 py-3 text-left">Priority</th>
-              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Name</th>
+              <th className="px-4 py-3 text-left">Email</th>
+              <th className="px-4 py-3 text-left">Phone</th>
+              <th className="px-4 py-3 text-left">Department</th>
+              <th className="px-4 py-3 text-left">Role</th>
+              <th className="px-4 py-3 text-left">Active</th>
+              <th className="px-4 py-3 text-left">Date Created</th>
               <th className="px-4 py-3 text-left">Action</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedTickets.map(ticket => (
+            {paginatedUsers.map(user => (
               <tr
-                key={ticket.id}
-                onClick={() => handleView(ticket.id)}
+                key={user.id}
+                onClick={() => handleView(user.id)}
                 className="hover:bg-gray-50 dark:hover:bg-zinc-800 text-xs"
               >
                 <td
                   className="px-4 py-3 text-violet-600 font-semibold cursor-pointer"
-                  onClick={() => setSelectedTicket(ticket)}
+                  onClick={() => setSelectedUser(user)}
                 >
-                  #{ticket.ticket_no}
+                  {user.name}
                 </td>
-                <td className="px-4 py-3">{ticket.created_at}</td>
-                <td className="px-4 py-3">{ticket.subject}</td>
-                <td className="px-4 py-3">{ticket.channel}</td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-1 text-xs rounded-full font-medium ${ priorityClassMap[ticket.priority] || 'bg-red-100 text-red-600'}`}>
-                    {ticket.priority}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                   <span className={`px-2 py-1 text-xs rounded font-medium ${ statusClassMap[ticket.status] || 'bg-red-100 text-red-600'}`}>
-                    {ticket.status}
-                  </span>
-                </td>
+                <td className="px-4 py-3">{user?.email}</td>
+                <td className="px-4 py-3">{user?.phone}</td>
+                <td className="px-4 py-3">{user.department}</td>
+                <td className="px-4 py-3">{user.role}</td>
+                <td className="px-4 py-3">{user.active}</td>
+                <td className="px-4 py-3">{user.date_created}</td>
+
                 <td className="relative px-4 py-3">
                   <button
                      onClick={(e) => {
                         e.stopPropagation(); // Prevent row click
-                        setOpenDropdown(openDropdown === ticket.id ? null : ticket.id);
+                        setOpenDropdown(openDropdown === user.id ? null : user.id);
                       }}
                       className="flex items-center gap-1 text-sm px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
                   >
                     <EllipsisVerticalIcon className="w-4 h-4" />
                   </button>
-                  {openDropdown === ticket.id && (
+                  {openDropdown === user.id && (
                     <div className="absolute right-0 mt-2 w-28 bg-white dark:bg-zinc-800 shadow-lg rounded-md text-sm border dark:border-zinc-700 z-50">
-                      <button onClick={() => handleView(ticket.id)} className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left">View</button>
+                      <button onClick={() => handleView(user.id)} className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left">View</button>
                     </div>
                   )}
                 </td>
@@ -241,7 +233,7 @@ const priorityClassMap: Record<string, string> = {
       <div className="flex justify-between items-center mt-4 text-sm">
         <div>
           Showing {((currentPage - 1) * itemsPerPage) + 1}–
-          {Math.min(currentPage * itemsPerPage, filteredTickets.length)} of {filteredTickets.length}
+          {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length}
         </div>
         <div className="flex gap-2">
           <button
@@ -257,29 +249,8 @@ const priorityClassMap: Record<string, string> = {
         </div>
       </div>
 
-      {/* Modal */}
-      <Dialog open={!!selectedTicket} onClose={() => setSelectedTicket(null)} className="fixed z-50 inset-0 overflow-y-auto dark:bg-zinc-900 text-gray-800 dark:text-white">
-        <div className="flex items-center justify-center min-h-screen p-4">
-          <Dialog.Panel className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-xl w-full max-w-md">
-            <Dialog.Title className="text-lg font-semibold mb-4">Ticket Details</Dialog.Title>
-            {selectedTicket && (
-              <div className="space-y-2 text-sm">
-                <div><strong>Subject:</strong> {selectedTicket.subject}</div>
-                <div><strong>Email:</strong> {selectedTicket.email}</div>
-                <div><strong>Phone:</strong> {selectedTicket.phone}</div>
-                <div><strong>Priority:</strong> {selectedTicket.priority}</div>
-                <div><strong>Status:</strong> {selectedTicket.status}</div>
-                <div><strong>Description:</strong>  <p className="text-gray-500 text-xs" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedTicket.description) }}></p></div>
-              </div>
-            )}
-            <div className="mt-4 text-right">
-              <button onClick={() => setSelectedTicket(null)} className="px-4 py-2 rounded bg-red-700">Close</button>
-            </div>
-          </Dialog.Panel>
-        </div>
-      </Dialog>
     </div>
   );
 };
 
-export default TicketList;
+export default UserList;

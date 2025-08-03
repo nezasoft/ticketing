@@ -1,6 +1,6 @@
 import React, {createContext,useState,useCallback,useMemo,ReactNode} from 'react';
-import {TicketContextType,Ticket,GenericResponse,Reply} from '../types';
-import {getTickets,editTicket,viewTicket,newTicket,deleteTicket,replyTicket} from '../service/ticketService';
+import {TicketContextType,Ticket,GenericResponse,Reply, TicketResolve, TicketClose} from '../types';
+import {getTickets,editTicket,viewTicket,newTicket,deleteTicket,replyTicket,resolveTicket, closeTicket} from '../service/ticketService';
 
 const defaultContext: TicketContextType = {
   ticket: null,
@@ -11,10 +11,11 @@ const defaultContext: TicketContextType = {
   newTicket: async () => ({ success: false, message: '', data: null }),
   deleteTicket: async () => ({ success: false, message: '', data: null }),
   replyTicket: async () => ({ success: false, message: '', data: null }),
+  resolveTicket: async () => ({ success: false, message: '', data: null }),
+  closeTicket: async () => ({ success: false, message: '', data: null }),
 };
 
 export const TicketContext = createContext<TicketContextType>(defaultContext);
-
 type Props = {
   children: ReactNode;
 };
@@ -22,7 +23,6 @@ type Props = {
 export const TicketProvider: React.FC<Props> = ({ children }) => {
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-
   const fetchTickets = useCallback(async (company_id: number): Promise<GenericResponse<Ticket[]>> => {
     setLoading(true);
     try {
@@ -62,7 +62,7 @@ export const TicketProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   const handleNewTicket = useCallback(async (
-    payload: Partial<Ticket> & { company_id: number; user_id?: number }
+    payload: FormData
   ): Promise<GenericResponse<Ticket | null>> => {
     return newTicket(payload);
   }, []);
@@ -79,6 +79,19 @@ export const TicketProvider: React.FC<Props> = ({ children }) => {
     return replyTicket(payload);
   },[]);
 
+  const handleResolveTicket = useCallback(async (
+    payload: FormData):Promise<GenericResponse<TicketResolve | null>> =>
+  {
+    return resolveTicket(payload);
+  },[]);
+
+  const handleCloseTicket = useCallback(async (
+    payload: FormData
+  ): Promise<GenericResponse<TicketClose | null>> =>
+  {
+    return closeTicket(payload);
+  },[]);
+
   const contextValue = useMemo(() => ({
     ticket,
     loading,
@@ -87,7 +100,9 @@ export const TicketProvider: React.FC<Props> = ({ children }) => {
     editTicket: handleEditTicket,
     newTicket: handleNewTicket,
     deleteTicket: handleDeleteTicket,
-    replyTicket: handleReplyTicket
+    replyTicket: handleReplyTicket,
+    resolveTicket: handleResolveTicket,
+    closeTicket: handleCloseTicket
   }), [
     ticket,
     loading,
@@ -96,7 +111,9 @@ export const TicketProvider: React.FC<Props> = ({ children }) => {
     handleEditTicket,
     handleNewTicket,
     handleDeleteTicket,
-    handleReplyTicket
+    handleReplyTicket,
+    handleResolveTicket,
+    handleCloseTicket
   ]);
 
   return (

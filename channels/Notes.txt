@@ -1,0 +1,5 @@
+#Command to test fetching and queing emails from server. This will make the system create a job queue that we will executed in the next command.
+#Must have the authentication token and configured in the env file
+curl "http://localhost/ticketing/channels/api/channels/fetch-emails?token=OrisRT2025"
+#Once the above command has been run we can run this command to process emails
+php artisan queue:work

@@ -4,7 +4,7 @@ export interface Ticket{
     customer_id: number;
     priority_id: number;
     channel_id: number;
-    ticket_type_id : number;
+    customer_type : number;
     subject?: string;
     status_id: number;
     company_id: number;
@@ -25,10 +25,28 @@ export interface Ticket{
     channel: string;
     dept: string;
     company: string;
+    name?:string;
     events?: any[];
     replies?: any[];
     attachments?: Attachment[];
+    thread_attachments?: Attachment[];
     
+}
+
+export interface Setting
+{
+    priorities?: any[];
+    roles?: any[];
+    notification_types?: any[];
+    ticket_status?: any[];
+    channels?: any[];
+    departments?: any[];
+    country_codes?: any[];
+    customer_types?: any[];
+    sla_policies?: any[];
+    customers?: any[];
+    users?: any[];
+
 }
 
 export interface AuthUser{
@@ -63,7 +81,8 @@ export interface Reply {
   user_id: number;
   ticket_id: number;
   reply_message: string;
-  attachments?: File[];
+  attachments?: Attachment[];
+
 }
 export interface EventType {
   name: string;
@@ -82,6 +101,7 @@ export interface SLAEvent
 export interface Attachment
 {
     ticket_id: number;
+    thread_id:number;
     user_id: number;
     file_name?: string;
     file_path?: string;
@@ -186,6 +206,19 @@ export interface TicketAssignment
 {
     ticket_id:number;
     user_id:number;
+    remarks:string;
+}
+export interface TicketResolve
+{
+    ticket_id: number;
+    user_id: number;
+    remarks:string;
+}
+export interface TicketClose
+{
+    ticket_id: number;
+    user_id: number;
+    remarks:string;
 }
 export interface AuthContextType {
     user: AuthUser | null;
@@ -201,9 +234,31 @@ export interface TicketContextType {
     listTickets: (company_id: number) => Promise<GenericResponse<Ticket[]>>;
     editTicket: (ticket_id: number,data: Partial<Ticket>) => Promise<GenericResponse<Ticket | null>>;
     viewTicket: (ticket_id: number) => Promise<GenericResponse<Ticket | null>>;
-    newTicket: (payload: Partial<Ticket> & {company_id: number, user_id?: number}) => Promise<GenericResponse<Ticket | null>>;
+    newTicket: (payload: FormData) => Promise<GenericResponse<Ticket | null>>;
     deleteTicket: (ticket_id: number) => Promise<GenericResponse<null>>;
     replyTicket: (payload:FormData) => Promise<GenericResponse<Reply | null>>;
+    resolveTicket: (payload:FormData) => Promise<GenericResponse<TicketResolve | null>>;
+    closeTicket: (payload:FormData) => Promise<GenericResponse<TicketClose | null>>;
+    loading: boolean;
+}
+
+export interface SettingContextType
+{
+    setting: Setting | null;
+    user: AuthUser | null;
+    listSettings: (company_id: number) => Promise<GenericResponse<Setting | null>>;
+    newUser: (payload: FormData) => Promise<GenericResponse<AuthUser | null>>;
+    editUser: (user_id: number, data:Partial<AuthUser>) => Promise<GenericResponse<AuthUser | null>>;
+    deleteUser: (user_id: number) => Promise<GenericResponse<null>>;
+    loading: boolean;
+}
+
+export interface TicketAssignmentContextType
+{
+    ticket_assignment : TicketAssignment | null;
+    listTicketAssignments: (company_id: number) => Promise<GenericResponse<TicketAssignment[]>>;
+    editTicketAssignment: (ticket_assignment_id: number, data: Partial<TicketAssignment>) => Promise<GenericResponse<TicketAssignment | null>>;
+    newTicketAssignment: (payload: FormData) => Promise<GenericResponse<TicketAssignment | null>>;
     loading: boolean;
 }
 

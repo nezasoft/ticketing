@@ -7,7 +7,13 @@ import React, {
 } from 'react';
 import { AuthContextType, AuthUser, GenericResponse } from '../types';
 import { loginUser, registerUSer, recoverPassword } from '../service/authService';
-
+import { jwtDecode } from 'jwt-decode'; 
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+interface DecodedToken {
+  exp: number;
+  [key: string]: any;
+}
 // 1.  Default (fallback) context value 
 const defaultContext: AuthContextType = {
   user: null,
@@ -35,30 +41,41 @@ export const AuthProvider: FC<Props> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
   // Restore auth state from localStorage on first mount 
+useEffect(() => {
+  const storedUser = localStorage.getItem('user');
+  const storedToken = localStorage.getItem('token');
+  const storedExp = localStorage.getItem('token_exp');
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
-
-    try {
-      if (storedUser && storedToken) {
-        setUser(JSON.parse(storedUser));
-        setToken(storedToken);
-      }
-    } catch (err) {
-      console.error('Auth restore error:', err);
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-    } finally {
-      setLoading(false);
+  try {
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
     }
-  }, []);
+
+    if (storedExp) {
+      const now = Date.now();
+      const expiry = parseInt(storedExp, 10) * 1000;
+
+      if (now >= expiry) {
+        logout(); // Token already expired
+      } else {
+        scheduleLogout(parseInt(storedExp, 10));
+      }
+    }
+  } catch (err) {
+    console.error('Auth restore error:', err);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('token_exp');
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
 
   // Login                                                          
-
   const login = async (
     email: string,
     password: string
@@ -66,19 +83,21 @@ export const AuthProvider: FC<Props> = ({ children }) => {
     const response = await loginUser(email, password);
 
     if (response.success) {
+      const decoded: DecodedToken = jwtDecode(response.data.token);
+      localStorage.setItem('token_exp', decoded.exp.toString());
+
       setUser(response.data.user);
       setToken(response.data.token);
-
       localStorage.setItem('user', JSON.stringify(response.data.user));
       localStorage.setItem('token', response.data.token);
+
+      scheduleLogout(decoded.exp);
     }
 
     return response;
   };
 
-
   // Register                                                 
-
   const register = async (
     email: string,
     password: string,
@@ -88,21 +107,42 @@ export const AuthProvider: FC<Props> = ({ children }) => {
     return registerUSer(email, password, phone, name);
   };
 
-
   // Recover password                                              
-
   const recover = async (email: string): Promise<GenericResponse<any>> => {
     return recoverPassword(email);
   };
-
-
   // Logout                                                       
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-  };
+  const logout = (notify = false) => {
+  setUser(null);
+  setToken(null);
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+  localStorage.removeItem('token_exp');
+
+  if (notify) {
+    toast.error('Session expired. Please log in again.');
+  }
+  setTimeout(() => {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login'; 
+    }
+  }, 100);
+};
+
+const scheduleLogout = (exp: number) => {
+  const now = Date.now();
+  const expiry = exp * 1000;
+  const timeout = expiry - now;
+
+  if (timeout > 0) {
+    setTimeout(() => {
+      logout(true); // 👈 auto logout with toast
+    }, timeout);
+  } else {
+    logout(true); // Token already expired
+  }
+};
+
 
   // Provider value                                                
   return (

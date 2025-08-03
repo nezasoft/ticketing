@@ -1,6 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { SettingContext } from '../context/SettingContext';
+
+
 
 const Login: React.FC = () => {
   const { login } = useContext(AuthContext);
@@ -11,15 +14,25 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const {listSettings}  = useContext(SettingContext);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setFeedback(null); // Clear previous message
-
     try {
       const response = await login(email, password);
       if (response.success) {
+        // 1. Login succeeded
+      const user = response.data.user;
+         // 2. Fetch and store settings
+      const settingsResp = await listSettings(user.company_id);
+      if (!settingsResp.success) {
+        setFeedback({ type: 'error', message: 'Failed to load settings' });
+        return;
+      }
+
+      //Decode and save token
         setFeedback({ type: 'success', message: 'Login successful!' });
         navigate('/dashboard');
       } else {
@@ -32,6 +45,8 @@ const Login: React.FC = () => {
       setLoading(false);
     }
   };
+
+  
 
   return (
     <div className="h-screen grid grid-cols-1 md:grid-cols-2 dark:bg-zinc-900 text-gray-800 dark:text-white">

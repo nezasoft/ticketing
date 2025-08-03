@@ -1,8 +1,6 @@
 import api from '../api/api';
 import { Ticket, GenericResponse,Reply } from '../types';
 
-const token = localStorage.getItem('token');
-
 //Get Tickets Function
 export async function getTickets(company_id:number): Promise<GenericResponse<Ticket[]>>
 {
@@ -15,12 +13,17 @@ export async function getTickets(company_id:number): Promise<GenericResponse<Tic
 
 //Create Ticket Function
 export async function newTicket(
-  payload: Partial<Ticket> & {company_id: number, user_id?: number}
+  payload: FormData
 ): Promise<GenericResponse<Ticket>>
 {
     const response = await api.post<GenericResponse<Ticket>>(
     '/tickets/create',
-     payload 
+     payload,
+     {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }
   );
   return response.data;
 }
@@ -55,8 +58,6 @@ export async function viewTicket(
   }
 }
 
-
-
 //Edit Ticket Function
 export async function editTicket(
   ticket_id: number,
@@ -85,6 +86,21 @@ export async function replyTicket(payload: FormData): Promise<GenericResponse<an
     headers: {
       'Content-Type': 'multipart/form-data',
     },
+  });
+  return response.data;
+}
+//Resolve Ticket Function
+export async function resolveTicket(payload: FormData): Promise<GenericResponse<any>>
+{
+  const response = await api.post<GenericResponse<any>>('/tickets/resolve',payload,{
+
+  });
+  return response.data;
+}
+//Close Ticket Function
+export async function closeTicket(payload: FormData): Promise<GenericResponse<any>>
+{
+  const response = await api.post<GenericResponse<any>>('/tickets/close', payload, {
   });
   return response.data;
 }

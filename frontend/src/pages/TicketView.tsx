@@ -95,6 +95,7 @@ const TicketView: React.FC = () => {
           subject={ticket.subject}
           description={ticket.description}
           attachments={ticket.attachments ?? []}
+          thread_attachments={ticket.thread_attachments ?? []}
           replies={ticket.replies ?? []}
           events={ticket.events ?? []}
           status={ticket.status}

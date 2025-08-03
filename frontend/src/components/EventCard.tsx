@@ -19,6 +19,13 @@ const EventCard: React.FC<EventCardProps> = ({
   const month = eventDate.toLocaleString('default', { month: 'short' });
   const day = eventDate.getDate();
 
+  const statusClassMap: Record<string, string> = {
+  New: 'bg-purple-100 text-purple-600',
+  Pending: 'bg-yellow-100 text-yellow-600',
+  Resolved: 'bg-green-100 text-green-600',
+  Closed: 'bg-gray-200 text-gray-700',
+};
+
   return (
    
     <div className="flex ">
@@ -33,13 +40,11 @@ const EventCard: React.FC<EventCardProps> = ({
         <h6 className="text-sm font-semibold text-gray-800 mb-1">
             <span className="hover:underline">{event_type}</span>
             <span
-                className={`ml-1 px-2 py-0.5 text-xs rounded-full ${
-                status === 'Resolved'
-                    ? 'bg-green-100 text-green-600'
-                    : 'bg-red-100 text-red-600'
-                }`}
+              className={`ml-1 px-2 py-0.5 text-xs rounded-full ${
+                statusClassMap[status] || 'bg-red-100 text-red-600'
+              }`}
             >
-                {status}
+              {status}
             </span>
         </h6>
         <p className="text-gray-600 mb-1 text-sm mb-1">
