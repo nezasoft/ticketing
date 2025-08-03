@@ -77,6 +77,36 @@ class AuthController extends Controller
             return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 200, $e->getMessage());
         }
     }
+
+    public function show(Request $request)
+    {
+        $validator = Validator::make($request->only('user_id'),[
+            'user_id' => 'required|integer|exists:auth_users,id',
+        ]);
+
+        if($validator->fails())
+        {
+            return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG, 200, $validator->errors());
+        }
+
+        //Get User Details
+        $user = AuthUser::with('department','role')->where(['id'=>$request->user_id])->first();
+        
+        if($user)
+        {
+            $user[] = [
+                'id'=>$user->id,
+                'name'=>$user->name ??'',
+                'phone' => $user->phone ?? '',
+                'email' => $user->email ?? '',
+                'department' => $user->department->name ?? '',
+                'role' => $user->role->name  ?? '',
+                'date_created' => $this->apiService->formatDate($user->created_at)
+            ];
+            return $this->apiService->serviceResponse($this->apiService::SUCCESS_FLAG,200,$this->apiService::SUCCESS_MESSAGE);
+        }
+        return $this->apiService->serviceResponse($this->apiService::FAILED_FLAG,200,$this->apiService::FAILED_MESSAGE);
+    }
     public function recover(Request $request)
     {
         $validator = Validator::make($request->all(), [

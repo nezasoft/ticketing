@@ -22,12 +22,8 @@ class CreateTicketsTable extends Migration
             $table->mediumText('description')->nullable();
             $table->dateTime('first_response_at')->nullable();
             $table->dateTime('resolved_at')->nullable();
+            $table->dateTime('closed_at')->nullable();
             $table->timestamps();
-
-            /*$table->foreign('priority_id')->references('id')->on('priority')->onDelete('cascade');
-            $table->foreign('channel_id')->references('id')->on('channels')->onDelete('cascade');
-            $table->foreign('status_id')->references('id')->on('status')->onDelete('cascade');*/
-            //customer_id foreign key is omitted as the "customer" table is not provided.
         });
     }
 

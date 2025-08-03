@@ -1,5 +1,5 @@
 import api from '../api/api';
-import {GenericResponse,Setting} from '../types';
+import {AuthUser, GenericResponse,Setting} from '../types';
 
 //Get All System Settigs
 export async function getSettings(company_id:number):Promise<GenericResponse<Setting>>
@@ -17,7 +17,7 @@ export async function getSettings(company_id:number):Promise<GenericResponse<Set
     };
 
   } catch (error: any) {
-      console.error("viewTicket error:", {
+      console.error("Settings error:", {
         success: error.response?.success,
         message: error.message,
         data: error.response?.data,
@@ -26,9 +26,77 @@ export async function getSettings(company_id:number):Promise<GenericResponse<Set
       // Return the correct error structure
       return {
         success: false,
-        message: 'Ticket fetch failed',
+        message: 'Settings fetch failed',
         data: {} as Setting, // or null if you change GenericResponse<T | null>
       };
     }
      
+}
+
+//Delete User Function
+export async function deleteUser( user_id: number): Promise<GenericResponse<any>>
+{
+  const response = await api.post<GenericResponse<any>>('/users/delete',{
+    user_id
+
+  });
+  return response.data;
+}
+
+//Add New User 
+export async function newUser(payload: FormData): Promise<GenericResponse<AuthUser>>
+{
+
+  const response = await api.post<GenericResponse<AuthUser>>(
+    '/users/create',payload,
+
+  );
+  return response.data;
+}
+
+//View User
+export async function viewUser(
+  user_id: number
+): Promise<GenericResponse<AuthUser>>
+{
+  try{
+    const response = await api.post<GenericResponse<AuthUser[]>>('/users/show',{
+      user_id
+    });
+
+    return {
+      success: true,
+      message: 'User retrieved successfully',
+      data: response.data.data[0],
+    };
+  }catch(error: any)
+  {
+    console.error('View User Error:',{
+      success: error.response?.success,
+      message: error.message,
+      data: error.response?.data,
+    });
+
+    return {
+      success: false,
+      message: 'User fetch failed',
+      data: {} as AuthUser
+    };
+  }
+}
+
+//Edit User
+
+export async function editUser
+(
+  user_id: number,
+  data: Partial<AuthUser>
+): Promise<GenericResponse<AuthUser>>
+{
+  const response = await api.post<GenericResponse<AuthUser>>('/users/edit',
+    {
+      user_id, ...data
+    }
+  );
+  return response.data;
 }

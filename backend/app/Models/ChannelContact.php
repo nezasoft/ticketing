@@ -8,19 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class ChannelContact extends Model
 {
     protected $table = 'channel_contacts';
-
-    // Because the table uses non-standard column names for timestamps:
-    public $timestamps = false;
-
-    protected $fillable = [
-        'channel_id',
-        'email',
-        'phone',
-        'company_id',
-        'created_at',
-        'updated_at',
-    ];
-
     // Relationships
     public function channel()
     {

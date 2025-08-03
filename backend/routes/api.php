@@ -21,10 +21,10 @@ Route::prefix('user')->controller(AuthController::class)->group(function () {
 });
 
 Route::middleware(['auth:api'])->group(function () {
-    Route::prefix('email')->controller(AuthController::class)->group(function () {
+    /*Route::prefix('email')->controller(AuthController::class)->group(function () {
         Route::post('/create', 'create')->name('email.create');
 
-    });
+    });*/
 
     Route::prefix('settings')->controller(SettingsController::class)->group(function () {
         Route::get('/priorities','getPriorities')->name('settings.priorities');
@@ -32,8 +32,7 @@ Route::middleware(['auth:api'])->group(function () {
         Route::get('/status','getTicketStatus')->name('settings.status');
         Route::get('/notification_types','getNotificationTypes')->name('settings.notification_types');
         Route::get('/roles','getRoles')->name('settings.roles');
-
-
+        Route::post('/all','getAllSettings')->name('settings.all');
     });
     Route::prefix('contacts')->controller(ChannelContactController::class)->group(function () {
         Route::post('/list','getContactList')->name('contacts.list');
@@ -41,8 +40,11 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/edit','updateChannelContact')->name('contacts.edit');
         Route::post('/delete','deleteChannelContact')->name('contacts.delete');
     });
-    Route::prefix('user')->controller(AuthController::class)->group(function () {
+    Route::prefix('users')->controller(AuthController::class)->group(function () {
         Route::post('/edit', 'edit')->name('user.edit');
+        Route::post('/show', 'show')->name('user.show');
+        Route::post('/create', 'create')->name('user.create');
+        Route::post('/delete', 'delete')->name('user.delete');
     });
     Route::prefix('department')->controller(DepartmentController::class)->group(function () {
         Route::post('/list', 'index')->name('department.index');
@@ -84,6 +86,16 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/create', 'create')->name('tickets.create');
         Route::post('/edit', 'edit')->name('tickets.edit');
         Route::post('/reply', 'reply')->name('tickets.reply');
+        Route::post('/assign', 'assign')->name('tickets.assign');
+        Route::post('/resolve', 'resolveTicket')->name('tickets.resolve');
+        Route::post('/close', 'closeTicket')->name('tickets.close');
+    });
+    Route::prefix('integration')->controller(IntegrationController::class)->group(function () {
+        Route::post('/list', 'index')->name('integration.list');
+        Route::post('/create', 'create')->name('integration.create');
+        Route::post('/edit', 'edit')->name('integration.edit');
+        Route::post('/delete', 'delete')->name('integration.delete');
+
     });
 });
 

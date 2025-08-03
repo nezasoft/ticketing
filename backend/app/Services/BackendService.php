@@ -1,7 +1,12 @@
 <?php
 namespace App\Services;
+
+use App\Models\IntegrationSetting;
 use App\Models\Template;
 use App\Models\TemplateType;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+
 class BackendService {
 
     const SUCCESS_MESSAGE = 'Request processed successfully!';
@@ -18,6 +23,13 @@ class BackendService {
         ], $response_code);
     }
 
+    public function formatDate($date)
+    {
+        $new_date = Carbon::parse($date);
+        
+        return $new_date->format('jS M Y g:i a');
+    }
+
     public function sendEmail($email, $template, array $data)
     {
         $template = $this->emailTemplate($template);
@@ -27,7 +39,7 @@ class BackendService {
         }
         $body = $this->replacePlaceholders($template->message, $data);
         $mailer = new EmailService();
-        $sent = $mailer->sendmail($email, $template->subject, $body);
+        $sent = $mailer->sendEmailMessage($email, $template->subject, $body);
         return $sent ? true : false;
     }
     public function emailTemplate($template_type)
@@ -46,6 +58,19 @@ class BackendService {
             $text = str_replace('{{'.$key.'}}', $value, $text);
         }
         return $text;
+    }
+
+    public static function getIntegrationConfigs()
+    {
+        return Cache::remember('integration_configs', now()->addMinutes(60), function () {
+            return IntegrationSetting::select(['code', 'value'])
+                ->get()
+                ->keyBy('code')
+                ->map(function ($item) {
+                    return ['value' => $item->value];
+                })
+                ->toArray();
+        });
     }
 
 }

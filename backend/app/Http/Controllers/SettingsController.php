@@ -2,19 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuthUser;
+use App\Models\Channel;
+use App\Models\CountryCode;
+use App\Models\Customer;
+use App\Models\CustomerType;
+use App\Models\Department;
 use App\Models\NotificationType;
 use App\Models\Priority;
 use App\Models\Role;
+use App\Models\SlaPolicy;
 use App\Models\Status;
 use App\Models\TicketType;
 use App\Services\BackendService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class SettingsController extends Controller
 {
 
     protected $service;
-
 
     public function __construct(BackendService $backendService)
     {
@@ -24,7 +32,7 @@ class SettingsController extends Controller
     public function getPriorities()
     {
         $data =[];
-        $records = Priority::all();
+        $records = Priority::orderBy('name','asc')->get();
         if(count($records) != 0)
         {
             foreach($records as $record)
@@ -43,7 +51,7 @@ class SettingsController extends Controller
     public function getTicketTypes()
     {
         $data =[];
-        $records = TicketType::all();
+        $records = TicketType::orderBy('name','asc')->get();
         if(count($records) != 0)
         {
             foreach($records as $record)
@@ -62,7 +70,7 @@ class SettingsController extends Controller
     public function getTicketStatus()
     {
         $data =[];
-        $records = Status::all();
+        $records = Status::orderBy('name','asc')->get();
         if(count($records) != 0)
         {
             foreach($records as $record)
@@ -80,7 +88,7 @@ class SettingsController extends Controller
     public function getNotificationTypes()
     {
         $data =[];
-        $records = NotificationType::all();
+        $records = NotificationType::orderBy('id','asc')->get();
         if(count($records) != 0)
         {
             foreach($records as $record)
@@ -113,5 +121,214 @@ class SettingsController extends Controller
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, '',$data);
         }
         return $this->service->serviceResponse($this->service::FAILED_FLAG,400,'No records found');
+    }
+
+    public function getChannels()
+    {
+        $data = [];
+        $records = Channel::orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $data[] = [
+                    'id'=> $record->id,
+                    'name'=> $record->name
+                ];
+            }
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, '',$data);
+        }
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400,'No records found');
+
+    }
+
+    public function getAllSettings(Request $request)
+    {
+
+        $validator = Validator::make($request->only('company_id'), [
+            'company_id' => 'required|integer|exists:companies,id',
+        ]);
+        if ($validator->fails()) {
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
+        }
+        $data = [];
+        $priorities = [];
+        $roles = [];
+        $notification_types = [];
+        $ticket_status = [];
+        $channels = [];
+        $departments = [];
+        $country_codes = [];
+        $customer_types = [];
+        $sla_policies =[];
+        $customers = [];
+        $users = [];
+        $records = Channel::orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $channels[] = [
+                    'id'=> $record->id,
+                    'name'=> $record->name
+                ];
+            }
+        }
+
+        $records = Priority::orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $priorities[] = [
+                    'id'=> $record->id,
+                    'name'=> $record->name
+                ];
+            }
+        }
+
+        $records = Role::orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $roles[] = [
+                    'id'=> $record->id,
+                    'name'=> $record->name
+                ];
+            }
+        }
+
+        $records = NotificationType::orderBy('id','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $notification_types[] = [
+                    'id' => $record->id,
+                    'message'=> $record->message,
+                    'type' => $record->type,
+                    'icon_class' => $record->icon_class,
+                ];
+            }
+        }
+
+        $records = Status::orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $ticket_status[] = [
+                    'id' => $record->id,
+                    'name'=> $record->name,
+                ];
+            }
+        }
+
+        $records = Department::where('company_id',$request->company_id)->orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $departments[] = [
+                    'id' => $record->id,
+                    'name'=> $record->name,
+                ];
+            }
+        }
+
+        $records = CountryCode::orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $country_codes[] = [
+                    'id' => $record->id,
+                    'name'=> $record->name,
+                    'nice_name'=> $record->nicename,
+                    'iso'=> $record->iso,
+                    'numcode'=> $record->numcode,
+                    'phonecode'=> $record->phonecode,
+                ];
+            }
+        }
+
+        $records = CustomerType::where('company_id',$request->company_id)->orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $customer_types[] = [
+                    'id' => $record->id,
+                    'name'=> $record->name
+                ];
+            }
+        }
+
+        $records = SlaPolicy::where('company_id',$request->company_id)->orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $sla_policies[] = [
+                    'id' => $record->id,
+                    'name'=> $record->name
+                ];
+            }
+        }
+
+        $records =  Customer::where('company_id',$request->company_id)->orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $customers[] = [
+                    'id' => $record->id,
+                    'name'=> $record->name,
+                    'email'=> $record->email ?? '',
+                    'phone'=> $record->phone ?? '',
+                    'client_no' => $record->client_no ?? '',
+                    'account_no' => $record->account_no ?? ''
+                ];
+            }
+        }
+        $records = AuthUser::with('department','role')->where('company_id', $request->company_id)->where('status', 1)->orderBy('name', 'asc')->get();
+        if(count($records)!=0)
+        {
+            foreach($records as $record)
+            {
+                $created_at = Carbon::parse($record->created_at);
+                $created_at = $created_at->format('jS M Y g:i a');
+                $users[] = [
+                    'id' => $record->id,
+                    'name' => $record->name,
+                    'email' => $record->email ?? '',
+                    'phone' => $record->phone ?? '',
+                    'department' => $record->department->name ?? '',
+                    'role' => $record->role->name ?? '',
+                    'dept_id'=>$record->dept_id,
+                    'active' => $record->status == 1 ? 'Yes' : 'No',
+                    'date_created' => $this->service->formatDate($record->created_at)
+                ];
+
+            }
+        }
+
+        $data[] = [
+            'priorities' => $priorities,
+            'roles' => $roles,
+            'notification_types' => $notification_types,
+            'ticket_status' => $ticket_status,
+            'channels' => $channels,
+            'departments' => $departments,
+            'country_codes' => $country_codes,
+            'customer_types' => $customer_types,
+            'sla_policies' => $sla_policies,
+            'customers' => $customers,
+            'users' => $users
+        ];
+
+        return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, '',$data);
+
     }
 }

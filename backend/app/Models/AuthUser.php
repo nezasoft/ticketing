@@ -30,6 +30,11 @@ class AuthUser extends Authenticatable  implements JWTSubject
         return $this->belongsTo(Department::class, 'dept_id');
     }
 
+    public function role()
+    {
+        return $this->belongsTo(Role::class,'role_id');
+    }
+
     public function attachments()
     {
         return $this->hasMany(Attachment::class, 'user_id');

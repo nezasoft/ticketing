@@ -89,6 +89,7 @@ class EmailController extends Controller
             $email->fetching_port = $request->port;
             $email->fetching_protocol = $request->protocol;
             $email->fetching_encryption = $request->encryption;
+            $email->folder = 'Inbox';
 
             if($email->save())
             {
@@ -134,6 +135,9 @@ class EmailController extends Controller
         $email->fetching_port = $request->port;
         $email->fetching_protocol = $request->protocol;
         $email->fetching_encryption = $request->encryption;
+        $email->folder = 'Inbox';
+
+        //Lets create email config settings for this company
 
         if($email->save())
         {

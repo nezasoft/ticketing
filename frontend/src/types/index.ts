@@ -51,13 +51,17 @@ export interface Setting
 
 export interface AuthUser{
     id: number;
+    name:string;
+    active:string;
     email: string;
     company_id: number;
     phone?: string;
-    dept_id: number;
+    department: string;
+    role: string;
     status: number;
     created_at?: string;
     updated_at?: string;
+    date_created?: string;
 }
 
 export interface BusinessDoc{
@@ -248,6 +252,7 @@ export interface SettingContextType
     user: AuthUser | null;
     listSettings: (company_id: number) => Promise<GenericResponse<Setting | null>>;
     newUser: (payload: FormData) => Promise<GenericResponse<AuthUser | null>>;
+    viewUser: (user_id: number) => Promise<GenericResponse<AuthUser | null>>;
     editUser: (user_id: number, data:Partial<AuthUser>) => Promise<GenericResponse<AuthUser | null>>;
     deleteUser: (user_id: number) => Promise<GenericResponse<null>>;
     loading: boolean;

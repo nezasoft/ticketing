@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { SettingContext } from '../context/SettingContext';
 import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import UserList from '../components/UserList';
 const Users: React.FC = () => 
 {
     const [users, setUsers] = useState<AuthUser[]>([]);
@@ -20,17 +21,24 @@ const Users: React.FC = () =>
                 console.warn('User not found in localStorage');
                 return;
             }
+            
             const user = JSON.parse(userString);
             const companyId = user.company_id;
-                  if (settingCtx?.listSettings) {
-        const response = await settingCtx.listSettings(companyId);
 
-        if (response.success && response.data?.users) {
-          setUsers(response.data.users);
-        } else {
-          console.error('Failed to fetch users:', response.message);
-        }
-      }
+            if (!user.company_id) {
+              console.warn("User company id missing.");
+              return;
+            }
+
+            if (settingCtx?.listSettings) {
+            const response = await settingCtx.listSettings(companyId);
+
+            if (response.success && response.data?.users) {
+              setUsers(response.data.users);
+            } else {
+              console.error('Failed to fetch users:', response.message);
+            }
+          }
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -57,12 +65,11 @@ const Users: React.FC = () =>
       <Sidebar />
       <main className="md:ml-[250px] md:mt-[70px] ml-0 p-4 w-full h-full ">
         <div className="flex flex-wrap items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Tickets</h2>
-        <div className="flex flex-wrap gap-2 items-center">
-
+        <h2 className="text-xl font-semibold">Users</h2>
+        <div className="flex flex-wrap gap-2 items-center">    
         </div>
       </div>
-
+      <UserList users={users} />
       </main>
     </div>
   );

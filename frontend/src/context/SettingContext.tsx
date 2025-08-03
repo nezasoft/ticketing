@@ -1,6 +1,6 @@
 import React, {createContext,useState,useCallback,useMemo,ReactNode,useEffect} from 'react';
 import {SettingContextType,Setting,AuthUser,GenericResponse} from '../types';
-import {getSettings, newUser, editUser, deleteUser} from '../service/settingsService';
+import {getSettings, newUser, editUser, deleteUser, viewUser} from '../service/settingsService';
 
 const defaultContext: SettingContextType = {
   setting: null,
@@ -8,6 +8,7 @@ const defaultContext: SettingContextType = {
   loading: false,
   listSettings: async () => ({ success: false, message: '', data: null }),
   newUser: async () => ({success: false, message:'',data:null}),
+  viewUser: async () => ({success: false, message:'',data:null}),
   editUser: async () => ({success: false, message:'', data:null}),
   deleteUser: async () => ({success:false, message:'', data:null})
 };
@@ -18,6 +19,8 @@ type Props = {
 };
 export const SettingProvider: React.FC<Props> = ({ children }) => {
   const [setting, setSetting] = useState<Setting | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  
   const [loading, setLoading] = useState<boolean>(false);
 
     // Load from localStorage on init
@@ -53,13 +56,53 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
     }
   }, []);
 
+  //Edit user
+  const handleEditUser = useCallback(async (
+    user_id: number,
+    data: Partial<AuthUser>
+  ): Promise<GenericResponse<AuthUser | null>> => 
+  {
+    return editUser(user_id, data);
+  },[]);
 
+  //New User 
+  const handleNewUser = useCallback(async (payload: FormData) : Promise<GenericResponse<AuthUser | null>> =>
+  {
+    return newUser(payload);
+  },[] );
+
+//Delete user 
   const handleDeleteUser = useCallback(async (
     user_id: number
   ): Promise<GenericResponse<null>> =>
     {
       return deleteUser(user_id);
-    },[]);
+    },
+  []);
+
+  //View user
+  const handleViewUser = useCallback(async (user_id: number): Promise<GenericResponse<AuthUser | null>> =>
+  {
+    setLoading(true);
+    try
+    {
+      const response = await viewUser(user_id);
+      setUser(response.data);
+      return{
+        success: true,
+        message: 'User retrieved successfully',
+        data: response.data,
+      };
+    }catch(error)
+    {
+      console.error('Error viewing user',error);
+      return {success: false, message: 'Error viewing user', data:null};
+    }finally{
+      setLoading(false);
+    }
+  },[]);
+
+
 
   const contextValue = useMemo(() => ({
     setting,
@@ -68,7 +111,8 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
     listSettings: fetchSettings,
     newUser: handleNewUser,
     editUser: handleEditUser,
-    deleteUser: handleDeleteUser
+    deleteUser: handleDeleteUser,
+    viewUser: handleViewUser
   }), [
     setting,
     user,
@@ -76,7 +120,8 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
     fetchSettings,
     handleNewUser,
     handleEditUser,
-    handleDeleteUser
+    handleDeleteUser,
+    handleViewUser
   ]);
 
   return (

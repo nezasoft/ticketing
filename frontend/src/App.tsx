@@ -13,6 +13,8 @@ import Dashboard from './pages/Dashboard';
 import Tickets from './pages/Tickets';
 import TicketView from './pages/TicketView';
 import TicketForm from './pages/TicketForm';
+import Users from './pages/Users';
+import UserView from './pages/UserView';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
@@ -60,6 +62,23 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/users"
+            element={
+              <PrivateRoute>
+                <Users />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/users/:id"
+            element={
+              <PrivateRoute>
+                <UserView />
+              </PrivateRoute>
+            }
+          />
+
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>

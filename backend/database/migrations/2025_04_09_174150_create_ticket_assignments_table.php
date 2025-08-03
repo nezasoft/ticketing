@@ -12,6 +12,8 @@ class CreateTicketAssignmentsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('ticket_id');
             $table->unsignedInteger('user_id');
+             $table->unsignedInteger('assigning_user_id');
+            $table->string('remarks');
             $table->timestamps();
 
             /*$table->foreign('ticket_id')->references('id')->on('tickets')->onDelete('cascade');

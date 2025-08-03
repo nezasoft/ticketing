@@ -33,8 +33,9 @@ class TicketService
     const TICKET_STATUS_NEW = 1;
     const TICKET_STATUS_RESOLVED = 2;
     const TICKET_STATUS_PENDING = 3;
-     const TICKET_STATUS_ARCHIVED = 4;
+    const TICKET_STATUS_ARCHIVED = 4;
     const TICKET_STATUS_CLOSED = 5;
+    const TICKET_STATUS_ASSIGNED = 6;
     const TICKET_TYPE_CUSTOMER = 1;
     const TICKET_TYPE_GUEST = 2;
     //SLA Events
@@ -57,23 +58,47 @@ class TicketService
     const NEW_TICKET =3;
     const TICKET_CLOSED = 4;
     const TICKET_RESOLVED = 5;
+    const TICKET_ASSIGNED = 6;
+
+    //Ticket Templates
+    const TEMPLATE_ASSIGN_TICKET = 'assign-ticket';
+    const TEMPLATE_REPLY_TICKET = 'ticket-reply';
+    const TEMPLATE_NEW_TICKET = 'create-ticket';
+    const TEMPLATE_RESOLVE_TICKET = 'resolve-ticket';
+    const TEMPLATE_CLOSE_TICKET =  'close-ticket';
 
 
-    public function saveChannelContact($channel_id,$company_id, $email='', $phone='')
+    public function saveChannelContact($channel_id, $company_id, $email = '', $phone = '',$name='')
     {
-       // First Confirm the contact already exists
-       $contact = ChannelContact::where(['email'=> $email])->orWhere(['phone'=> $phone])->first();
-       if(!$contact)
-       {
-             ChannelContact::create([
-                'channel_id'=> $channel_id,
-                'email'=> $email,
-                'phone' => $phone,
-                'company_id' => $company_id,
-                'created_at'=> Carbon::now(),
-            ]);
-       }
+        // Don't proceed if both email and phone are empty
+        if (empty($email) && empty($phone)) {
+            return false;
+        }
+
+        // Check if contact already exists for this company by email or phone
+        $contact = ChannelContact::where(function ($query) use ($email, $phone) {
+            if (!empty($email)) {
+                $query->where('email', $email);
+            }
+            if (!empty($phone)) {
+                $query->orWhere('phone', $phone);
+            }
+        })->where('company_id', $company_id)->first();
+
+        if (!$contact) {
+            $new_contact = new ChannelContact();
+            $new_contact->channel_id = $channel_id;
+            $new_contact->company_id = $company_id;
+            $new_contact->email = $email;
+            $new_contact->phone = $phone;
+            $new_contact->full_name = $name;
+
+            return $new_contact->save();
+        }
+
+        return false;
     }
+
 
     public function generateRandomString()
     {

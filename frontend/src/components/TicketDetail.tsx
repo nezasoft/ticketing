@@ -378,7 +378,7 @@ const toggleResolveTicketForm = () => {
               </svg>
             </div> : <CheckCircleIcon className="w-4 h-4" />
             }
-           {showAssignTicketForm ? 'Cancel' : 'Resolve Ticket'}
+           {showResolveTicketForm ? 'Cancel' : 'Resolve Ticket'}
           </button>
           <button 
           onClick={toggleCloseTicketForm}
@@ -391,7 +391,7 @@ const toggleResolveTicketForm = () => {
               </svg>
             </div> : <LockClosedIcon className="w-4 h-4" />}
             
-            Close Ticket
+            {showCloseTicketForm ? 'Cancel' : 'Close Ticket'}
           </button>
         </div>
         {showReplyForm && (
