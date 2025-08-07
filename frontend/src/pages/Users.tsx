@@ -9,6 +9,7 @@ const Users: React.FC = () =>
 {
     const [users, setUsers] = useState<AuthUser[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [isModalOpen, setModalOpen] = useState(false);
     const settingCtx = useContext(SettingContext);
 
     const fetchUsers = useCallback(async ()=>
@@ -66,10 +67,19 @@ const Users: React.FC = () =>
       <main className="md:ml-[250px] md:mt-[70px] ml-0 p-4 w-full h-full ">
         <div className="flex flex-wrap items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">Users</h2>
-        <div className="flex flex-wrap gap-2 items-center">    
+         <div className="flex flex-wrap gap-2 items-center">
+          <button onClick={() => setModalOpen(true)} className="bg-violet-500 text-sm text-white px-4 py-2 rounded font-medium hover:bg-violet-600 ">
+            + Raise Ticket
+          </button>
         </div>
+    
       </div>
       <UserList users={users} />
+      <NewUserModal
+                isOpen={isModalOpen}
+                onClose={() => setModalOpen(false)}
+                onCreated={fetchUsers} // ✅ Reload after user creation
+      />
       </main>
     </div>
   );
