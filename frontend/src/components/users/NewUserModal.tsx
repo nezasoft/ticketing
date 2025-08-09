@@ -61,15 +61,12 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                     formData.append(keyboard, value as string);
                 }
             });
-
             const response = await newUser(formData);
             if(response.success)
             {
                 toast.success('User account created successfully');
                 onCreated();
-                onClose();
-
-                
+                onClose();              
             }else{
                 const message = typeof response.message === 'string' 
                 ? response.message
@@ -126,21 +123,19 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                 onSubmit={handleSubmit}
                                 className="space-y-4"
                                 >
-                                    <div className="flex items-center gap-4 mb-2">
-                                        <label className="text-sm font-medium">Full Name</label>
+                                        <label className="block text-sm font-medium text-left">Full Name</label>
                                         <input 
-                                        autocomplete="off"
+                                        autoComplete="off"
                                         name="name"
                                         value={form.name || ''}
                                         onChange={handleChange}
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
                                          />
-                                    </div>
-                                     <div className="flex items-center gap-4 mb-2">
-                                        <label className="text-sm font-medium">Email</label>
+
+                                        <label className="block text-sm font-medium text-left">Email</label>
                                         <input 
-                                        autocomplete="off"
+                                        autoComplete="off"
                                         name="email"
                                         type="email"
                                         value={form.email || ''}
@@ -148,22 +143,22 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
                                          />
-                                    </div>
-                                    <div className="flex items-center gap-4 mb-2">
-                                        <label className="text-sm font-medium">Phone</label>
+                  
+                
+                                        <label className="block text-sm font-medium text-left">Phone</label>
                                         <input 
-                                        autocomplete="off"
+                                        autoComplete="off"
                                         name="phone"
                                         value={form.phone || ''}
                                         onChange={handleChange}
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
                                          />
-                                    </div>
+                         
                                     <div>
                                     <label className="block text-sm font-medium text-left">Department</label>
                                     <select
-                                        name="departtment"
+                                        name="department"
                                         value={form.department || ''}
                                         onChange={handleChange}
                                         required
@@ -187,9 +182,9 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
                                     >
                                         <option value="">Select</option>
-                                        {setting?.departments?.map((d) => (
-                                        <option key={d.id} value={d.id}>
-                                            {d.name}
+                                        {setting?.roles?.map((r) => (
+                                        <option key={r.id} value={r.id}>
+                                            {r.name}
                                         </option>
                                         ))}
                                     </select>
@@ -199,24 +194,49 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                         <button
                                         type="button"
                                         onClick={onClose}
+                                        className="px-4 py-2 text-white rounded bg-gray-600 dark:bg-red-600"
+                                        disabled={submitting}
                                         >
-
+                                        Cancel
                                         </button>
-
-                                    </div>
-                                   
-
+                                        <button
+                                        type="submit"
+                                        className="px-4 py-2 rounded bg-violet-600 text-white"
+                                        disabled={submitting}
+                                        >
+                                            {submitting && (
+                                                <svg
+                                                    className="animate-spin h-4 w-4 text-white"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    >
+                                                    <circle
+                                                        className="opacity-25"
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="10"
+                                                        stroke="currentColor"
+                                                        strokeWidth="4"
+                                                    ></circle>
+                                                    <path
+                                                        className="opacity-75"
+                                                        fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8v8H4z"
+                                                    ></path>
+                                                </svg>)}
+                                                {submitting ? 'Saving...' : 'Save'}
+                                        </button>
+                                    </div>                                  
                                 </form>
                             </Dialog.Panel>
-
                         </Transition.Child>
-
                     </div>
                 </div>
             </Dialog>
         </Transition.Root>
-
     );
-
     
-}
+};
+
+export default NewUserModal;

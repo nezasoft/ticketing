@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { Ticket } from '../types';
 import { TicketContext } from '../context/TicketContext';
-import TicketList from '../components/TicketList';
+import TicketList from '../components/tickets/TicketList';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
-import NewTicketModal from '../components/NewTicketModal';
+import NewTicketModal from '../components/tickets/NewTicketModal';
 
 const Tickets: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);

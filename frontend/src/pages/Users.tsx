@@ -4,7 +4,8 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { SettingContext } from '../context/SettingContext';
 import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
-import UserList from '../components/UserList';
+import UserList from '../components/users/UserList';
+import NewUserModal from '../components/users/NewUserModal';
 const Users: React.FC = () => 
 {
     const [users, setUsers] = useState<AuthUser[]>([]);

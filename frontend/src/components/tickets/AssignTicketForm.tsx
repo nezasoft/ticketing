@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { UserPlusIcon } from '@heroicons/react/24/solid';
-import { SettingContext } from '../context/SettingContext';
+import { SettingContext } from '../../context/SettingContext';
 
 type AssignTicketFormProps = {
   onSubmit: (remarks: string, user_id: string) => void;

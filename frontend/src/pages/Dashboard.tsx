@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import api from '../api/api';
 import {Ticket} from '../types';
-import TicketCard from '../components/TicketCard';
+import TicketCard from '../components/tickets/TicketCard';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import DashboardStats from '../components/DashboardStats';

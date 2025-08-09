@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Ticket } from '../types';
 import { TicketContext } from '../context/TicketContext';
-import TicketDetail from '../components/TicketDetail';
+import TicketDetail from '../components/tickets/TicketDetail';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { ArrowPathIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';

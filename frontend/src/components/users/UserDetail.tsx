@@ -9,7 +9,7 @@ import {
   AcademicCapIcon,
   ArrowDownIcon
 } from '@heroicons/react/24/solid';
-import TicketAnalyticsCard from './TicketAnalyticsCard';
+import TicketAnalyticsCard from '../tickets/TicketAnalyticsCard';
 
 const UserDetail: React.FC = () => {
   return (

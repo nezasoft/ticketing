@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
-import { Attachment } from '../types';
+import { Attachment } from '../../types';
 import AttachmentList from './AttachmentList';
 import DOMPurify from 'dompurify';
 interface ReplyCardProps {

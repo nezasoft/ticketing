@@ -12,16 +12,16 @@ import {
   UserPlusIcon
 } from '@heroicons/react/24/solid';
 import { toast } from 'react-toastify';
-import { Attachment } from '../types';
-import { TicketContext } from '../context/TicketContext';
+import { Attachment } from '../../types';
+import { TicketContext } from '../../context/TicketContext';
 import ReplyCard from './ReplyCard';
 import AttachmentList from './AttachmentList';
 import EventCard from './EventCard';
 import ReplyForm from './ReplyForm';
 import AssignTicketForm from './AssignTicketForm';
 import DOMPurify from 'dompurify';
-import { TicketAssignmentContext } from '../context/TicketAssignmentContext';
-import { resolveTicket, closeTicket } from '../service/ticketService';
+import { TicketAssignmentContext } from '../../context/TicketAssignmentContext';
+import { resolveTicket, closeTicket } from '../../service/ticketService';
 import ResolveTicketForm from './ResolveTicketForm';
 import CloseTicketForm from './CloseTicketForm';
 

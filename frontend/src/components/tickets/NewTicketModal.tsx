@@ -1,10 +1,10 @@
 import React, { Fragment, useState, useContext, useEffect, DragEvent } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { TicketContext } from '../context/TicketContext';
-import { Ticket } from '../types';
+import { TicketContext } from '../../context/TicketContext';
+import { Ticket } from '../../types';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { SettingContext } from '../context/SettingContext';
+import { SettingContext } from '../../context/SettingContext';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 import { TicketIcon } from "@heroicons/react/24/solid";

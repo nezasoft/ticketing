@@ -7,7 +7,7 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { toast } from 'react-toastify';
-import { TicketContext } from '../context/TicketContext';
+import { TicketContext } from '../../context/TicketContext';
 import DOMPurify from 'dompurify';
 // Dummy types and pagination logic. Replace with actual types and data handling.
 type Ticket = {

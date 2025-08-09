@@ -5,7 +5,7 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { ArrowPathIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { SettingContext } from '../context/SettingContext';
-import UserDetail from '../components/UserDetail';
+import UserDetail from '../components/users/UserDetail';
 
 const UserView: React.FC = () => {
   const { id } = useParams<{ id: string }>();

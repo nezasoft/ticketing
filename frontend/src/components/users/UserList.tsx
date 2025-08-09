@@ -11,7 +11,7 @@ import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { toast } from 'react-toastify';
-import { SettingContext } from '../context/SettingContext';
+import { SettingContext } from '../../context/SettingContext';
 
 type AuthUser = {
   id: number;

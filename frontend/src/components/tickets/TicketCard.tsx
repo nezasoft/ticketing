@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ticket } from '../types';
+import { Ticket } from '../../types';
 import {Link} from 'react-router-dom';
 
 interface TicketCardProps

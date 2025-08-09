@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowDownTrayIcon, DocumentIcon, PaperClipIcon } from '@heroicons/react/24/solid';
-import { Attachment } from '../types';
+import { Attachment } from '../../types';
 
 const AttachmentList: React.FC<{ attachments: Attachment[] }> = ({ attachments }) => (
   <div className="mt-4 bg-gray-50 p-4 rounded-md">
