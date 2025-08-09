@@ -2,7 +2,6 @@ import React, {Fragment, useState, useContext, useEffect} from 'react';
 import {Dialog, Transition} from '@headlessui/react';
 import { SettingContext } from '../../context/SettingContext';
 import { AuthUser } from '../../types';
-import { keyboard } from '@testing-library/user-event/dist/keyboard';
 import { toast } from 'react-toastify';
 interface Props
 {
@@ -14,6 +13,7 @@ interface Props
 
 const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
     const {newUser} = useContext(SettingContext);
+    const {setting} = useContext(SettingContext);
     const [form, setForm] = useState<Partial<AuthUser>>({
         name: '',
         email: '',
@@ -111,7 +111,102 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                         leaveTo="opacity-0 scale-95"
                         >
                             <Dialog.Panel className="bg-white dark:bg-zinc-800 rounded-lg w-full max-w-2xl p-6 space-y-4 shadow-xl border border-gray-300">
+                                <div className="flex justify-between items-center">
+                                    <Dialog.Title className="text-lg font-medium text-gray-800 dark:text-white text-left">
+                                        Create New User
+                                    </Dialog.Title>
+                                    <button 
+                                    onClick={onClose} 
+                                    type="button"
+                                    className="text-gray-500 hover:text-gray-700 dark:hover:text-white text-xl font-bold"
+                                     >&times;</button>
+                                </div>
+                                {error && <div className="text-red-600 text-sm">{error}</div>}
+                                <form  
+                                onSubmit={handleSubmit}
+                                className="space-y-4"
+                                >
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <label className="text-sm font-medium">Full Name</label>
+                                        <input 
+                                        autocomplete="off"
+                                        name="name"
+                                        value={form.name || ''}
+                                        onChange={handleChange}
+                                        required
+                                        className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
+                                         />
+                                    </div>
+                                     <div className="flex items-center gap-4 mb-2">
+                                        <label className="text-sm font-medium">Email</label>
+                                        <input 
+                                        autocomplete="off"
+                                        name="email"
+                                        type="email"
+                                        value={form.email || ''}
+                                        onChange={handleChange}
+                                        required
+                                        className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
+                                         />
+                                    </div>
+                                    <div className="flex items-center gap-4 mb-2">
+                                        <label className="text-sm font-medium">Phone</label>
+                                        <input 
+                                        autocomplete="off"
+                                        name="phone"
+                                        value={form.phone || ''}
+                                        onChange={handleChange}
+                                        required
+                                        className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
+                                         />
+                                    </div>
+                                    <div>
+                                    <label className="block text-sm font-medium text-left">Department</label>
+                                    <select
+                                        name="departtment"
+                                        value={form.department || ''}
+                                        onChange={handleChange}
+                                        required
+                                        className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
+                                    >
+                                        <option value="">Select</option>
+                                        {setting?.departments?.map((d) => (
+                                        <option key={d.id} value={d.id}>
+                                            {d.name}
+                                        </option>
+                                        ))}
+                                    </select>
+                                    </div>
+                                    <div>
+                                    <label className="block text-sm font-medium text-left">Role</label>
+                                    <select
+                                        name="role"
+                                        value={form.role || ''}
+                                        onChange={handleChange}
+                                        required
+                                        className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
+                                    >
+                                        <option value="">Select</option>
+                                        {setting?.departments?.map((d) => (
+                                        <option key={d.id} value={d.id}>
+                                            {d.name}
+                                        </option>
+                                        ))}
+                                    </select>
+                                    </div>
 
+                                    <div className="flex justify-end space-x-2 mt-4">
+                                        <button
+                                        type="button"
+                                        onClick={onClose}
+                                        >
+
+                                        </button>
+
+                                    </div>
+                                   
+
+                                </form>
                             </Dialog.Panel>
 
                         </Transition.Child>
