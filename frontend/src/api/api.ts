@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const api = axios.create({baseURL: process.env.REACT_APP_API_URL || 'http://localhost/ticketing/backend/api',});
+const api = axios.create({baseURL: process.env.REACT_APP_API_URL || 'http://localhost:7000/api',});
 
 //Add an interceptor to attach JWT token if available.
 api.interceptors.request.use((config)=>{

@@ -18,8 +18,8 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
         name: '',
         email: '',
         phone:'',
-        department:undefined,
-        role:undefined,
+        dept_id:undefined,
+        role_id:undefined,
     });
 
     const [submitting, setSubmitting]= useState(false);
@@ -32,8 +32,8 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                 name :'',
                 email: '',
                 phone:'',
-                department: undefined,
-                role: undefined
+                dept_id: undefined,
+                role_id: undefined
             });
             setError(null);
         }
@@ -158,8 +158,8 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                     <div>
                                     <label className="block text-sm font-medium text-left">Department</label>
                                     <select
-                                        name="department"
-                                        value={form.department || ''}
+                                        name="dept_id"
+                                        value={form.dept_id || ''}
                                         onChange={handleChange}
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
@@ -175,8 +175,8 @@ const NewUserModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                     <div>
                                     <label className="block text-sm font-medium text-left">Role</label>
                                     <select
-                                        name="role"
-                                        value={form.role || ''}
+                                        name="role_id"
+                                        value={form.role_id || ''}
                                         onChange={handleChange}
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"

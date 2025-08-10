@@ -18,8 +18,8 @@ type AuthUser = {
   name: string;
   email: string;
   phone?: string;
-  department: string;
-  role: string;
+  dept_id: string;
+  role_id: string;
   active: string;
   date_created?: string;
 };
@@ -36,13 +36,14 @@ const UserList: React.FC<AuthUserListProps> = ({ users }) => {
   const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
   const settingCtx = useContext(SettingContext);
   const itemsPerPage = 10;
-
+const term = searchTerm.toLowerCase();
   const filteredUsers = users.filter(user =>
-    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.active.toLowerCase().includes(searchTerm.toLowerCase())
+    
+      user.name?.toLowerCase().includes(term) ||
+      user.email?.toLowerCase().includes(term) ||
+      user.phone?.toLowerCase().includes(term) ||
+      user.dept_id?.toLowerCase().includes(term) ||
+      user.active?.toLowerCase().includes(term)
   );
 
   const paginatedUsers = filteredUsers.slice(
@@ -87,8 +88,8 @@ const UserList: React.FC<AuthUserListProps> = ({ users }) => {
         Name: u.name || '',
         Email: u.email || '',
         Phone: u.phone || '',
-        Department: u.department || '',
-        Role: u.role || '',
+        Department: u.dept_id || '',
+        Role: u.role_id || '',
         Active: u.active || '',
         Date: u.date_created || '',
       }))
@@ -107,8 +108,8 @@ const UserList: React.FC<AuthUserListProps> = ({ users }) => {
       u.name || '',
       u.email || '',
       u.phone || '',
-      u.department || '',
-      u.role || '',
+      u.dept_id || '',
+      u.role_id || '',
       u.active || '',
       u.date_created || ''
     ]);
@@ -194,8 +195,8 @@ const UserList: React.FC<AuthUserListProps> = ({ users }) => {
                 </td>
                 <td className="px-4 py-3">{user.email}</td>
                 <td className="px-4 py-3">{user.phone}</td>
-                <td className="px-4 py-3">{user.department}</td>
-                <td className="px-4 py-3">{user.role}</td>
+                <td className="px-4 py-3">{user.dept_id}</td>
+                <td className="px-4 py-3">{user.role_id}</td>
                 <td className="px-4 py-3">{user.active}</td>
                 <td className="px-4 py-3">{user.date_created}</td>
                 <td className="relative px-4 py-3">

@@ -56,8 +56,8 @@ export interface AuthUser{
     email: string;
     company_id: number;
     phone?: string;
-    department: string;
-    role: string;
+    dept_id: string;
+    role_id: string;
     status: number;
     created_at?: string;
     updated_at?: string;

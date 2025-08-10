@@ -292,7 +292,7 @@ class SettingsController extends Controller
                 ];
             }
         }
-        $records = AuthUser::with('department','role')->where('company_id', $request->company_id)->where('status', 1)->orderBy('name', 'asc')->get();
+        $records = AuthUser::with('department','role')->where('company_id', $request->company_id)->orderBy('name', 'asc')->get();
         if(count($records)!=0)
         {
             foreach($records as $record)

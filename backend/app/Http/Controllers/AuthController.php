@@ -212,7 +212,7 @@ class AuthController extends Controller
 
      public function create(Request $request)
      {
-        $messages = ['phone.regex' => 'The phone number must be in international format (e.g., +14155552671).'];
+        $messages = ['phone.regex' => 'The phone number must be in international format (e.g., 14155552671).'];
         $validator = Validator::make($request->all(), [
             "email" => "required|email|unique:auth_users,email",
             "name" => "required|string|max:255",
