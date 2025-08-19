@@ -86,16 +86,14 @@ export async function viewUser(
 }
 
 //Edit User
-
 export async function editUser
 (
-  user_id: number,
-  data: Partial<AuthUser>
+  payload: FormData
 ): Promise<GenericResponse<AuthUser>>
 {
   const response = await api.post<GenericResponse<AuthUser>>('/users/edit',
     {
-      user_id, ...data
+    payload
     }
   );
   return response.data;

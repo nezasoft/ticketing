@@ -13,6 +13,7 @@ const Users: React.FC = () =>
     const [isModalOpen, setModalOpen] = useState(false);
     const settingCtx = useContext(SettingContext);
 
+
     const fetchUsers = useCallback(async ()=>
     {
         try
@@ -75,7 +76,7 @@ const Users: React.FC = () =>
         </div>
     
       </div>
-      <UserList users={users} />
+      <UserList users={users} onUpdated={fetchUsers} />
       <NewUserModal
                 isOpen={isModalOpen}
                 onClose={() => setModalOpen(false)}

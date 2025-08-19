@@ -253,7 +253,7 @@ export interface SettingContextType
     listSettings: (company_id: number) => Promise<GenericResponse<Setting | null>>;
     newUser: (payload: FormData) => Promise<GenericResponse<AuthUser | null>>;
     viewUser: (user_id: number) => Promise<GenericResponse<AuthUser | null>>;
-    editUser: (user_id: number, data:Partial<AuthUser>) => Promise<GenericResponse<AuthUser | null>>;
+    editUser: (payload:FormData) => Promise<GenericResponse<AuthUser | null>>;
     deleteUser: (user_id: number) => Promise<GenericResponse<null>>;
     loading: boolean;
 }

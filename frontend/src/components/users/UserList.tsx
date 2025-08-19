@@ -1,17 +1,18 @@
-import React, { useState, useContext } from "react";
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   EllipsisVerticalIcon,
   PrinterIcon,
   BarsArrowDownIcon,
-  MagnifyingGlassIcon
-} from '@heroicons/react/24/solid';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { toast } from 'react-toastify';
-import { SettingContext } from '../../context/SettingContext';
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/solid";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { toast } from "react-toastify";
+import { SettingContext } from "../../context/SettingContext";
+import EditUserModal from "./EditUserModal";
 
 type AuthUser = {
   id: number;
@@ -26,24 +27,26 @@ type AuthUser = {
 
 type AuthUserListProps = {
   users: AuthUser[];
+  onUpdated: () => void;   // callback from parent
 };
 
-const UserList: React.FC<AuthUserListProps> = ({ users }) => {
+const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState<AuthUser | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const settingCtx = useContext(SettingContext);
   const itemsPerPage = 10;
-const term = searchTerm.toLowerCase();
-  const filteredUsers = users.filter(user =>
-    
-      user.name?.toLowerCase().includes(term) ||
-      user.email?.toLowerCase().includes(term) ||
-      user.phone?.toLowerCase().includes(term) ||
-      user.dept_id?.toLowerCase().includes(term) ||
-      user.active?.toLowerCase().includes(term)
+
+  const term = searchTerm.toLowerCase();
+  const filteredUsers = users.filter((user) =>
+      String(user.name ?? "").toLowerCase().includes(term) ||
+      String(user.email ?? "").toLowerCase().includes(term) ||
+      String(user.phone ?? "").toLowerCase().includes(term) ||
+      String(user.dept_id ?? "").toLowerCase().includes(term) ||
+      String(user.active ?? "").toLowerCase().includes(term)
   );
 
   const paginatedUsers = filteredUsers.slice(
@@ -53,9 +56,23 @@ const term = searchTerm.toLowerCase();
 
   const navigate = useNavigate();
 
-  const handleEdit = (userId: number) => {
-    setOpenDropdown(null);
-    navigate(`/users/${userId}/edit`);
+  // Reset page when users change or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [users, searchTerm]);
+
+  // Close export dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setOpenDropdownExportOptions(false);
+    if (openDropdownExportOptions) {
+      window.addEventListener("click", handleClickOutside);
+    }
+    return () => window.removeEventListener("click", handleClickOutside);
+  }, [openDropdownExportOptions]);
+
+  const handleEditClick = (user: AuthUser) => {
+    setSelectedUser(user);
+    setIsEditOpen(true);
   };
 
   const handleView = (userId: number) => {
@@ -72,7 +89,6 @@ const term = searchTerm.toLowerCase();
       const response = await settingCtx?.deleteUser?.(userId);
       if (response?.success) {
         toast.success("User deleted successfully!");
-        // Optionally: remove the user from UI or refresh list
       } else {
         toast.error("Failed to delete user.");
       }
@@ -84,46 +100,47 @@ const term = searchTerm.toLowerCase();
 
   const handleExportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
-      filteredUsers.map(u => ({
-        Name: u.name || '',
-        Email: u.email || '',
-        Phone: u.phone || '',
-        Department: u.dept_id || '',
-        Role: u.role_id || '',
-        Active: u.active || '',
-        Date: u.date_created || '',
+      filteredUsers.map((u) => ({
+        Name: u.name || "",
+        Email: u.email || "",
+        Phone: u.phone || "",
+        Department: u.dept_id || "",
+        Role: u.role_id || "",
+        Active: u.active || "",
+        Date: u.date_created || "",
       }))
     );
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, 'users.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(blob, "users.xlsx");
   };
 
   const handleExportToPDF = () => {
     const doc = new jsPDF();
-    const tableColumn = ['Name', 'Email', 'Phone', 'Department', 'Role', 'Active', 'Date'];
-    const tableRows = filteredUsers.map(u => [
-      u.name || '',
-      u.email || '',
-      u.phone || '',
-      u.dept_id || '',
-      u.role_id || '',
-      u.active || '',
-      u.date_created || ''
+    const tableColumn = ["Name", "Email", "Phone", "Department", "Role", "Active", "Date"];
+    const tableRows = filteredUsers.map((u) => [
+      u.name || "",
+      u.email || "",
+      u.phone || "",
+      u.dept_id || "",
+      u.role_id || "",
+      u.active || "",
+      u.date_created || "",
     ]);
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
     });
-    doc.save('users.pdf');
+    doc.save("users.pdf");
   };
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   return (
     <div className="p-4">
+      {/* Search + Export */}
       <div className="flex flex-wrap gap-2 items-center justify-between mb-4">
         <div className="flex">
           <div className="relative w-full md:w-64">
@@ -145,27 +162,40 @@ const term = searchTerm.toLowerCase();
             />
             <button
               className="bg-violet-500 text-white border px-4 py-2 rounded text-sm"
-              onClick={() => setOpenDropdownExportOptions(prev => !prev)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenDropdownExportOptions((prev) => !prev);
+              }}
             >
               <BarsArrowDownIcon className="w-4 h-4" />
             </button>
             {openDropdownExportOptions && (
               <div className="absolute right-0 mt-2 w-28 bg-white dark:bg-zinc-800 shadow-lg rounded-md text-sm border dark:border-zinc-700 z-50">
-                <button className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left" onClick={handleExportToExcel}>
+                <button
+                  className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left"
+                  onClick={handleExportToExcel}
+                >
                   Excel
                 </button>
-                <button className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left" onClick={handleExportToPDF}>
+                <button
+                  className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left"
+                  onClick={handleExportToPDF}
+                >
                   Pdf
                 </button>
               </div>
             )}
           </div>
-          <button className="bg-violet-500 text-white border px-4 py-2 rounded text-sm">
+          <button
+            className="bg-violet-500 text-white border px-4 py-2 rounded text-sm"
+            onClick={() => window.print()}
+          >
             <PrinterIcon className="w-4 h-4" />
           </button>
         </div>
       </div>
 
+      {/* Table */}
       <div className="overflow-x-auto bg-white dark:bg-zinc-900 rounded-lg shadow">
         <table className="min-w-full text-sm text-gray-700 dark:text-gray-200">
           <thead className="bg-gray-100 dark:bg-zinc-800">
@@ -181,44 +211,61 @@ const term = searchTerm.toLowerCase();
             </tr>
           </thead>
           <tbody>
-            {paginatedUsers.map(user => (
-              <tr
-                key={user.id}
-                onClick={() => handleView(user.id)}
-                className="hover:bg-gray-50 dark:hover:bg-zinc-800 text-xs"
-              >
-                <td
-                  className="px-4 py-3 text-violet-600 font-semibold cursor-pointer"
-                  onClick={() => setSelectedUser(user)}
+            {paginatedUsers.length > 0 ? (
+              paginatedUsers.map((user) => (
+                <tr
+                  key={user.id}
+                  className="hover:bg-gray-50 dark:hover:bg-zinc-800 text-xs cursor-pointer"
                 >
-                  {user.name}
-                </td>
-                <td className="px-4 py-3">{user.email}</td>
-                <td className="px-4 py-3">{user.phone}</td>
-                <td className="px-4 py-3">{user.dept_id}</td>
-                <td className="px-4 py-3">{user.role_id}</td>
-                <td className="px-4 py-3">{user.active}</td>
-                <td className="px-4 py-3">{user.date_created}</td>
-                <td className="relative px-4 py-3">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setOpenDropdown(openDropdown === user.id ? null : user.id);
-                    }}
-                    className="flex items-center gap-1 text-sm px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-                  >
-                    <EllipsisVerticalIcon className="w-4 h-4" />
-                  </button>
-                  {openDropdown === user.id && (
-                    <div className="absolute right-0 mt-2 w-28 bg-white dark:bg-zinc-800 shadow-lg rounded-md text-sm border dark:border-zinc-700 z-50">
-                      <button onClick={() => handleView(user.id)} className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left">View</button>
-                      <button onClick={() => handleEdit(user.id)} className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left">Edit</button>
-                      <button onClick={() => handleDelete(user.id)} className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left text-red-600">Delete</button>
-                    </div>
-                  )}
+                  <td className="px-4 py-3 text-violet-600 font-semibold">{user.name}</td>
+                  <td className="px-4 py-3">{user.email}</td>
+                  <td className="px-4 py-3">{user.phone}</td>
+                  <td className="px-4 py-3">{user.dept_id}</td>
+                  <td className="px-4 py-3">{user.role_id}</td>
+                  <td className="px-4 py-3">{user.active}</td>
+                  <td className="px-4 py-3">{user.date_created}</td>
+                  <td className="relative px-4 py-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenDropdown(openDropdown === user.id ? null : user.id);
+                      }}
+                      className="flex items-center gap-1 text-sm px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                    >
+                      <EllipsisVerticalIcon className="w-4 h-4" />
+                    </button>
+                    {openDropdown === user.id && (
+                      <div className="absolute right-0 mt-2 w-28 bg-white dark:bg-zinc-800 shadow-lg rounded-md text-sm border dark:border-zinc-700 z-50">
+                        <button
+                          onClick={() => handleView(user.id)}
+                          className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => handleEditClick(user)}
+                          className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left text-red-600"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={8} className="px-4 py-6 text-center text-gray-500">
+                  No results found
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -226,25 +273,40 @@ const term = searchTerm.toLowerCase();
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4 text-sm">
         <div>
-          Showing {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length}
+          {filteredUsers.length > 0
+            ? `Showing ${(currentPage - 1) * itemsPerPage + 1}–${Math.min(
+                currentPage * itemsPerPage,
+                filteredUsers.length
+              )} of ${filteredUsers.length}`
+            : "No results to display"}
         </div>
         <div className="flex gap-2">
           <button
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage(prev => prev - 1)}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
             className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
           >
             Previous
           </button>
           <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(prev => prev + 1)}
+            disabled={currentPage === totalPages || filteredUsers.length === 0}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
             className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
           >
             Next
           </button>
         </div>
       </div>
+
+      {/* Edit User Modal */}
+      {isEditOpen && selectedUser && (
+      <EditUserModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onUpdated={onUpdated}
+        user={selectedUser}
+      />
+    )}
     </div>
   );
 };

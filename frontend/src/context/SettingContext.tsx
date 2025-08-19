@@ -58,11 +58,10 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
 
   //Edit user
   const handleEditUser = useCallback(async (
-    user_id: number,
-    data: Partial<AuthUser>
+    payload: FormData
   ): Promise<GenericResponse<AuthUser | null>> => 
   {
-    return editUser(user_id, data);
+    return editUser(payload);
   },[]);
 
   //New User 
