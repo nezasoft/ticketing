@@ -48,7 +48,11 @@ const EditUserModal: React.FC<Props> = ({ isOpen, onClose, onUpdated, user }) =>
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+     e.preventDefault();
+    if (!user || !user.id) {
+      console.error("No user provided for update");
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
