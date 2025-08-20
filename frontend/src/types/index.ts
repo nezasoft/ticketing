@@ -58,7 +58,7 @@ export interface AuthUser{
     phone?: string;
     dept_id: string;
     role_id: string;
-    status: number;
+    status: string;
     created_at?: string;
     updated_at?: string;
     date_created?: string;

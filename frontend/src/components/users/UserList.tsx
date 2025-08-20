@@ -19,8 +19,8 @@ type AuthUser = {
   name: string;
   email: string;
   phone?: string;
-  dept_id: string;
-  role_id: string;
+  department?: string;
+  role?: string;
   active: string;
   date_created?: string;
 };
@@ -37,17 +37,39 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
   const settingCtx = useContext(SettingContext);
   const itemsPerPage = 10;
 
   const term = searchTerm.toLowerCase();
-  const filteredUsers = users.filter((user) =>
+  // 🔹 Apply both text and date filters
+  const filteredUsers = users.filter((user) => {
+  const matchesText =
       String(user.name ?? "").toLowerCase().includes(term) ||
       String(user.email ?? "").toLowerCase().includes(term) ||
       String(user.phone ?? "").toLowerCase().includes(term) ||
-      String(user.dept_id ?? "").toLowerCase().includes(term) ||
-      String(user.active ?? "").toLowerCase().includes(term)
-  );
+      String(user.department ?? "").toLowerCase().includes(term) ||
+      String(user.role ?? "").toLowerCase().includes(term) ||
+      String(user.active ?? "").toLowerCase().includes(term);
+
+      // format the date string (e.g. "9th Aug 2025 9:25 am")
+  const formattedDate = user.date_created ? formatDate(user.date_created) : "";
+
+  // convert to Date for comparison
+  const userDate = user.date_created ? new Date(user.date_created) : null;
+
+  const matchesDate =
+    (!startDate || (userDate && userDate >= new Date(startDate))) &&
+    (!endDate || (userDate && userDate <= new Date(endDate)));
+
+  // ✅ now text search also checks formatted date string
+  return (
+    matchesText ||
+    formattedDate.toLowerCase().includes(term) // allow searching by formatted date
+  ) && matchesDate;
+  });
 
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
@@ -104,8 +126,8 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
         Name: u.name || "",
         Email: u.email || "",
         Phone: u.phone || "",
-        Department: u.dept_id || "",
-        Role: u.role_id || "",
+        Department: u.department || "",
+        Role: u.role || "",
         Active: u.active || "",
         Date: u.date_created || "",
       }))
@@ -124,8 +146,8 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
       u.name || "",
       u.email || "",
       u.phone || "",
-      u.dept_id || "",
-      u.role_id || "",
+      u.department || "",
+      u.role || "",
       u.active || "",
       u.date_created || "",
     ]);
@@ -137,6 +159,36 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
   };
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+  function formatDate(dateStr?: string): string {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr);
+
+  const day = date.getDate();
+  const month = date.toLocaleString("en-US", { month: "short" });
+  const year = date.getFullYear();
+
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "pm" : "am";
+  const formattedHours = hours % 12 || 12; // convert 0 -> 12
+  const formattedMinutes = minutes.toString().padStart(2, "0");
+
+  // Add ordinal suffix
+  const getOrdinal = (n: number) => {
+    if (n > 3 && n < 21) return "th"; // special case 11–20
+    switch (n % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  };
+
+  return `${day}${getOrdinal(day)} ${month} ${year} ${formattedHours}:${formattedMinutes} ${ampm}`;
+}
+
 
   return (
     <div className="p-4">
@@ -156,10 +208,19 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
         </div>
         <div className="flex gap-2">
           <div className="relative">
-            <input
-              type="date"
-              className="border rounded px-2 mr-2 py-2 text-sm text-violet-500 dark:text-gray-200 dark:bg-zinc-800 dark:border-zinc-700"
-            />
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="border rounded px-2 py-2 text-sm text-violet-500 dark:text-gray-200 dark:bg-zinc-800 dark:border-zinc-700"
+              />
+              <span className="text-gray-500 dark:text-gray-300 text-sm">to</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="border rounded px-2 py-2 text-sm text-violet-500 dark:text-gray-200 dark:bg-zinc-800 dark:border-zinc-700"
+              />
             <button
               className="bg-violet-500 text-white border px-4 py-2 rounded text-sm"
               onClick={(e) => {
@@ -220,8 +281,8 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
                   <td className="px-4 py-3 text-violet-600 font-semibold">{user.name}</td>
                   <td className="px-4 py-3">{user.email}</td>
                   <td className="px-4 py-3">{user.phone}</td>
-                  <td className="px-4 py-3">{user.dept_id}</td>
-                  <td className="px-4 py-3">{user.role_id}</td>
+                  <td className="px-4 py-3">{user.department}</td>
+                  <td className="px-4 py-3">{user.role}</td>
                   <td className="px-4 py-3">{user.active}</td>
                   <td className="px-4 py-3">{user.date_created}</td>
                   <td className="relative px-4 py-3">

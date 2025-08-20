@@ -21,6 +21,7 @@ const EditUserModal: React.FC<Props> = ({ isOpen, onClose, onUpdated, user }) =>
     phone: "",
     dept_id: undefined,
     role_id: undefined,
+    status: undefined
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -34,6 +35,7 @@ const EditUserModal: React.FC<Props> = ({ isOpen, onClose, onUpdated, user }) =>
         phone: user.phone,
         dept_id: user.dept_id,
         role_id: user.role_id,
+        status: user?.active ?? "",
       });
     }
     if (!isOpen) {
@@ -204,6 +206,22 @@ const EditUserModal: React.FC<Props> = ({ isOpen, onClose, onUpdated, user }) =>
                           {r.name}
                         </option>
                       ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-left">
+                      Status
+                    </label>
+                    <select
+                      name="status"
+                      value={form.status || ""}
+                      onChange={handleChange}
+                      required
+                      className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
+                    >
+                      <option value="">Select</option>
+                        <option  value="1">Active</option>
+                        <option  value="0">In Active</option>
                     </select>
                   </div>
 
