@@ -1,16 +1,22 @@
 import React, {createContext,useState,useCallback,useMemo,ReactNode,useEffect} from 'react';
-import {SettingContextType,Setting,AuthUser,GenericResponse} from '../types';
-import {getSettings, newUser, editUser, deleteUser, viewUser} from '../service/settingsService';
+import {SettingContextType,Setting,AuthUser,Department, GenericResponse} from '../types';
+import {getSettings, newUser, editUser, deleteUser, viewUser,
+  newDepartment, editDepartment
+ } from '../service/settingsService';
 
 const defaultContext: SettingContextType = {
   setting: null,
   user: null,
+  dept: null,
   loading: false,
   listSettings: async () => ({ success: false, message: '', data: null }),
   newUser: async () => ({success: false, message:'',data:null}),
   viewUser: async () => ({success: false, message:'',data:null}),
   editUser: async () => ({success: false, message:'', data:null}),
-  deleteUser: async () => ({success:false, message:'', data:null})
+  deleteUser: async () => ({success:false, message:'', data:null}),
+  //Departments
+  newDepartment: async () => ({success: false, message:'',data:null}),
+  editDepartment: async () => ({success: false, message:'',data:null})
 };
 export const SettingContext = createContext<SettingContextType>(defaultContext);
 
@@ -20,6 +26,7 @@ type Props = {
 export const SettingProvider: React.FC<Props> = ({ children }) => {
   const [setting, setSetting] = useState<Setting | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [dept, setDept] = useState<Department | null>(null);
   
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -102,25 +109,43 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
   },[]);
 
 
-
+  //Departments Methods
+  //Add New
+  const handleNewDepartment = useCallback(async (payload: FormData) : Promise<GenericResponse<Department | null>> =>
+    {
+      return newDepartment(payload);
+    },[]);
+  //Edit Department
+  const handleEditDepartment = useCallback(async (
+    payload: FormData
+  ): Promise<GenericResponse<Department | null>> =>
+  {
+    return editDepartment(payload);
+  },[]);
   const contextValue = useMemo(() => ({
     setting,
     user,
+    dept,
     loading,
     listSettings: fetchSettings,
     newUser: handleNewUser,
     editUser: handleEditUser,
     deleteUser: handleDeleteUser,
-    viewUser: handleViewUser
+    viewUser: handleViewUser,
+    newDepartment: handleNewDepartment,
+    editDepartment: handleEditDepartment
   }), [
     setting,
     user,
+    dept,
     loading,
     fetchSettings,
     handleNewUser,
     handleEditUser,
     handleDeleteUser,
-    handleViewUser
+    handleViewUser,
+    handleNewDepartment,
+    handleEditDepartment
   ]);
 
   return (

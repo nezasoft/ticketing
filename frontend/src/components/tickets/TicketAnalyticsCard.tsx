@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import TicketTabs from './TicketTabs';
-import ProgressBar from '../ProgressBar';
+import ProgressBar from '../common/ProgressBar';
 
 const dummyData = {
   source: { Email: 50, Phone: 20, Website: 75, Chat: 30 },

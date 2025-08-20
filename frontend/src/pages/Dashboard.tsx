@@ -2,11 +2,11 @@ import React, {useEffect, useState} from 'react';
 import api from '../api/api';
 import {Ticket} from '../types';
 import TicketCard from '../components/tickets/TicketCard';
-import Sidebar from '../components/Sidebar';
-import Navbar from '../components/Navbar';
-import DashboardStats from '../components/DashboardStats';
-import WalletBalance from '../components/WalletBalance';
-import TransactionsPanel from '../components/TransactionsPanel';
+import Sidebar from '../components/common/Sidebar';
+import Navbar from '../components/common/Navbar';
+import DashboardStats from '../components/common/DashboardStats';
+import WalletBalance from '../components/common/WalletBalance';
+import TransactionsPanel from '../components/common/TransactionsPanel';
 import { ArrowPathIcon } from '@heroicons/react/24/outline'; // Loading spinner icon
 
 const Dashboard: React.FC = () => 

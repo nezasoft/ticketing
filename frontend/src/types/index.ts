@@ -250,11 +250,16 @@ export interface SettingContextType
 {
     setting: Setting | null;
     user: AuthUser | null;
+    dept: Department | null;
     listSettings: (company_id: number) => Promise<GenericResponse<Setting | null>>;
+    //Users Menu
     newUser: (payload: FormData) => Promise<GenericResponse<AuthUser | null>>;
     viewUser: (user_id: number) => Promise<GenericResponse<AuthUser | null>>;
     editUser: (payload:FormData) => Promise<GenericResponse<AuthUser | null>>;
     deleteUser: (user_id: number) => Promise<GenericResponse<null>>;
+    //Departments Menu
+    newDepartment: (payload: FormData) => Promise<GenericResponse<Department | null>>;
+    editDepartment: (payload: FormData) => Promise<GenericResponse<Department | null>>;
     loading: boolean;
 }
 

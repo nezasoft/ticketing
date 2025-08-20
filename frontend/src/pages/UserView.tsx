@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthUser } from '../types';
-import Sidebar from '../components/Sidebar';
-import Navbar from '../components/Navbar';
+import Sidebar from '../components/common/Sidebar';
+import Navbar from '../components/common/Navbar';
 import { ArrowPathIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { SettingContext } from '../context/SettingContext';
 import UserDetail from '../components/users/UserDetail';

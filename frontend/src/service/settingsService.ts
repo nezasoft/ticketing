@@ -1,5 +1,5 @@
 import api from '../api/api';
-import {AuthUser, GenericResponse,Setting} from '../types';
+import {AuthUser, Department, GenericResponse,Setting} from '../types';
 
 //Get All System Settigs
 export async function getSettings(company_id:number):Promise<GenericResponse<Setting>>
@@ -98,3 +98,27 @@ export async function editUser
   );
   return response.data;
 }
+
+//Add New Department
+export async function newDepartment(payload: FormData) : Promise<GenericResponse<Department>>
+{
+  const response = await api.post<GenericResponse<Department>>(
+    '/department/create',payload,
+  );
+  return response.data;
+}
+
+//Edit Department
+export async function editDepartment(
+  payload: FormData
+): Promise<GenericResponse<Department>>
+{
+  const response = await api.post<GenericResponse<Department>>('/department/edit',
+    {
+      payload
+    }
+  );
+  return response.data;
+}
+
+//Delete Department

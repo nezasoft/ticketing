@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useContext, useCallback} from 'react';
 import { AuthUser } from '../types';
-import Sidebar from '../components/Sidebar';
-import Navbar from '../components/Navbar';
+import Sidebar from '../components/common/Sidebar';
+import Navbar from '../components/common/Navbar';
 import { SettingContext } from '../context/SettingContext';
 import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import UserList from '../components/users/UserList';

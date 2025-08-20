@@ -2,8 +2,8 @@ import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { Ticket } from '../types';
 import { TicketContext } from '../context/TicketContext';
 import TicketList from '../components/tickets/TicketList';
-import Sidebar from '../components/Sidebar';
-import Navbar from '../components/Navbar';
+import Sidebar from '../components/common/Sidebar';
+import Navbar from '../components/common/Navbar';
 import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import NewTicketModal from '../components/tickets/NewTicketModal';
 
