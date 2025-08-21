@@ -136,6 +136,7 @@ export interface Company
 
 export interface Customer 
 {
+    id: number;
     name?: string;
     email?: string;
     phone?: string;
@@ -146,18 +147,21 @@ export interface Customer
 
 export interface CustomerType
 {
+    id: number;
     name: string;
     company_id: number;
 }
 
 export interface Department
 {
+    id: number;
     name: string;
     company_id: number;
 }
 
 export interface DepartmentHead
 {
+    id: number;
     user_id: number;
     dept_id: number;   
 }
@@ -260,6 +264,7 @@ export interface SettingContextType
     //Departments Menu
     newDepartment: (payload: FormData) => Promise<GenericResponse<Department | null>>;
     editDepartment: (payload: FormData) => Promise<GenericResponse<Department | null>>;
+    deleteDepartment: (dept_id: number) => Promise<GenericResponse<null>>;
     loading: boolean;
 }
 

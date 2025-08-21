@@ -1,7 +1,7 @@
 import React, {createContext,useState,useCallback,useMemo,ReactNode,useEffect} from 'react';
 import {SettingContextType,Setting,AuthUser,Department, GenericResponse} from '../types';
 import {getSettings, newUser, editUser, deleteUser, viewUser,
-  newDepartment, editDepartment
+  newDepartment, editDepartment, deleteDepartment
  } from '../service/settingsService';
 
 const defaultContext: SettingContextType = {
@@ -16,7 +16,8 @@ const defaultContext: SettingContextType = {
   deleteUser: async () => ({success:false, message:'', data:null}),
   //Departments
   newDepartment: async () => ({success: false, message:'',data:null}),
-  editDepartment: async () => ({success: false, message:'',data:null})
+  editDepartment: async () => ({success: false, message:'',data:null}),
+  deleteDepartment: async () => ({success:false, message:'', data:null})
 };
 export const SettingContext = createContext<SettingContextType>(defaultContext);
 
@@ -122,6 +123,14 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
   {
     return editDepartment(payload);
   },[]);
+  //Delete Department
+  const handleDeleteDepartment = useCallback(async (
+    dept_id: number
+  ): Promise<GenericResponse<null>> =>
+    {
+      return deleteDepartment(dept_id);
+    },
+  []);
   const contextValue = useMemo(() => ({
     setting,
     user,
@@ -133,7 +142,8 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
     deleteUser: handleDeleteUser,
     viewUser: handleViewUser,
     newDepartment: handleNewDepartment,
-    editDepartment: handleEditDepartment
+    editDepartment: handleEditDepartment,
+    deleteDepartment: handleDeleteDepartment
   }), [
     setting,
     user,
@@ -145,7 +155,8 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
     handleDeleteUser,
     handleViewUser,
     handleNewDepartment,
-    handleEditDepartment
+    handleEditDepartment,
+    handleDeleteDepartment
   ]);
 
   return (

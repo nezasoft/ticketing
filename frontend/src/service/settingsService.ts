@@ -122,3 +122,12 @@ export async function editDepartment(
 }
 
 //Delete Department
+export async function deleteDepartment( user_id: number): Promise<GenericResponse<any>>
+{
+  const response = await api.post<GenericResponse<any>>('/department/delete',{
+    user_id
+
+  });
+  return response.data;
+}
+
