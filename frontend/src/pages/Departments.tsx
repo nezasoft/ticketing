@@ -4,10 +4,12 @@ import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
 import { SettingContext } from '../context/SettingContext';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
+import DepartmentList from '../components/departments/DepartmentList';
+import NewDepartmentModal from '../components/departments/NewDepartmentModal';
 
 const Departments: React.FC = () =>
 {
-    const [departments, setDepartments] = useState<Department[]>([]);
+    const [depts, setDepts] = useState<Department[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isModalOpen, setModalOpen] = useState(false);
     const settingCtx = useContext(SettingContext);
@@ -31,13 +33,12 @@ const Departments: React.FC = () =>
                 console.warn("User company id missing.");
                 return;
             }
-
             if(settingCtx?.listSettings)
             {
                 const response = await settingCtx.listSettings(companyId);
                 if(response.success && response.data?.departments)
                 {
-                    setDepartments(response.data.departments);
+                    setDepts(response.data.departments);
                 }else{
                     console.log('Failed to fetch departments:',response.message);
                 }
@@ -49,6 +50,11 @@ const Departments: React.FC = () =>
             setLoading(false);
         }
     },[settingCtx]);
+
+    useEffect(()=>
+    {
+        fetchDepartments();
+    },[fetchDepartments]);
 
     if(loading)
     {
@@ -74,6 +80,12 @@ const Departments: React.FC = () =>
                         </button>
                     </div>
                 </div>
+                <DepartmentList depts={depts} onUpdated={fetchDepartments} />
+                <NewDepartmentModal 
+                isOpen={isModalOpen}
+                onClose={()=> setModalOpen(false)}
+                onCreated={fetchDepartments}
+                 />
 
             </main>
         </div>

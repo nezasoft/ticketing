@@ -12,6 +12,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   UserPlusIcon,
+  FolderOpenIcon
 } from "@heroicons/react/24/solid";
 
 const Sidebar: React.FC = () => {
@@ -254,16 +255,16 @@ const Sidebar: React.FC = () => {
                         to="/users"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Users
                       </Link>
                     </li>
                     <li>
                       <Link
-                        to="#"
+                        to="/departments"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Departments
                       </Link>
                     </li>
@@ -272,7 +273,7 @@ const Sidebar: React.FC = () => {
                         to="#"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Emails
                       </Link>
                     </li>
@@ -281,7 +282,7 @@ const Sidebar: React.FC = () => {
                         to="#"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Event Types
                       </Link>
                     </li>
@@ -290,7 +291,7 @@ const Sidebar: React.FC = () => {
                         to="#"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Integrations
                       </Link>
                     </li>
@@ -299,7 +300,7 @@ const Sidebar: React.FC = () => {
                         to="#"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Priorities
                       </Link>
                     </li>
@@ -308,7 +309,7 @@ const Sidebar: React.FC = () => {
                         to="#"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         User Roles
                       </Link>
                     </li>
@@ -317,7 +318,7 @@ const Sidebar: React.FC = () => {
                         to="#"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Status
                       </Link>
                     </li>
@@ -326,7 +327,7 @@ const Sidebar: React.FC = () => {
                         to="#"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Mail Templates
                       </Link>
                     </li>
@@ -335,7 +336,7 @@ const Sidebar: React.FC = () => {
                         to="#"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
-                        <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />
+                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Template Types
                       </Link>
                     </li>          

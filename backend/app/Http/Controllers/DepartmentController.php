@@ -67,6 +67,7 @@ class DepartmentController extends Controller
 
     public function edit(Request $request)
     {
+        dd($request);
         $validator = Validator::make($request->all(),[
             'dept_id' => 'required|integer|min:1|exists:departments,id',
             'name' => 'required|string|max:255',

@@ -60,7 +60,9 @@ const EditDepartmentModal: React.FC<Props> = ({isOpen, onClose, onUpdated, dept}
             const formData = new FormData();
             formData.append("company_id",currentUser.company_id);
             formData.append("user_id",currentUser.id);
-            formData.append("id",dept.id.toString());
+            formData.append("dept_id",dept.id.toString());
+
+            console.log(formData);
 
             Object.entries(form).forEach(([keyboard, value])=>
             {

@@ -15,6 +15,7 @@ import TicketView from './pages/TicketView';
 import TicketForm from './pages/TicketForm';
 import Users from './pages/Users';
 import UserView from './pages/UserView';
+import Departments from './pages/Departments';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
@@ -75,6 +76,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <UserView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/departments"
+            element={
+              <PrivateRoute>
+                <Departments />
               </PrivateRoute>
             }
           />
