@@ -14,14 +14,11 @@ interface Props {
 const EditDepartmentModal: React.FC<Props> = ({isOpen, onClose, onUpdated, dept}) => 
 {
     const {editDepartment, setting} = useContext(SettingContext);
-
     const [form, setForm] = useState<Partial<Department>>({
         name: ""
     });
-
     const [submitting, setSubmitting]  = useState(false);
     const [error, setError] = useState<string | null>(null);
-
     useEffect(()=>
     {
         if(isOpen && dept)
@@ -43,7 +40,6 @@ const EditDepartmentModal: React.FC<Props> = ({isOpen, onClose, onUpdated, dept}
       ) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
       };
-
     const handleSubmit = async (e: React.FormEvent) => 
     {
         e.preventDefault();
@@ -61,9 +57,6 @@ const EditDepartmentModal: React.FC<Props> = ({isOpen, onClose, onUpdated, dept}
             formData.append("company_id",currentUser.company_id);
             formData.append("user_id",currentUser.id);
             formData.append("dept_id",dept.id.toString());
-
-            console.log(formData);
-
             Object.entries(form).forEach(([keyboard, value])=>
             {
                 if(value !== undefined &&  value !==null)
@@ -71,7 +64,6 @@ const EditDepartmentModal: React.FC<Props> = ({isOpen, onClose, onUpdated, dept}
                     formData.append(keyboard, value as string);
                 }
             });
-
             const response = await editDepartment(formData);
             if (response.success) {
                 toast.success("Record updated successfully");

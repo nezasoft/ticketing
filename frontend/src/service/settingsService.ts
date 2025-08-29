@@ -113,11 +113,7 @@ export async function editDepartment(
   payload: FormData
 ): Promise<GenericResponse<Department>>
 {
-  const response = await api.post<GenericResponse<Department>>('/department/edit',
-    {
-      payload
-    }
-  );
+  const response = await api.post<GenericResponse<Department>>('/department/edit',payload);
   return response.data;
 }
 
