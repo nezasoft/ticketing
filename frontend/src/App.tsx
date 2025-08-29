@@ -16,6 +16,7 @@ import TicketForm from './pages/TicketForm';
 import Users from './pages/Users';
 import UserView from './pages/UserView';
 import Departments from './pages/Departments';
+import Emails from './pages/Emails';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
@@ -84,6 +85,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <Departments />
+              </PrivateRoute>
+            }
+          />
+           <Route
+            path="/emails"
+            element={
+              <PrivateRoute>
+                <Emails />
               </PrivateRoute>
             }
           />

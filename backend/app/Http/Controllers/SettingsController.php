@@ -8,6 +8,7 @@ use App\Models\CountryCode;
 use App\Models\Customer;
 use App\Models\CustomerType;
 use App\Models\Department;
+use App\Models\Email;
 use App\Models\NotificationType;
 use App\Models\Priority;
 use App\Models\Role;
@@ -163,6 +164,7 @@ class SettingsController extends Controller
         $sla_policies =[];
         $customers = [];
         $users = [];
+        $emails = [];
         $records = Channel::orderBy('name','asc')->get();
         if(count($records) != 0)
         {
@@ -265,6 +267,33 @@ class SettingsController extends Controller
             }
         }
 
+        $records = Email::where('company_id',$request->company_id)->orderBy('name','asc')->get();
+        if(count($records) !=0)
+        {
+            foreach($records as $record)
+            {
+                $emails[]=[
+                    'id' => $record->id,
+                    'name' => $record->name,
+                    'email'=> $record->email,
+                    'department' => $record->department->name ?? '',
+                    'priority' => $record->priority->name ?? '',
+                    'dept_id' => $record->dept_id,
+                    'priority_id' => $record->priority_id,
+                    'username' => $record->username,
+                    'password' => $record->password,
+                    'host' => $record->fetching_host,
+                    'incoming_port' => $record->fetching_port,
+                    'outgoing_port'=> $record->sending_port,
+                    'protocol' => $record->fetching_protocol,
+                    'encryption' => $record->fetching_encryption,
+                    'folder' => $record->folder,
+                    'active' => $record->active == 1 ? 'Yes' : 'No',
+
+                ];
+            }
+        }
+
         $records = SlaPolicy::where('company_id',$request->company_id)->orderBy('name','asc')->get();
         if(count($records) != 0)
         {
@@ -321,11 +350,12 @@ class SettingsController extends Controller
             'ticket_status' => $ticket_status,
             'channels' => $channels,
             'departments' => $departments,
-            'country_codes' => $country_codes,
+            'country_codes' => $country_codes,  
             'customer_types' => $customer_types,
             'sla_policies' => $sla_policies,
             'customers' => $customers,
-            'users' => $users
+            'users' => $users,
+            'emails' => $emails
         ];
 
         return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, '',$data);

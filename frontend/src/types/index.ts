@@ -46,6 +46,7 @@ export interface Setting
     sla_policies?: any[];
     customers?: any[];
     users?: any[];
+    emails?: any[];
 
 }
 
@@ -168,6 +169,7 @@ export interface DepartmentHead
 
 export interface Email
 {
+    id: number,
     email: string;
     name: string;
     dept_id: number;
@@ -175,11 +177,13 @@ export interface Email
     company_id: number;
     username: string;
     password: string;
-    fetching_host: string;
-    fetching_post: string;
-    fetching_protocol: string;
-    fetching_encryption: string;
-    active: number;
+    host: string;
+    incoming_port: string;
+    outgoing_port: string;
+    protocol: string;
+    encryption: string;
+    folder: string;
+    active: string;
 }
 export interface Notification
 {
@@ -255,6 +259,7 @@ export interface SettingContextType
     setting: Setting | null;
     user: AuthUser | null;
     dept: Department | null;
+    email: Email | null;
     listSettings: (company_id: number) => Promise<GenericResponse<Setting | null>>;
     //Users Menu
     newUser: (payload: FormData) => Promise<GenericResponse<AuthUser | null>>;
@@ -265,6 +270,11 @@ export interface SettingContextType
     newDepartment: (payload: FormData) => Promise<GenericResponse<Department | null>>;
     editDepartment: (payload: FormData) => Promise<GenericResponse<Department | null>>;
     deleteDepartment: (dept_id: number) => Promise<GenericResponse<null>>;
+
+    //Emails Menu
+    newEmail: (payload: FormData) => Promise<GenericResponse<Email | null>>;
+    editEmail: (payload: FormData) => Promise<GenericResponse<Email |  null>>;
+    deleteEmail: (email_id: number) => Promise<GenericResponse<null>>;
     loading: boolean;
 }
 

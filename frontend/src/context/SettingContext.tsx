@@ -1,13 +1,14 @@
 import React, {createContext,useState,useCallback,useMemo,ReactNode,useEffect} from 'react';
-import {SettingContextType,Setting,AuthUser,Department, GenericResponse} from '../types';
+import {SettingContextType,Setting,AuthUser,Department,Email, GenericResponse} from '../types';
 import {getSettings, newUser, editUser, deleteUser, viewUser,
-  newDepartment, editDepartment, deleteDepartment
+  newDepartment, editDepartment, deleteDepartment, newEmail, editEmail, deleteEmail
  } from '../service/settingsService';
 
 const defaultContext: SettingContextType = {
   setting: null,
   user: null,
   dept: null,
+  email: null,
   loading: false,
   listSettings: async () => ({ success: false, message: '', data: null }),
   newUser: async () => ({success: false, message:'',data:null}),
@@ -17,7 +18,11 @@ const defaultContext: SettingContextType = {
   //Departments
   newDepartment: async () => ({success: false, message:'',data:null}),
   editDepartment: async () => ({success: false, message:'',data:null}),
-  deleteDepartment: async () => ({success:false, message:'', data:null})
+  deleteDepartment: async () => ({success:false, message:'', data:null}),
+  //Emails
+  newEmail: async () => ({success: false, message:'',data:null}),
+  editEmail: async () => ({success: false, message:'', data:null}),
+  deleteEmail: async () => ({success: false, message:'', data: null})
 };
 export const SettingContext = createContext<SettingContextType>(defaultContext);
 
@@ -28,6 +33,7 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
   const [setting, setSetting] = useState<Setting | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [dept, setDept] = useState<Department | null>(null);
+  const [email,setEmail] = useState<Email | null>(null);
   
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -131,10 +137,30 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
       return deleteDepartment(dept_id);
     },
   []);
+ //Email Settings Methods
+ const handleNewEmail = useCallback(async (payload: FormData) : Promise<GenericResponse<Email | null>> =>
+{
+  return newEmail(payload);
+},[]);
+
+const handleEditEmail =  useCallback(async (
+  payload: FormData
+): Promise<GenericResponse<Email | null>> =>
+{
+  return editEmail(payload);
+},[]);
+
+const handleDeleteEmail = useCallback(async (email_id: number) : Promise<GenericResponse<null>> =>
+{
+  return deleteEmail(email_id);
+},[]);
+
+
   const contextValue = useMemo(() => ({
     setting,
     user,
     dept,
+    email,
     loading,
     listSettings: fetchSettings,
     newUser: handleNewUser,
@@ -143,11 +169,15 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
     viewUser: handleViewUser,
     newDepartment: handleNewDepartment,
     editDepartment: handleEditDepartment,
-    deleteDepartment: handleDeleteDepartment
+    deleteDepartment: handleDeleteDepartment,
+    newEmail: handleNewEmail,
+    editEmail: handleEditEmail,
+    deleteEmail: handleDeleteEmail
   }), [
     setting,
     user,
     dept,
+    email,
     loading,
     fetchSettings,
     handleNewUser,
@@ -156,7 +186,10 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
     handleViewUser,
     handleNewDepartment,
     handleEditDepartment,
-    handleDeleteDepartment
+    handleDeleteDepartment,
+    handleNewEmail,
+    handleEditEmail,
+    handleDeleteEmail,
   ]);
 
   return (

@@ -145,4 +145,43 @@ class EmailController extends Controller
         }
         return $this->service->serviceResponse($this->service::FAILED_FLAG,200, $this->service::FAILED_MESSAGE);
     }
+
+    public function show(Request $request)
+    {
+        $validator = Validator::make($request->only('email_id'),[
+            'email_id' => 'required|integer|exists:emails,id',
+        ]);
+
+        if($validator->fails())
+        {
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
+        }
+
+        $email = Email::with('department','priority')->where(['id'=>$request->email_id])->first();
+        if($email)
+        {
+            $email[] = [
+                    'id'=>$email->id,
+                    'name'=>$email->name ??'',
+                    'email'=> $email->email,
+                    'department' => $email->department->name ?? '',
+                    'priority' => $email->priority->name ?? '',
+                    'dept_id' => $email->dept_id,
+                    'priority_id' => $email->priority_id,
+                    'username' => $email->username,
+                    'password' => $email->password,
+                    'host' => $email->fetching_host,
+                    'incoming_port' => $email->fetching_port,
+                    'outgoing_port'=> $email->sending_port,
+                    'protocol' => $email->fetching_protocol,
+                    'encryption' => $email->fetching_encryption,
+                    'folder' => $email->folder,
+                    'active' => $email->active == 1 ? 'Yes' : 'No',
+                    'date_created' => $this->service->formatDate($email->created_at)
+            ];
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'',$email);
+        }
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200,$this->service::FAILED_MESSAGE);
+
+    }
 }
