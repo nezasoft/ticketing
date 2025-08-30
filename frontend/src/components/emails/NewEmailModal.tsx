@@ -126,7 +126,7 @@ const NewEmailModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                             <Dialog.Panel className="bg-white dark:bg-zinc-800 rounded-lg w-full max-w-2xl p-6 space-y-4 shadow-xl border border-gray-300">
                                 <div className="flex justify-between items-center">
                                     <Dialog.Title className="text-lg font-medium text-gray-800 dark:text-white text-left">
-                                        Create New User
+                                        Create Email Account
                                     </Dialog.Title>
                                     <button 
                                     onClick={onClose} 
@@ -294,7 +294,7 @@ const NewEmailModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                         Status
                                         </label>
                                         <select
-                                        name="status"
+                                        name="active"
                                         value={form.active || ""}
                                         onChange={handleChange}
                                         required

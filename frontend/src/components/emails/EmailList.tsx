@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   EllipsisVerticalIcon,
@@ -13,6 +13,7 @@ import autoTable from "jspdf-autotable";
 import { toast } from "react-toastify";
 import { SettingContext } from "../../context/SettingContext";
 import EditEmailModal from "./EditEmailModal";
+import ViewEmailModal from "./ViewEmailModal";
 type Email =  {
     id: number;
     name: string;
@@ -44,6 +45,9 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
     const [openDropdown, setOpenDropdown] = useState<number | null>(null);
     const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isViewOpen, setIsViewOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
+
 
     const settingCtx = useContext(SettingContext);
     const itemsPerPage = 10;
@@ -75,7 +79,13 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
     },[openDropdownExportOptions]);
     const handleEditClick = (email: Email) => 
     {
+        setOpenDropdown(null);
         setIsEditOpen(true);
+    };
+    const handleViewClick = (email: Email) => {
+      setOpenDropdown(null);
+      setSelectedEmail(email);
+      setIsViewOpen(true);
     };
     const handleDelete = async (emailId: number) => 
     {
@@ -144,6 +154,20 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
         });
         doc.save("emails.pdf");
     };
+  //Handle Option Buttons click events ie. auto hide when clicked
+ useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          dropdownRef.current &&
+          !dropdownRef.current.contains(event.target as Node)
+        ) {
+          setOpenDropdown(null);
+        }
+      };
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     const totalPages = Math.ceil(filteredEmails.length / itemsPerPage);
     return (
     <div className="p-4">
@@ -218,7 +242,7 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
             paginatedEmails.map((email, index) => (
               <tr
                 key={email.id}
-                className="hover:bg-gray-50 dark:hover:bg-zinc-800 text-xs cursor-pointer"
+                className="hover:bg-gray-50 dark:hover:bg-zinc-800 text-xs cursor-pointer odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800"
               >
                 {/* Numbering column */}
                 <td className="px-4 py-3">
@@ -237,7 +261,7 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
                     onClick={(e) => {
                       e.stopPropagation();
                       setOpenDropdown(openDropdown === email.id ? null : email.id);
-                      setSelectedEmail(email); // make sure edit works
+                      setSelectedEmail(email); 
                     }}
                     className="inline-flex items-center gap-1 text-sm px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
                   >
@@ -245,7 +269,7 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
                   </button>
 
                   {openDropdown === email.id && (
-                    <div className="absolute right-0 mt-2 w-28 bg-white dark:bg-zinc-800 shadow-lg rounded-md text-sm border dark:border-zinc-700 z-50">
+                    <div  ref={dropdownRef} className="absolute right-0 mt-2 w-28 bg-white dark:bg-zinc-800 shadow-lg rounded-md text-sm border dark:border-zinc-700 z-50">
                       <button
                         onClick={() => handleEditClick(email)}
                         className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left"
@@ -308,7 +332,7 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
         </div>
       </div>
 
-      {/* Edit User Modal */}
+      {/* Edit Item Modal */}
       {isEditOpen && selectedEmail && (
       <EditEmailModal
         isOpen={isEditOpen}
@@ -317,6 +341,14 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
         email={selectedEmail}
       />
     )}
+    {/* View Item Modal */}
+    {isViewOpen && selectedEmail && (
+  <ViewEmailModal
+    isOpen={isViewOpen}
+    onClose={() => setIsViewOpen(false)}
+    email={selectedEmail}
+  />
+)}
     </div>
   );
 };

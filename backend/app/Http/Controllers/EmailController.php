@@ -39,7 +39,8 @@ class EmailController extends Controller
                     'username' => $email->username,
                     'password' => $email->password,
                     'host' => $email->fetching_host,
-                    'port' => $email->fetching_port,
+                    'incoming_port' => $email->fetching_port,
+                    'outgoing_port' => $email->sending_port,
                     'protocol'=> $email->fetching_protocol,
                     'encryption'=> $email->fetching_encryption,
                     'department' => $email->department->name ?? null,
@@ -65,8 +66,10 @@ class EmailController extends Controller
             'username'=> 'required|string|max:255',
             'password'=> 'required|string|max:255',
             'host' => 'required|string|max:255',
-            'port'=> 'required|integer',
+            'incoming_port'=> 'required|integer',
+            'outgoing_port'=> 'required|integer',
             'protocol'=>'required|string|max:255',
+            'folder'=>'required|string|max:255',
             'encryption'=> 'required|string|max:255'
         ]);
 
@@ -86,10 +89,11 @@ class EmailController extends Controller
             $email->username = $request->username;
             $email->password = $request->password;
             $email->fetching_host = $request->host;
-            $email->fetching_port = $request->port;
+            $email->fetching_port = $request->incoming_port;
+            $email->sending_port = $request->outgoing_port;
             $email->fetching_protocol = $request->protocol;
             $email->fetching_encryption = $request->encryption;
-            $email->folder = 'Inbox';
+            $email->folder = $request->folder;
 
             if($email->save())
             {
@@ -113,8 +117,10 @@ class EmailController extends Controller
             'username'=> 'required|string|max:255',
             'password'=> 'required|string|max:255',
             'host' => 'required|string|max:255',
-            'port'=> 'required|integer',
+            'incoming_port'=> 'required|integer',
+            'outgoing_port'=> 'required|integer',
             'protocol'=>'required|string|max:255',
+            'folder'=> 'required|string|max:255',
             'encryption'=> 'required|string|max:255'
         ]);
 
@@ -132,10 +138,11 @@ class EmailController extends Controller
         $email->username = $request->username;
         $email->password = $request->password;
         $email->fetching_host = $request->host;
-        $email->fetching_port = $request->port;
+        $email->fetching_port = $request->incoming_port;
+        $email->sending_port = $request->outgoing_port;
         $email->fetching_protocol = $request->protocol;
         $email->fetching_encryption = $request->encryption;
-        $email->folder = 'Inbox';
+        $email->folder = $request->folder;
 
         //Lets create email config settings for this company
 
@@ -160,7 +167,7 @@ class EmailController extends Controller
         $email = Email::with('department','priority')->where(['id'=>$request->email_id])->first();
         if($email)
         {
-            $email[] = [
+            $email = [
                     'id'=>$email->id,
                     'name'=>$email->name ??'',
                     'email'=> $email->email,
@@ -179,7 +186,7 @@ class EmailController extends Controller
                     'active' => $email->active == 1 ? 'Yes' : 'No',
                     'date_created' => $this->service->formatDate($email->created_at)
             ];
-            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'',$email);
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,$email);
         }
         return $this->service->serviceResponse($this->service::FAILED_FLAG,200,$this->service::FAILED_MESSAGE);
 

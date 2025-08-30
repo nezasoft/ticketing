@@ -5,7 +5,7 @@ import Navbar from '../components/common/Navbar';
 import { SettingContext } from '../context/SettingContext';
 import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import EmailList from '../components/emails/EmailList';
-import NewUserModal from '../components/users/NewUserModal';
+import NewEmailModal from '../components/emails/NewEmailModal';
 const Emails: React.FC = () => 
 {
     const [emails, setEmails] = useState<Email[]>([]);
@@ -68,10 +68,10 @@ const Emails: React.FC = () =>
     
       </div>
       <EmailList emails={emails} onUpdated={fetchEmails} />
-      <NewUserModal
+      <NewEmailModal
                 isOpen={isModalOpen}
                 onClose={() => setModalOpen(false)}
-                onCreated={fetchEmails} // ✅ Reload after user creation
+                onCreated={fetchEmails} // ✅ Reload after creation
       />
       </main>
     </div>

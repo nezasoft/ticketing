@@ -133,7 +133,7 @@ const EditEmailModal: React.FC<Props> = ({ isOpen, onClose, onUpdated,email }) =
               <Dialog.Panel className="bg-white dark:bg-zinc-800 rounded-lg w-full max-w-2xl p-6 space-y-4 shadow-xl border border-gray-300">
                 <div className="flex justify-between items-center">
                   <Dialog.Title className="text-lg font-medium text-gray-800 dark:text-white text-left">
-                    Edit User
+                    Edit Email Account Details
                   </Dialog.Title>
                   <button
                     onClick={onClose}
@@ -304,7 +304,7 @@ const EditEmailModal: React.FC<Props> = ({ isOpen, onClose, onUpdated,email }) =
                       Status
                     </label>
                     <select
-                      name="status"
+                      name="active"
                       value={form.active || ""}
                       onChange={handleChange}
                       required
