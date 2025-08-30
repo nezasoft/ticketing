@@ -1,5 +1,5 @@
 import React, {createContext,useState,useCallback,useMemo,ReactNode,useEffect} from 'react';
-import {SettingContextType,Setting,AuthUser,Department,Email, GenericResponse} from '../types';
+import {SettingContextType,Setting,AuthUser,Department,Email,EventType, GenericResponse} from '../types';
 import {getSettings, newUser, editUser, deleteUser, viewUser,
   newDepartment, editDepartment, deleteDepartment, newEmail, editEmail, deleteEmail
  } from '../service/settingsService';
@@ -9,6 +9,7 @@ const defaultContext: SettingContextType = {
   user: null,
   dept: null,
   email: null,
+  eventType: null,
   loading: false,
   listSettings: async () => ({ success: false, message: '', data: null }),
   newUser: async () => ({success: false, message:'',data:null}),
@@ -34,6 +35,7 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [dept, setDept] = useState<Department | null>(null);
   const [email,setEmail] = useState<Email | null>(null);
+  const [eventType] = useState<EventType | null >(null);
   
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -161,6 +163,7 @@ const handleDeleteEmail = useCallback(async (email_id: number) : Promise<Generic
     user,
     dept,
     email,
+    eventType,
     loading,
     listSettings: fetchSettings,
     newUser: handleNewUser,
@@ -178,6 +181,7 @@ const handleDeleteEmail = useCallback(async (email_id: number) : Promise<Generic
     user,
     dept,
     email,
+    eventType,
     loading,
     fetchSettings,
     handleNewUser,

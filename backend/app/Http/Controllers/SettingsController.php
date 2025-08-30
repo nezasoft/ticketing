@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\CustomerType;
 use App\Models\Department;
 use App\Models\Email;
+use App\Models\EventType;
 use App\Models\NotificationType;
 use App\Models\Priority;
 use App\Models\Role;
@@ -165,6 +166,7 @@ class SettingsController extends Controller
         $customers = [];
         $users = [];
         $emails = [];
+        $event_types= [];
         $records = Channel::orderBy('name','asc')->get();
         if(count($records) != 0)
         {
@@ -195,6 +197,17 @@ class SettingsController extends Controller
             foreach($records as $record)
             {
                 $roles[] = [
+                    'id'=> $record->id,
+                    'name'=> $record->name
+                ];
+            }
+        }
+        $records = EventType::orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $event_types[] = [
                     'id'=> $record->id,
                     'name'=> $record->name
                 ];
@@ -355,7 +368,8 @@ class SettingsController extends Controller
             'sla_policies' => $sla_policies,
             'customers' => $customers,
             'users' => $users,
-            'emails' => $emails
+            'emails' => $emails,
+            'event_types' => $event_types
         ];
 
         return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, '',$data);

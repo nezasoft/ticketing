@@ -47,6 +47,7 @@ export interface Setting
     customers?: any[];
     users?: any[];
     emails?: any[];
+    event_types? : any[];
 
 }
 
@@ -90,7 +91,8 @@ export interface Reply {
 
 }
 export interface EventType {
-  name: string;
+    id: number;
+    name: string;
 }
 export interface SLAEvent
 {
@@ -197,6 +199,13 @@ export interface NotificationType
     message:string;
     type:string;   
 }
+export interface Integration
+{
+    id: number,
+    code: string;
+    value: string;
+    company_id: number;
+}
 export interface SLAPolicy{
     name:string;
     response_time_min:number;
@@ -260,6 +269,8 @@ export interface SettingContextType
     user: AuthUser | null;
     dept: Department | null;
     email: Email | null;
+    eventType: EventType | null;
+    integration: Integration | null;
     listSettings: (company_id: number) => Promise<GenericResponse<Setting | null>>;
     //Users Menu
     newUser: (payload: FormData) => Promise<GenericResponse<AuthUser | null>>;
@@ -275,6 +286,11 @@ export interface SettingContextType
     newEmail: (payload: FormData) => Promise<GenericResponse<Email | null>>;
     editEmail: (payload: FormData) => Promise<GenericResponse<Email |  null>>;
     deleteEmail: (email_id: number) => Promise<GenericResponse<null>>;
+    //Integration Menu
+    newIntegration: (payload: FormData) => Promise<GenericResponse<Integration | null>>;
+    editIntegration: (payload: FormData) => Promise<GenericResponse<Integration | null>>;
+    deleteIntegration: (payload: FormData) => Promise<GenericResponse<null>>;
+    
     loading: boolean;
 }
 

@@ -1,32 +1,31 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Ticket } from '../types';
-import { TicketContext } from '../context/TicketContext';
-import TicketDetail from '../components/tickets/TicketDetail';
-import Sidebar from '../components/common/Sidebar';
-import Navbar from '../components/common/Navbar';
+import { AuthUser } from '../../types';
+import Sidebar from '../common/Sidebar';
+import Navbar from '../common/Navbar';
 import { ArrowPathIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { SettingContext } from '../../context/SettingContext';
+import UserDetail from '../users/UserDetail';
 
-const TicketView: React.FC = () => {
+const UserView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [ticket, setTicket] = useState<Ticket | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const { viewTicket } = useContext(TicketContext); // Extract only the function
-
+  const { viewUser } = useContext(SettingContext); // Extract only the function
   useEffect(() => {
-    const ticketId = parseInt(id ?? '');
-    if (!id || isNaN(ticketId)) return;
+    const userId = parseInt(id ?? '');
+    if (!id || isNaN(userId)) return;
 
     const fetch = async () => {
       setLoading(true);
       try {
-        const response = await viewTicket(ticketId);
+        const response = await viewUser(userId);
         if (response.success && response.data) {
-          setTicket(response.data);
+          setUser(response.data);
         } else {
-          console.error('Ticket fetch failed:', response.message);
+          console.error('User fetch failed:', response.message);
         }
       } catch (err) {
         console.error('Fetch error:', err);
@@ -36,17 +35,17 @@ const TicketView: React.FC = () => {
     };
 
     fetch();
-  }, [id, viewTicket]); // Only depends on stable references
+  }, [id, viewUser]); // Only depends on stable references
 
   if (!id || isNaN(parseInt(id))) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white dark:bg-zinc-900 text-gray-800 dark:text-white">
-        <p className="text-lg font-medium text-red-500">Invalid Ticket ID</p>
+        <p className="text-lg font-medium text-red-500">Invalid User ID</p>
         <button
-          onClick={() => navigate('/tickets')}
+          onClick={() => navigate('/users')}
           className="mt-4 px-4 py-2 bg-violet-600 text-white rounded hover:bg-violet-700"
         >
-          Go back to Tickets
+          Go back to Users
         </button>
       </div>
     );
@@ -61,15 +60,15 @@ const TicketView: React.FC = () => {
     );
   }
 
-  if (!ticket) {
+  if (!user) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white dark:bg-zinc-900 text-gray-800 dark:text-white">
-        <p className="text-lg font-medium text-red-500">Ticket not found</p>
+        <p className="text-lg font-medium text-red-500">User not found</p>
         <button
-          onClick={() => navigate('/tickets')}
+          onClick={() => navigate('/users')}
           className="mt-4 px-4 py-2 bg-violet-600 text-white rounded hover:bg-violet-700"
         >
-          Go back to Tickets
+          Go back to Users
         </button>
       </div>
     );
@@ -81,7 +80,7 @@ const TicketView: React.FC = () => {
       <Sidebar />
       <main className="md:ml-[250px] md:mt-[70px] p-4 w-full h-full">
         <div className="flex flex-wrap items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Tickets</h2>
+          <h2 className="text-xl font-semibold">Users</h2>
         </div>
         <button
           onClick={() => navigate(-1)}
@@ -90,25 +89,10 @@ const TicketView: React.FC = () => {
         >
           <ArrowLeftIcon className="h-4 w-4" />
         </button>
-        <TicketDetail
-          ticket_id = {ticket.id}
-          subject={ticket.subject}
-          description={ticket.description}
-          attachments={ticket.attachments ?? []}
-          thread_attachments={ticket.thread_attachments ?? []}
-          replies={ticket.replies ?? []}
-          events={ticket.events ?? []}
-          status={ticket.status}
-          priority={ticket.priority}
-          ticket_no={ticket.ticket_no}
-          phone={ticket.phone}
-          email={ticket.email}
-          channel={ticket.channel}
-          created_at={ticket.created_at}
-        />
+        <UserDetail />
       </main>
     </div>
   );
 };
 
-export default TicketView;
+export default UserView;

@@ -11,12 +11,13 @@ import Register from './auth/Register';
 import RecoverPassword from './auth/RecoverPassword';
 import Dashboard from './pages/Dashboard';
 import Tickets from './pages/Tickets';
-import TicketView from './pages/TicketView';
-import TicketForm from './pages/TicketForm';
+import TicketView from './components/tickets/TicketView';
+import TicketForm from './components/tickets/TicketForm';
 import Users from './pages/Users';
-import UserView from './pages/UserView';
+import UserView from './components/tickets/UserView';
 import Departments from './pages/Departments';
 import Emails from './pages/Emails';
+import EventTypes from './pages/EventTypes';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
@@ -93,6 +94,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <Emails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/event_types"
+            element={
+              <PrivateRoute>
+                <EventTypes />
               </PrivateRoute>
             }
           />
