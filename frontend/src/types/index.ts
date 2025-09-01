@@ -48,6 +48,7 @@ export interface Setting
     users?: any[];
     emails?: any[];
     event_types? : any[];
+    integrations? : any[];
 
 }
 
@@ -289,7 +290,7 @@ export interface SettingContextType
     //Integration Menu
     newIntegration: (payload: FormData) => Promise<GenericResponse<Integration | null>>;
     editIntegration: (payload: FormData) => Promise<GenericResponse<Integration | null>>;
-    deleteIntegration: (payload: FormData) => Promise<GenericResponse<null>>;
+    deleteIntegration: (integration_id: number) => Promise<GenericResponse<null>>;
     
     loading: boolean;
 }

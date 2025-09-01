@@ -1,7 +1,7 @@
 import React, {createContext,useState,useCallback,useMemo,ReactNode,useEffect} from 'react';
-import {SettingContextType,Setting,AuthUser,Department,Email,EventType, GenericResponse} from '../types';
+import {SettingContextType,Setting,AuthUser,Department,Email,EventType,Integration, GenericResponse} from '../types';
 import {getSettings, newUser, editUser, deleteUser, viewUser,
-  newDepartment, editDepartment, deleteDepartment, newEmail, editEmail, deleteEmail
+  newDepartment, editDepartment, deleteDepartment, newEmail, editEmail, deleteEmail,newIntegration, editIntegration, deleteIntegration
  } from '../service/settingsService';
 
 const defaultContext: SettingContextType = {
@@ -10,6 +10,7 @@ const defaultContext: SettingContextType = {
   dept: null,
   email: null,
   eventType: null,
+  integration: null,
   loading: false,
   listSettings: async () => ({ success: false, message: '', data: null }),
   newUser: async () => ({success: false, message:'',data:null}),
@@ -23,7 +24,11 @@ const defaultContext: SettingContextType = {
   //Emails
   newEmail: async () => ({success: false, message:'',data:null}),
   editEmail: async () => ({success: false, message:'', data:null}),
-  deleteEmail: async () => ({success: false, message:'', data: null})
+  deleteEmail: async () => ({success: false, message:'', data: null}),
+  //Integrations
+  newIntegration: async () => ({success: false, message:'',data:null}),
+  editIntegration: async () => ({success: false, message:'', data:null}),
+  deleteIntegration: async () => ({success: false, message:'', data: null})
 };
 export const SettingContext = createContext<SettingContextType>(defaultContext);
 
@@ -36,9 +41,8 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
   const [dept, setDept] = useState<Department | null>(null);
   const [email,setEmail] = useState<Email | null>(null);
   const [eventType] = useState<EventType | null >(null);
-  
+  const [integration] = useState<Integration | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-
     // Load from localStorage on init
     useEffect(() => {
         const stored = localStorage.getItem('app_settings');
@@ -158,12 +162,31 @@ const handleDeleteEmail = useCallback(async (email_id: number) : Promise<Generic
 },[]);
 
 
+ //Integration Methods
+ const handleNewIntegration = useCallback(async (payload: FormData) : Promise<GenericResponse<Integration | null>> =>
+{
+  return newIntegration(payload);
+},[]);
+
+const handleEditIntegration =  useCallback(async (
+  payload: FormData
+): Promise<GenericResponse<Integration | null>> =>
+{
+  return editIntegration(payload);
+},[]);
+
+const handleDeleteIntegration = useCallback(async (email_id: number) : Promise<GenericResponse<null>> =>
+{
+  return deleteIntegration(email_id);
+},[]);
+
   const contextValue = useMemo(() => ({
     setting,
     user,
     dept,
     email,
     eventType,
+    integration,
     loading,
     listSettings: fetchSettings,
     newUser: handleNewUser,
@@ -175,13 +198,17 @@ const handleDeleteEmail = useCallback(async (email_id: number) : Promise<Generic
     deleteDepartment: handleDeleteDepartment,
     newEmail: handleNewEmail,
     editEmail: handleEditEmail,
-    deleteEmail: handleDeleteEmail
+    deleteEmail: handleDeleteEmail,
+    newIntegration: handleNewIntegration,
+    editIntegration: handleEditIntegration,
+    deleteIntegration: handleDeleteIntegration
   }), [
     setting,
     user,
     dept,
     email,
     eventType,
+    integration,
     loading,
     fetchSettings,
     handleNewUser,
@@ -194,6 +221,9 @@ const handleDeleteEmail = useCallback(async (email_id: number) : Promise<Generic
     handleNewEmail,
     handleEditEmail,
     handleDeleteEmail,
+    handleNewIntegration,
+    handleEditIntegration,
+    handleDeleteIntegration,
   ]);
 
   return (

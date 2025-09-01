@@ -1,5 +1,5 @@
 import api from '../api/api';
-import {AuthUser, Department, Email, GenericResponse,Setting} from '../types';
+import {AuthUser, Department, Email, GenericResponse,Setting, Integration} from '../types';
 
 //Get All System Settigs
 export async function getSettings(company_id:number):Promise<GenericResponse<Setting>>
@@ -140,6 +140,25 @@ export  async function editEmail(payload: FormData): Promise<GenericResponse<Ema
 export async function deleteEmail(email_id: number): Promise<GenericResponse<null>>
 {
   const response = await api.post<GenericResponse<null>>('/email/delete',email_id);
+  return response.data;
+}
+
+//Add New  Integration Setting
+export async function newIntegration(payload: FormData) : Promise<GenericResponse<Integration>>
+{
+  const response  = await api.post<GenericResponse<Integration>>('/integration/create',payload);
+  return response.data;
+}
+//Edit Email 
+export  async function editIntegration(payload: FormData): Promise<GenericResponse<Integration>>{
+  const response = await api.post<GenericResponse<Integration>>('/integration/edit',payload);
+  return response.data;
+}
+
+//Delete Email
+export async function deleteIntegration(integration_id: number): Promise<GenericResponse<null>>
+{
+  const response = await api.post<GenericResponse<null>>('/integration/delete',integration_id);
   return response.data;
 }
 

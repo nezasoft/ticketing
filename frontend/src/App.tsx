@@ -18,6 +18,7 @@ import UserView from './components/tickets/UserView';
 import Departments from './pages/Departments';
 import Emails from './pages/Emails';
 import EventTypes from './pages/EventTypes';
+import Integrations from './pages/Integrations';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
@@ -102,6 +103,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <EventTypes />
+              </PrivateRoute>
+            }
+          />
+           <Route
+            path="/integrations"
+            element={
+              <PrivateRoute>
+                <Integrations />
               </PrivateRoute>
             }
           />
