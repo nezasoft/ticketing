@@ -242,6 +242,14 @@ export interface TicketClose
     user_id: number;
     remarks:string;
 }
+export interface Template
+{
+    id: number;
+    name: string;
+    subject: string;
+    message: string;
+}
+
 export interface AuthContextType {
     user: AuthUser | null;
     token: string | null;
@@ -272,6 +280,7 @@ export interface SettingContextType
     email: Email | null;
     eventType: EventType | null;
     integration: Integration | null;
+    template: Template | null;
     listSettings: (company_id: number) => Promise<GenericResponse<Setting | null>>;
     //Users Menu
     newUser: (payload: FormData) => Promise<GenericResponse<AuthUser | null>>;
@@ -291,6 +300,10 @@ export interface SettingContextType
     newIntegration: (payload: FormData) => Promise<GenericResponse<Integration | null>>;
     editIntegration: (payload: FormData) => Promise<GenericResponse<Integration | null>>;
     deleteIntegration: (integration_id: number) => Promise<GenericResponse<null>>;
+    //Templates Menu
+    newTemplate: (payload: FormData) => Promise<GenericResponse<Template | null>>;
+    editTemplate: (payload: FormData) => Promise<GenericResponse<Template  | null>>;
+    deleteTemplate: (template_id: number) => Promise<GenericResponse<Template | null>>;
     
     loading: boolean;
 }

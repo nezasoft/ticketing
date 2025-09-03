@@ -10,11 +10,13 @@ use App\Models\CustomerType;
 use App\Models\Department;
 use App\Models\Email;
 use App\Models\EventType;
+use App\Models\IntegrationSetting;
 use App\Models\NotificationType;
 use App\Models\Priority;
 use App\Models\Role;
 use App\Models\SlaPolicy;
 use App\Models\Status;
+use App\Models\Template;
 use App\Models\TicketType;
 use App\Services\BackendService;
 use Carbon\Carbon;
@@ -167,6 +169,8 @@ class SettingsController extends Controller
         $users = [];
         $emails = [];
         $event_types= [];
+        $integrations = [];
+        $templates = [];
         $records = Channel::orderBy('name','asc')->get();
         if(count($records) != 0)
         {
@@ -279,6 +283,19 @@ class SettingsController extends Controller
                 ];
             }
         }
+        $records = IntegrationSetting::where('company_id',$request->company_id)->orderBy('code','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $integrations[] = [
+                    'id' => $record->id,
+                    'code'=> $record->code,
+                    'value' => $record->value
+                ];
+            }
+        }
+
 
         $records = Email::where('company_id',$request->company_id)->orderBy('name','asc')->get();
         if(count($records) !=0)
@@ -355,6 +372,21 @@ class SettingsController extends Controller
 
             }
         }
+        $records =Template::with('type')->orderBy('id','asc')->get();
+        if(count($records)!=0)
+        {
+            foreach($records as $record)
+            {
+                $templates[] =
+                [
+                    'id' => $record->id,
+                    'name' => $record->name ?? '',
+                    'subject' => $record->subject ?? '',
+                    'message' => $record->message ?? '',
+                    'type' => $record->type->name ?? ''
+                ];
+            }
+        }
 
         $data[] = [
             'priorities' => $priorities,
@@ -369,7 +401,9 @@ class SettingsController extends Controller
             'customers' => $customers,
             'users' => $users,
             'emails' => $emails,
-            'event_types' => $event_types
+            'event_types' => $event_types,
+            'integrations' => $integrations,
+            'templates' => $templates,
         ];
 
         return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, '',$data);

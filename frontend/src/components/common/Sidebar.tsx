@@ -288,40 +288,14 @@ const Sidebar: React.FC = () => {
                     </li>
                     <li>
                       <Link
-                        to="#"
+                        to="/integrations"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
                         <FolderOpenIcon className="h-4 w-4 text-violet-400" />
                         Integrations
                       </Link>
                     </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
-                      >
-                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
-                        Priorities
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
-                      >
-                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
-                        User Roles
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
-                      >
-                        <FolderOpenIcon className="h-4 w-4 text-violet-400" />
-                        Status
-                      </Link>
-                    </li>
+
                     <li>
                       <Link
                         to="#"

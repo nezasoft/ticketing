@@ -1,7 +1,8 @@
 import React, {createContext,useState,useCallback,useMemo,ReactNode,useEffect} from 'react';
-import {SettingContextType,Setting,AuthUser,Department,Email,EventType,Integration, GenericResponse} from '../types';
+import {SettingContextType,Setting,AuthUser,Department,Email,EventType,Integration,Template, GenericResponse} from '../types';
 import {getSettings, newUser, editUser, deleteUser, viewUser,
-  newDepartment, editDepartment, deleteDepartment, newEmail, editEmail, deleteEmail,newIntegration, editIntegration, deleteIntegration
+  newDepartment, editDepartment, deleteDepartment, newEmail, editEmail,
+   deleteEmail,newIntegration, editIntegration, deleteIntegration, newTemplate, editTemplate, deleteTemplate
  } from '../service/settingsService';
 
 const defaultContext: SettingContextType = {
@@ -11,6 +12,7 @@ const defaultContext: SettingContextType = {
   email: null,
   eventType: null,
   integration: null,
+  template: null,
   loading: false,
   listSettings: async () => ({ success: false, message: '', data: null }),
   newUser: async () => ({success: false, message:'',data:null}),
@@ -28,7 +30,11 @@ const defaultContext: SettingContextType = {
   //Integrations
   newIntegration: async () => ({success: false, message:'',data:null}),
   editIntegration: async () => ({success: false, message:'', data:null}),
-  deleteIntegration: async () => ({success: false, message:'', data: null})
+  deleteIntegration: async () => ({success: false, message:'', data: null}),
+  //Templates
+  newTemplate: async () => ({success: false, message:'',data:null}),
+  editTemplate: async () => ({success: false, message:'', data:null}),
+  deleteTemplate: async () => ({success: false, message:'', data: null}),
 };
 export const SettingContext = createContext<SettingContextType>(defaultContext);
 
@@ -42,6 +48,7 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
   const [email,setEmail] = useState<Email | null>(null);
   const [eventType] = useState<EventType | null >(null);
   const [integration] = useState<Integration | null>(null);
+  const [template] = useState<Template | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
     // Load from localStorage on init
     useEffect(() => {
@@ -180,6 +187,25 @@ const handleDeleteIntegration = useCallback(async (email_id: number) : Promise<G
   return deleteIntegration(email_id);
 },[]);
 
+
+//Template Methods
+ const handleNewTemplate = useCallback(async (payload: FormData) : Promise<GenericResponse<Template | null>> =>
+{
+  return newTemplate(payload);
+},[]);
+
+const handleEditTemplate =  useCallback(async (
+  payload: FormData
+): Promise<GenericResponse<Template | null>> =>
+{
+  return editTemplate(payload);
+},[]);
+
+const handleDeleteTemplate = useCallback(async (template_id: number) : Promise<GenericResponse<null>> =>
+{
+  return deleteTemplate(template_id);
+},[]);
+
   const contextValue = useMemo(() => ({
     setting,
     user,
@@ -187,6 +213,7 @@ const handleDeleteIntegration = useCallback(async (email_id: number) : Promise<G
     email,
     eventType,
     integration,
+    template,
     loading,
     listSettings: fetchSettings,
     newUser: handleNewUser,
@@ -201,7 +228,10 @@ const handleDeleteIntegration = useCallback(async (email_id: number) : Promise<G
     deleteEmail: handleDeleteEmail,
     newIntegration: handleNewIntegration,
     editIntegration: handleEditIntegration,
-    deleteIntegration: handleDeleteIntegration
+    deleteIntegration: handleDeleteIntegration,
+    newTemplate: handleNewTemplate,
+    editTemplate: handleEditTemplate,
+    deleteTemplate: handleDeleteTemplate
   }), [
     setting,
     user,
@@ -209,6 +239,7 @@ const handleDeleteIntegration = useCallback(async (email_id: number) : Promise<G
     email,
     eventType,
     integration,
+    template,
     loading,
     fetchSettings,
     handleNewUser,
@@ -224,6 +255,9 @@ const handleDeleteIntegration = useCallback(async (email_id: number) : Promise<G
     handleNewIntegration,
     handleEditIntegration,
     handleDeleteIntegration,
+    handleNewTemplate,
+    handleEditTemplate,
+    handleDeleteTemplate,
   ]);
 
   return (

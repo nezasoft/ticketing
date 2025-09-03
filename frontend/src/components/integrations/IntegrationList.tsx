@@ -196,6 +196,7 @@ const IntegrationList: React.FC<IntegrationListProps> = ({integrations, onUpdate
             <th className="px-4 py-3 text-left w-12">#</th>
             <th className="px-4 py-3 text-left">Code</th>
             <th className="px-4 py-3 text-left">Value</th>
+            <th className="px-4 py-3 text-left">Action</th>
           </tr>
         </thead>
         <tbody>

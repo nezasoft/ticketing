@@ -3,13 +3,13 @@ import { Integration } from '../types';
 import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
 import { SettingContext } from '../context/SettingContext';
-import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import IntegrationList from '../components/integrations/IntegrationList';
 import NewIntegrationModal from '../components/integrations/NewIntegrationModal';
 
 const Integrations: React.FC = () => 
 {
-    const [integration, setSelectedIntegration] = useState<Integration[]>([]);
+    const [integrations, setIntegrations] = useState<Integration[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isModalOpen, setModalOpen] = useState(false);
     const settingCtx = useContext(SettingContext);
@@ -32,7 +32,7 @@ const Integrations: React.FC = () =>
             if (settingCtx?.listSettings) {
             const response = await settingCtx.listSettings(companyId);
             if (response.success && response.data?.integrations) {
-              setSelectedIntegration(response.data.integrations);
+              setIntegrations(response.data.integrations);
             } else {
               console.error('Failed to fetch records:', response.message);
             }

@@ -1,5 +1,5 @@
 import api from '../api/api';
-import {AuthUser, Department, Email, GenericResponse,Setting, Integration} from '../types';
+import {AuthUser, Department, Email, GenericResponse,Setting, Integration, Template} from '../types';
 
 //Get All System Settigs
 export async function getSettings(company_id:number):Promise<GenericResponse<Setting>>
@@ -149,17 +149,36 @@ export async function newIntegration(payload: FormData) : Promise<GenericRespons
   const response  = await api.post<GenericResponse<Integration>>('/integration/create',payload);
   return response.data;
 }
-//Edit Email 
+//Edit Integration Setting
 export  async function editIntegration(payload: FormData): Promise<GenericResponse<Integration>>{
   const response = await api.post<GenericResponse<Integration>>('/integration/edit',payload);
   return response.data;
 }
 
-//Delete Email
+//Delete Integration Setting
 export async function deleteIntegration(integration_id: number): Promise<GenericResponse<null>>
 {
   const response = await api.post<GenericResponse<null>>('/integration/delete',integration_id);
   return response.data;
 }
 
+//Email Templates
 
+//Add New
+export async function newTemplate(payload: FormData) : Promise<GenericResponse<Template>>
+{
+  const response  = await api.post<GenericResponse<Template>>('/templates/create',payload);
+  return response.data;
+}
+//Edit 
+export  async function editTemplate(payload: FormData): Promise<GenericResponse<Template>>{
+  const response = await api.post<GenericResponse<Template>>('/templates/edit',payload);
+  return response.data;
+}
+
+//Delete
+export async function deleteTemplate(template_id: number): Promise<GenericResponse<null>>
+{
+  const response = await api.post<GenericResponse<null>>('/templates/delete',template_id);
+  return response.data;
+}

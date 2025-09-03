@@ -98,6 +98,13 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/delete', 'delete')->name('integration.delete');
 
     });
+    Route::prefix('templates')->controller(TemplateController::class)->group(function () {
+        Route::post('/list', 'index')->name('templates.list');
+        Route::post('/create', 'create')->name('templates.create');
+        Route::post('/edit', 'edit')->name('templates.edit');
+        Route::post('/delete', 'delete')->name('templates.delete');
+
+    });
 });
 
 

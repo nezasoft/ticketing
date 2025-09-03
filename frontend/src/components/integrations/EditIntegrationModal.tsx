@@ -59,7 +59,7 @@ const EditIntegrationModal: React.FC<Props> = ({isOpen, onClose, onUpdated, inte
             const formData = new FormData();
             formData.append("company_id",currentUser.company_id);
             formData.append("user_id",currentUser.id);
-            formData.append("integration_id",integration.id.toString());
+            formData.append("item_id",integration.id.toString());
             Object.entries(form).forEach(([keyboard, value])=>
             {
                 if(value !== undefined &&  value !==null)
