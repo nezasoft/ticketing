@@ -49,6 +49,7 @@ export interface Setting
     emails?: any[];
     event_types? : any[];
     integrations? : any[];
+    template_types? : any[];
 
 }
 
@@ -248,6 +249,7 @@ export interface Template
     name: string;
     subject: string;
     message: string;
+    type_id: number;
 }
 
 export interface AuthContextType {

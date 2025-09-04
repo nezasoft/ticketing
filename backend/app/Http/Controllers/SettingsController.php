@@ -17,6 +17,7 @@ use App\Models\Role;
 use App\Models\SlaPolicy;
 use App\Models\Status;
 use App\Models\Template;
+use App\Models\TemplateType;
 use App\Models\TicketType;
 use App\Services\BackendService;
 use Carbon\Carbon;
@@ -171,6 +172,7 @@ class SettingsController extends Controller
         $event_types= [];
         $integrations = [];
         $templates = [];
+        $template_types  =[];
         $records = Channel::orderBy('name','asc')->get();
         if(count($records) != 0)
         {
@@ -387,6 +389,17 @@ class SettingsController extends Controller
                 ];
             }
         }
+        $records = TemplateType::orderBy('name','asc')->get();
+        if(count($records) != 0)
+        {
+            foreach($records as $record)
+            {
+                $template_types[] = [
+                    'id' => $record->id,
+                    'name'=> $record->name,
+                ];
+            }
+        }
 
         $data[] = [
             'priorities' => $priorities,
@@ -404,6 +417,7 @@ class SettingsController extends Controller
             'event_types' => $event_types,
             'integrations' => $integrations,
             'templates' => $templates,
+            'template_types' => $template_types
         ];
 
         return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, '',$data);

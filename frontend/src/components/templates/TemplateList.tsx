@@ -12,36 +12,26 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "react-toastify";
 import { SettingContext } from "../../context/SettingContext";
-import EditEmailModal from "./EditEmailModal";
-import ViewEmailModal from "./ViewEmailModal";
-type Email =  {
+import EditTemplateModal from "./EditTemplateModal";
+import ViewEmailModal from "./ViewTemplateModal";
+type Template =  {
     id: number;
     name: string;
-    email: string;
-    dept_id: number;
-    priority_id: number;
-    company_id: number;
-    username: string;
-    password: string;
-    host: string;
-    incoming_port: string;
-    outgoing_port: string;
-    protocol: string;
-    encryption: string;
-    folder: string;
-    active: string;
+    subject: string;
+    message: string;
+    type_id: number;
 };
 
-type EmailListProps ={
-    emails: Email[];
+type TemplateListProps ={
+    templates: Template[];
     onUpdated: () => void;
 };
 
-const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) => 
+const EmailList: React.FC<TemplateListProps> = ({templates, onUpdated}) => 
 {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
     const [openDropdown, setOpenDropdown] = useState<number | null>(null);
     const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -52,21 +42,21 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
     const settingCtx = useContext(SettingContext);
     const itemsPerPage = 10;
     const term = searchTerm.toLowerCase();
-    const filteredEmails = emails.filter((email)=>
+    const filteredTemplates = templates.filter((template)=>
     {
         const matchesText = 
-        String(email.name ?? "").toLowerCase().includes(term) ||
-        String(email.email ?? "").toLowerCase().includes(term);
+        String(template.name ?? "").toLowerCase().includes(term) ||
+        String(template.subject ?? "").toLowerCase().includes(term);
         return (
             matchesText
         )
     });
-    const paginatedEmails = filteredEmails.slice((currentPage - 1) * itemsPerPage,currentPage * itemsPerPage);
+    const paginatedTemplates = filteredTemplates.slice((currentPage - 1) * itemsPerPage,currentPage * itemsPerPage);
     const navigate = useNavigate();
     useEffect(()=>
     {
         setCurrentPage(1);
-    },[emails, searchTerm]);
+    },[templates, searchTerm]);
     useEffect(()=>
     {
         const handleClickOutside = () => setOpenDropdownExportOptions(false);
@@ -77,24 +67,24 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
 
         return () => window.removeEventListener("click",handleClickOutside);
     },[openDropdownExportOptions]);
-    const handleEditClick = (email: Email) => 
+    const handleEditClick = (template: Template) => 
     {
         setOpenDropdown(null);
         setIsEditOpen(true);
     };
-    const handleViewClick = (email: Email) => {
+    const handleViewClick = (template: Template) => {
       setOpenDropdown(null);
-      setSelectedEmail(email);
+      setSelectedTemplate(template);
       setIsViewOpen(true);
     };
-    const handleDelete = async (emailId: number) => 
+    const handleDelete = async (templateId: number) => 
     {
         const confirmDelete = window.confirm("Are you sure you want to delete this record?");
         if(!confirmDelete) return;
 
         try{
             setOpenDropdown(null);
-            const response = await settingCtx?.deleteEmail?.(emailId);
+            const response = await settingCtx?.deleteTemplate?.(templateId);
             if(response?.success)
             {
                 toast.success("Record deleted successfully!");
@@ -111,42 +101,32 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
     const handleExportToExcel = () =>   
     {
         const worksheet = XLSX.utils.json_to_sheet(
-            filteredEmails.map((e)=>({
-                Name: e.name,
-                Email: e.email,
-                Host: e.host,
-                Username: e.username,
-                IncomingPort: e.incoming_port,
-                OutgoingPort: e.outgoing_port,
-                Active: e.active
+            filteredTemplates.map((e)=>({
+                Subject: e.subject,
+                Name: e.subject
             }))
         );
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet,"Email Accounts");
+        XLSX.utils.book_append_sheet(workbook, worksheet,"Email Templates");
         const excelBuffer = XLSX.write(workbook,{bookType: "xlsx", type: "array"});
         const blob = new Blob([excelBuffer,{type:"application/octet-stream"}]);
-        saveAs(blob,"emails.xlsx");
+        saveAs(blob,"templates.xlsx");
     }
 
     const handleExportToPDF = () =>
     {
         const doc = new jsPDF();
-        const tableColumn = ["Name","Email","Username","Host","Incoming Port","Outgoing Port","Status"];
-        const tableRows =filteredEmails.map((e)=> [
+        const tableColumn = ["Name","Subject"];
+        const tableRows =filteredTemplates.map((e)=> [
             e.name || "",
-            e.email || "",
-            e.username || "",
-            e.host || "",
-            e.incoming_port || "",
-            e.outgoing_port || "",
-            e.active || ""
+            e.subject || ""
         ]);
 
         autoTable(doc,{
             head: [tableColumn],
             body: tableRows,
         });
-        doc.save("emails.pdf");
+        doc.save("templates.pdf");
     };
   //Handle Option Buttons click events ie. auto hide when clicked
  useEffect(() => {
@@ -162,7 +142,7 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const totalPages = Math.ceil(filteredEmails.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
     return (
     <div className="p-4">
       {/* Search + Export */}
@@ -223,61 +203,52 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
           <tr className="text-xs">
             <th className="px-4 py-3 text-left w-12">#</th>
             <th className="px-4 py-3 text-left">Name</th>
-            <th className="px-4 py-3 text-left">Email</th>
-            <th className="px-4 py-3 text-left">Host</th>
-            <th className="px-4 py-3 text-left">Incoming Port</th>
-            <th className="px-4 py-3 text-left">Outgoing Port</th>
-            <th className="px-4 py-3 text-left">Status</th>
+            <th className="px-4 py-3 text-left">Subject</th>
             <th className="px-4 py-3 text-right">Action</th>
           </tr>
         </thead>
         <tbody>
-          {paginatedEmails.length > 0 ? (
-            paginatedEmails.map((email, index) => (
+          {paginatedTemplates.length > 0 ? (
+            paginatedTemplates.map((template, index) => (
               <tr
-                key={email.id}
+                key={template.id}
                 className="hover:bg-gray-50 dark:hover:bg-zinc-800 text-xs cursor-pointer odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800"
               >
                 {/* Numbering column */}
                 <td className="px-4 py-3">
                   {(currentPage - 1) * itemsPerPage + index + 1}
                 </td>
-                <td className="px-4 py-3 text-violet-600 font-semibold">{email.name}</td>
-                <td className="px-4 py-3 text-violet-600 font-semibold">{email.email}</td>
-                <td className="px-4 py-3 text-violet-600 font-semibold">{email.host}</td>
-                <td className="px-4 py-3 text-violet-600 font-semibold">{email.incoming_port}</td>
-                <td className="px-4 py-3 text-violet-600 font-semibold">{email.outgoing_port}</td>
-                <td className="px-4 py-3 text-violet-600 font-semibold">{email.active}</td>
-
+                <td className="px-4 py-3 text-violet-600 font-semibold">{template.name}</td>
+                <td className="px-4 py-3 text-violet-600 font-semibold">{template.subject}</td>
                 {/* Right-aligned action menu */}
                 <td className="relative px-4 py-3 text-right">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      setOpenDropdown(openDropdown === email.id ? null : email.id);
-                      setSelectedEmail(email); 
+                      setOpenDropdown(openDropdown === template.id ? null : template.id);
+                      setSelectedTemplate(template); 
                     }}
                     className="inline-flex items-center gap-1 text-sm px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
                   >
                     <EllipsisVerticalIcon className="w-4 h-4" />
                   </button>
 
-                  {openDropdown === email.id && (
+                  {openDropdown === template.id && (
                     <div  ref={dropdownRef} className="absolute right-0 mt-2 w-28 bg-white dark:bg-zinc-800 shadow-lg rounded-md text-sm border dark:border-zinc-700 z-50">
                       <button
-                        onClick={() => handleEditClick(email)}
+                        onClick={() => handleEditClick(template)}
                         className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left"
                       >
                         Edit
                       </button>
                       <button
-                        onClick={() => handleViewClick(email)}
+                        onClick={() => handleViewClick(template)}
                         className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left"
                       >
                         View
                       </button>
                       <button
-                        onClick={() => handleDelete(email.id)}
+                        onClick={() => handleDelete(template.id)}
                         className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-700 text-left text-red-600"
                       >
                         Delete
@@ -301,11 +272,11 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4 text-sm">
         <div>
-          {filteredEmails.length > 0
+          {filteredTemplates.length > 0
             ? `Showing ${(currentPage - 1) * itemsPerPage + 1}–${Math.min(
                 currentPage * itemsPerPage,
-                filteredEmails.length
-              )} of ${filteredEmails.length}`
+                filteredTemplates.length
+              )} of ${filteredTemplates.length}`
             : "No results to display"}
         </div>
         <div className="flex gap-2">
@@ -317,7 +288,7 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
             Previous
           </button>
           <button
-            disabled={currentPage === totalPages || filteredEmails.length === 0}
+            disabled={currentPage === totalPages || filteredTemplates.length === 0}
             onClick={() => setCurrentPage((prev) => prev + 1)}
             className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
           >
@@ -327,8 +298,8 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
       </div>
 
       {/* Edit Item Modal */}
-      {isEditOpen && selectedEmail && (
-      <EditEmailModal
+      {isEditOpen && selectedTemplate && (
+      <EditTemplateModal
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         onUpdated={onUpdated}
@@ -336,11 +307,11 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
       />
     )}
     {/* View Item Modal */}
-    {isViewOpen && selectedEmail && (
-  <ViewEmailModal
+    {isViewOpen && selectedTemplate && (
+  <ViewTemplateModal
     isOpen={isViewOpen}
     onClose={() => setIsViewOpen(false)}
-    email={selectedEmail}
+    email={selectedTemplate}
   />
 )}
     </div>
