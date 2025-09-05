@@ -49,6 +49,7 @@ export interface Setting
     emails?: any[];
     event_types? : any[];
     integrations? : any[];
+    templates? : any[];
     template_types? : any[];
 
 }

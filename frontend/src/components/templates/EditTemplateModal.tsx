@@ -12,13 +12,10 @@ interface Props {
   onUpdated: () => void; 
   template: Partial<Template>;
 }
-
-
 const EditTemplateModal: React.FC<Props> = ({ isOpen, onClose, onUpdated,template }) => {
   const { editTemplate, setting } = useContext(SettingContext);
-
   const [form, setForm] = useState<Partial<Template>>({
-              name: "",
+            name: "",
             subject: "",
             message: "",
             type_id: undefined
@@ -26,7 +23,6 @@ const EditTemplateModal: React.FC<Props> = ({ isOpen, onClose, onUpdated,templat
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     if (isOpen && template) {
       setForm({
@@ -199,8 +195,7 @@ const EditTemplateModal: React.FC<Props> = ({ isOpen, onClose, onUpdated,templat
                                         {submitting ? "Saving..." : "Save Changes"}
                                         </button>
                                     </div>
-                    </form>
-                 
+                    </form>                
               </Dialog.Panel>
             </Transition.Child>
           </div>
@@ -209,5 +204,4 @@ const EditTemplateModal: React.FC<Props> = ({ isOpen, onClose, onUpdated,templat
     </Transition.Root>
   );
 };
-
 export default EditTemplateModal;

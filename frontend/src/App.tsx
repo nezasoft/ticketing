@@ -19,6 +19,7 @@ import Departments from './pages/Departments';
 import Emails from './pages/Emails';
 import EventTypes from './pages/EventTypes';
 import Integrations from './pages/Integrations';
+import Templates from './pages/Templates';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
@@ -111,6 +112,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <Integrations />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/templates"
+            element={
+              <PrivateRoute>
+                <Templates />
               </PrivateRoute>
             }
           />

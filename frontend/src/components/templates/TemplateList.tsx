@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   EllipsisVerticalIcon,
   PrinterIcon,
@@ -13,7 +12,7 @@ import autoTable from "jspdf-autotable";
 import { toast } from "react-toastify";
 import { SettingContext } from "../../context/SettingContext";
 import EditTemplateModal from "./EditTemplateModal";
-import ViewEmailModal from "./ViewTemplateModal";
+import ViewTemplateModal from "./ViewTemplateModal";
 type Template =  {
     id: number;
     name: string;
@@ -52,7 +51,6 @@ const EmailList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
         )
     });
     const paginatedTemplates = filteredTemplates.slice((currentPage - 1) * itemsPerPage,currentPage * itemsPerPage);
-    const navigate = useNavigate();
     useEffect(()=>
     {
         setCurrentPage(1);
@@ -303,7 +301,7 @@ const EmailList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         onUpdated={onUpdated}
-        email={selectedEmail}
+        template={selectedTemplate}
       />
     )}
     {/* View Item Modal */}
@@ -311,7 +309,7 @@ const EmailList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
   <ViewTemplateModal
     isOpen={isViewOpen}
     onClose={() => setIsViewOpen(false)}
-    email={selectedTemplate}
+    template={selectedTemplate}
   />
 )}
     </div>
