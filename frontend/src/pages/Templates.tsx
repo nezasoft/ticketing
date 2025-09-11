@@ -2,16 +2,17 @@ import React, {useEffect, useState, useContext, useCallback} from 'react';
 import { Template } from '../types';
 import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
-import { SettingContext } from '../context/SettingContext';
+import { TemplateContext } from '../context/TemplateContext';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import TemplateList from '../components/templates/TemplateList';
 import NewTemplateModal from '../components/templates/NewTemplateModal';
+
 const Templates: React.FC = () => 
 {
     const [templates, setTemplates] = useState<Template[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [isModalOpen, setModalOpen] = useState(false);
-    const settingCtx = useContext(SettingContext);
+    const templateCtx = useContext(TemplateContext);
     const fetchTemplates = useCallback(async ()=>
     {
         try
@@ -28,10 +29,10 @@ const Templates: React.FC = () =>
               console.warn("User company id missing.");
               return;
             }
-            if (settingCtx?.listSettings) {
-            const response = await settingCtx.listSettings(companyId);
-            if (response.success && response.data?.templates) {
-              setTemplates(response.data.templates);
+            if (templateCtx?.listTemplates) {
+            const response = await templateCtx.listTemplates(companyId);
+            if (response.success && response.data) {
+              setTemplates(response.data);
             } else {
               console.error('Failed to fetch templates:', response.message);
             }
@@ -41,7 +42,7 @@ const Templates: React.FC = () =>
     } finally {
       setLoading(false);
     }
-  }, [settingCtx]);
+  }, [templateCtx]);
   useEffect(() => {
     fetchTemplates();
   }, [fetchTemplates]);

@@ -416,7 +416,7 @@ class SettingsController extends Controller
             'emails' => $emails,
             'event_types' => $event_types,
             'integrations' => $integrations,
-            'templates' => $templates,
+            //'templates' => $templates,
             'template_types' => $template_types
         ];
 

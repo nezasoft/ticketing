@@ -10,7 +10,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { toast } from "react-toastify";
-import { SettingContext } from "../../context/SettingContext";
+import { TemplateContext } from "../../context/TemplateContext";
 import EditTemplateModal from "./EditTemplateModal";
 import ViewTemplateModal from "./ViewTemplateModal";
 type Template =  {
@@ -26,7 +26,7 @@ type TemplateListProps ={
     onUpdated: () => void;
 };
 
-const EmailList: React.FC<TemplateListProps> = ({templates, onUpdated}) => 
+const TemplateList: React.FC<TemplateListProps> = ({templates, onUpdated}) => 
 {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +38,7 @@ const EmailList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
 
-    const settingCtx = useContext(SettingContext);
+    const templateCtx = useContext(TemplateContext);
     const itemsPerPage = 10;
     const term = searchTerm.toLowerCase();
     const filteredTemplates = templates.filter((template)=>
@@ -82,7 +82,7 @@ const EmailList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
 
         try{
             setOpenDropdown(null);
-            const response = await settingCtx?.deleteTemplate?.(templateId);
+            const response = await templateCtx?.deleteTemplate?.(templateId);
             if(response?.success)
             {
                 toast.success("Record deleted successfully!");
@@ -316,4 +316,4 @@ const EmailList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
   );
 };
 
-export default EmailList;
+export default TemplateList;

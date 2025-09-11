@@ -1,5 +1,6 @@
 import React, {Fragment, useState, useContext, useEffect} from 'react';
 import {Dialog, Transition} from '@headlessui/react';
+import { TemplateContext } from '../../context/TemplateContext';
 import { SettingContext } from '../../context/SettingContext';
 import { Template } from '../../types';
 import { toast } from 'react-toastify';
@@ -14,7 +15,7 @@ interface Props
 
 
 const NewTemplateModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
-    const {newTemplate} = useContext(SettingContext);
+    const {newTemplate} = useContext(TemplateContext);
     const {setting} = useContext(SettingContext);
     const [form, setForm] = useState<Partial<Template>>({
             name: "",

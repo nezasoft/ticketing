@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useContext, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import { TemplateContext } from "../../context/TemplateContext";
 import { SettingContext } from "../../context/SettingContext";
 import { Template } from "../../types";
 import { toast } from "react-toastify";
@@ -13,7 +14,9 @@ interface Props {
   template: Partial<Template>;
 }
 const EditTemplateModal: React.FC<Props> = ({ isOpen, onClose, onUpdated,template }) => {
-  const { editTemplate, setting } = useContext(SettingContext);
+  const { editTemplate} = useContext(TemplateContext);
+  const {setting} = useContext(SettingContext);
+
   const [form, setForm] = useState<Partial<Template>>({
             name: "",
             subject: "",

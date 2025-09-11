@@ -2,8 +2,9 @@ import React, {createContext,useState,useCallback,useMemo,ReactNode,useEffect} f
 import {SettingContextType,Setting,AuthUser,Department,Email,EventType,Integration,Template, GenericResponse} from '../types';
 import {getSettings, newUser, editUser, deleteUser, viewUser,
   newDepartment, editDepartment, deleteDepartment, newEmail, editEmail,
-   deleteEmail,newIntegration, editIntegration, deleteIntegration, newTemplate, editTemplate, deleteTemplate
+   deleteEmail,newIntegration, editIntegration, deleteIntegration
  } from '../service/settingsService';
+import { settingsManager } from '../utils/settingsManager';
 
 const defaultContext: SettingContextType = {
   setting: null,
@@ -12,7 +13,6 @@ const defaultContext: SettingContextType = {
   email: null,
   eventType: null,
   integration: null,
-  template: null,
   loading: false,
   listSettings: async () => ({ success: false, message: '', data: null }),
   newUser: async () => ({success: false, message:'',data:null}),
@@ -31,10 +31,7 @@ const defaultContext: SettingContextType = {
   newIntegration: async () => ({success: false, message:'',data:null}),
   editIntegration: async () => ({success: false, message:'', data:null}),
   deleteIntegration: async () => ({success: false, message:'', data: null}),
-  //Templates
-  newTemplate: async () => ({success: false, message:'',data:null}),
-  editTemplate: async () => ({success: false, message:'', data:null}),
-  deleteTemplate: async () => ({success: false, message:'', data: null}),
+
 };
 export const SettingContext = createContext<SettingContextType>(defaultContext);
 
@@ -62,26 +59,38 @@ export const SettingProvider: React.FC<Props> = ({ children }) => {
         }
     }, []);
 
-  const fetchSettings = useCallback(async (company_id: number): Promise<GenericResponse<Setting | null>> => {
+ const fetchSettings = useCallback(
+  async (company_id: number): Promise<GenericResponse<Setting | null>> => {
     setLoading(true);
     try {
       const response = await getSettings(company_id);
       setSetting(response.data);
-    // Persist to localStorage
-      localStorage.setItem('app_settings', JSON.stringify(response.data));
-
+      // ✅ Persist to memory + localStorage
+      settingsManager.set(response.data);
       return {
         success: true,
-        message: 'Settings retrieved successfully',
+        message: "Settings retrieved successfully",
         data: response.data,
       };
     } catch (error) {
-      console.error('Error retrieving settings', error);
-      return { success: false, message: 'Error viewing ticket', data: null };
+      console.error("Error retrieving settings", error);
+      // ✅ fallback to cached settings
+      const cached = settingsManager.get();
+      if (cached) {
+        setSetting(cached);
+        return {
+          success: true,
+          message: "Loaded cached settings",
+          data: cached,
+        };
+      }
+      return { success: false, message: "Error retrieving settings", data: null };
     } finally {
       setLoading(false);
     }
-  }, []);
+  },
+  []
+);
 
   //Edit user
   const handleEditUser = useCallback(async (
@@ -188,23 +197,6 @@ const handleDeleteIntegration = useCallback(async (email_id: number) : Promise<G
 },[]);
 
 
-//Template Methods
- const handleNewTemplate = useCallback(async (payload: FormData) : Promise<GenericResponse<Template | null>> =>
-{
-  return newTemplate(payload);
-},[]);
-
-const handleEditTemplate =  useCallback(async (
-  payload: FormData
-): Promise<GenericResponse<Template | null>> =>
-{
-  return editTemplate(payload);
-},[]);
-
-const handleDeleteTemplate = useCallback(async (template_id: number) : Promise<GenericResponse<null>> =>
-{
-  return deleteTemplate(template_id);
-},[]);
 
   const contextValue = useMemo(() => ({
     setting,
@@ -213,7 +205,6 @@ const handleDeleteTemplate = useCallback(async (template_id: number) : Promise<G
     email,
     eventType,
     integration,
-    template,
     loading,
     listSettings: fetchSettings,
     newUser: handleNewUser,
@@ -229,9 +220,7 @@ const handleDeleteTemplate = useCallback(async (template_id: number) : Promise<G
     newIntegration: handleNewIntegration,
     editIntegration: handleEditIntegration,
     deleteIntegration: handleDeleteIntegration,
-    newTemplate: handleNewTemplate,
-    editTemplate: handleEditTemplate,
-    deleteTemplate: handleDeleteTemplate
+ 
   }), [
     setting,
     user,
@@ -239,7 +228,6 @@ const handleDeleteTemplate = useCallback(async (template_id: number) : Promise<G
     email,
     eventType,
     integration,
-    template,
     loading,
     fetchSettings,
     handleNewUser,
@@ -254,10 +242,7 @@ const handleDeleteTemplate = useCallback(async (template_id: number) : Promise<G
     handleDeleteEmail,
     handleNewIntegration,
     handleEditIntegration,
-    handleDeleteIntegration,
-    handleNewTemplate,
-    handleEditTemplate,
-    handleDeleteTemplate,
+    handleDeleteIntegration
   ]);
 
   return (

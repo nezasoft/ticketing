@@ -8,8 +8,9 @@ import React, {
 import { AuthContextType, AuthUser, GenericResponse } from '../types';
 import { loginUser, registerUSer, recoverPassword } from '../service/authService';
 import { jwtDecode } from 'jwt-decode'; 
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { tokenManager } from '../utils/tokenManager';
+
 interface DecodedToken {
   exp: number;
   [key: string]: any;
@@ -75,28 +76,30 @@ useEffect(() => {
 
 
 
-  // Login                                                          
-  const login = async (
-    email: string,
-    password: string
-  ): Promise<GenericResponse<{ user: AuthUser; token: string }>> => {
-    const response = await loginUser(email, password);
+// Login
+const login = async (
+  email: string,
+  password: string
+): Promise<GenericResponse<{ user: AuthUser; token: string }>> => {
+  const response = await loginUser(email, password);
 
-    if (response.success) {
-      const decoded: DecodedToken = jwtDecode(response.data.token);
-      localStorage.setItem('token_exp', decoded.exp.toString());
+  if (response.success) {
+  const decoded: DecodedToken = jwtDecode(response.data.token);
 
-      setUser(response.data.user);
-      setToken(response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      localStorage.setItem('token', response.data.token);
+  // 🔑 Write to memory immediately
+  tokenManager.setToken(response.data.token);
 
-      scheduleLogout(decoded.exp);
-    }
+  // then update state / localStorage
+  setUser(response.data.user);
+  setToken(response.data.token);
+  localStorage.setItem("user", JSON.stringify(response.data.user));
+  localStorage.setItem("token_exp", decoded.exp.toString());
 
-    return response;
-  };
+  scheduleLogout(decoded.exp);
+}
 
+  return response;
+};
   // Register                                                 
   const register = async (
     email: string,
@@ -112,19 +115,24 @@ useEffect(() => {
     return recoverPassword(email);
   };
   // Logout                                                       
-  const logout = (notify = false) => {
+const logout = (notify = false) => {
+  // clear auth state
   setUser(null);
   setToken(null);
-  localStorage.removeItem('user');
-  localStorage.removeItem('token');
-  localStorage.removeItem('token_exp');
+
+  // clear both memory + localStorage
+  tokenManager.clear();
+  localStorage.removeItem("user");
+  localStorage.removeItem("token_exp");
 
   if (notify) {
-    toast.error('Session expired. Please log in again.');
+    toast.error("Session expired. Please log in again.");
   }
+
+  // redirect after a short delay
   setTimeout(() => {
-    if (typeof window !== 'undefined') {
-      window.location.href = '/login'; 
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
     }
   }, 100);
 };

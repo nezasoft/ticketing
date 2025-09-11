@@ -49,10 +49,10 @@ export interface Setting
     emails?: any[];
     event_types? : any[];
     integrations? : any[];
-    templates? : any[];
     template_types? : any[];
-
 }
+
+
 
 export interface AuthUser{
     id: number;
@@ -251,6 +251,7 @@ export interface Template
     subject: string;
     message: string;
     type_id: number;
+
 }
 
 export interface AuthContextType {
@@ -275,6 +276,18 @@ export interface TicketContextType {
     loading: boolean;
 }
 
+export interface TemplateContextType
+{
+    template: Template | null;
+    listTemplates: (company_id: number) => Promise<GenericResponse<Template[]>>;
+    newTemplate: (payload: FormData) => Promise<GenericResponse<Template | null>>;
+    editTemplate: (payload: FormData) => Promise<GenericResponse<Template  | null>>;
+    deleteTemplate: (template_id: number) => Promise<GenericResponse<Template | null>>;
+    loading: boolean;
+
+
+}
+
 export interface SettingContextType
 {
     setting: Setting | null;
@@ -283,7 +296,7 @@ export interface SettingContextType
     email: Email | null;
     eventType: EventType | null;
     integration: Integration | null;
-    template: Template | null;
+
     listSettings: (company_id: number) => Promise<GenericResponse<Setting | null>>;
     //Users Menu
     newUser: (payload: FormData) => Promise<GenericResponse<AuthUser | null>>;
@@ -304,10 +317,6 @@ export interface SettingContextType
     editIntegration: (payload: FormData) => Promise<GenericResponse<Integration | null>>;
     deleteIntegration: (integration_id: number) => Promise<GenericResponse<null>>;
     //Templates Menu
-    newTemplate: (payload: FormData) => Promise<GenericResponse<Template | null>>;
-    editTemplate: (payload: FormData) => Promise<GenericResponse<Template  | null>>;
-    deleteTemplate: (template_id: number) => Promise<GenericResponse<Template | null>>;
-    
     loading: boolean;
 }
 

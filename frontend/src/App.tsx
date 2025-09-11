@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -20,13 +20,22 @@ import Emails from './pages/Emails';
 import EventTypes from './pages/EventTypes';
 import Integrations from './pages/Integrations';
 import Templates from './pages/Templates';
+import { tokenManager } from './utils/tokenManager';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
   return token ? children : <Navigate to="/login" replace />;
 };
 
+
 const App: React.FC = () => {
+  useEffect(() => {
+  const savedToken = localStorage.getItem("token");
+  if (savedToken) {
+    tokenManager.setToken(savedToken);
+  }
+}, []);
+
   return (
     <AppProviders>
       <ToastContainer position="top-right" autoClose={3000} />
