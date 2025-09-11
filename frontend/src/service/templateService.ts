@@ -21,9 +21,9 @@ export  async function editTemplate(payload: FormData): Promise<GenericResponse<
 }
 
 //Delete
-export async function deleteTemplate(template_id: number): Promise<GenericResponse<null>>
-{
-  const response = await api.post<GenericResponse<null>>('/templates/delete',template_id);
+export async function deleteTemplate(item_id: number): Promise<GenericResponse<null>> {
+  const response = await api.post<GenericResponse<null>>('/templates/delete', { item_id });
   return response.data;
 }
+
 

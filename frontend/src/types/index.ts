@@ -97,16 +97,7 @@ export interface EventType {
     id: number;
     name: string;
 }
-export interface SLAEvent
-{
-    ticket_id : number;
-    event_type_id: number;
-    status_id: number;
-    due_date: string;
-    company_id : number;
-    met_at: string;
-    sla_policy_id : number;
-}
+
 
 export interface Attachment
 {
@@ -226,6 +217,17 @@ export interface SLARule
     company_id:number;
 }
 
+export interface SLAEvent
+{
+    ticket_id : number;
+    event_type_id: number;
+    status_id: number;
+    due_date: string;
+    company_id : number;
+    met_at: string;
+    sla_policy_id : number;
+}
+
 export interface TicketAssignment
 {
     ticket_id:number;
@@ -284,7 +286,33 @@ export interface TemplateContextType
     editTemplate: (payload: FormData) => Promise<GenericResponse<Template  | null>>;
     deleteTemplate: (template_id: number) => Promise<GenericResponse<Template | null>>;
     loading: boolean;
+}
 
+export interface SLAContextType
+{
+    sla_rule: SLARule | null;
+    sla_policy: SLAPolicy | null;
+    sla_event: SLAEvent | null;
+    loading: boolean;
+
+    listSLARules: (company_id: number) => Promise<GenericResponse<SLARule[]>>;
+    listPolicies: (company_id: number) => Promise<GenericResponse<SLAPolicy[]>>;
+    listEvents: (company_id: number) => Promise<GenericResponse<SLAEvent[] | null>>;
+
+    //SLA Rules
+    newSLARule: (payload: FormData) => Promise<GenericResponse<SLARule | null>>;
+    editSLARule: (payload: FormData) => Promise<GenericResponse<SLARule | null>>;
+    deleteSLARule: (payload: FormData) => Promise<GenericResponse<SLARule | null>>;
+
+    //SLA Policy
+    newSLAPolicy: (payload: FormData) => Promise<GenericResponse<SLAPolicy | null>>;
+    editSLAPolicy: (payload: FormData) => Promise<GenericResponse<SLAPolicy | null>>;
+    deleteSLAPolicy: (payload: FormData) => Promise<GenericResponse<SLAPolicy | null>>;
+
+    //SLA Events
+    newSLAEvent: (payload: FormData) => Promise<GenericResponse<SLAEvent| null>>;
+    editSLAEvent: (payload: FormData) => Promise<GenericResponse<SLAEvent| null>>;
+    deleteSLAEvent: (payload: FormData) => Promise<GenericResponse<SLAEvent | null>>;
 
 }
 

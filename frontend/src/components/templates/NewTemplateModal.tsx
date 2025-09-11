@@ -12,8 +12,6 @@ interface Props
     onClose: () => void;
     onCreated: () => void;
 }
-
-
 const NewTemplateModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
     const {newTemplate} = useContext(TemplateContext);
     const {setting} = useContext(SettingContext);
@@ -23,10 +21,8 @@ const NewTemplateModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
             message: "",
             type_id: undefined
     });
-
     const [submitting, setSubmitting]= useState(false);
     const [error, setError] = useState<string | null>(null);
-
     useEffect(()=>{
         if(!isOpen)
         {
@@ -39,17 +35,14 @@ const NewTemplateModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
             setError(null);
         }
     },[isOpen]);
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setForm((prev)=> ({...prev, [e.target.name]: e.target.value}));
     };
-
     const handleSubmit = async (e: React.FormEvent) => 
     {
         e.preventDefault();
         setSubmitting(true);
         setError(null);
-
         try
         {
             const user = JSON.parse(localStorage.getItem('user')!);
@@ -82,7 +75,6 @@ const NewTemplateModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
             setSubmitting(false);
         }
     }
-
     return(
         <Transition.Root show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-50" onClose={()=> {}}>
@@ -170,7 +162,7 @@ const NewTemplateModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                 data={form.message || ''}
                                 onChange={(_, editor) => {
                                     const data = editor.getData();
-                                    setForm((prev) => ({ ...prev, description: data }));
+                                    setForm((prev) => ({ ...prev, message: data }));
                                 }}
                                 />
                             </div>                                    

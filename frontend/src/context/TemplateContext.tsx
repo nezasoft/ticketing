@@ -38,7 +38,7 @@ export const TemplateProvider: React.FC<Props> =  ({children}) =>
         }
       }, []);
 
-       /*const handleViewTemplate = useCallback(async (ticket_id: number): Promise<GenericResponse<Ticket | null>> => {
+    /*const handleViewTemplate = useCallback(async (ticket_id: number): Promise<GenericResponse<Ticket | null>> => {
     setLoading(true);
     try {
       const response = await viewTicket(ticket_id);

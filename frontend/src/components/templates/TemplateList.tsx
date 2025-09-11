@@ -37,7 +37,6 @@ const TemplateList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
     const [isViewOpen, setIsViewOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-
     const templateCtx = useContext(TemplateContext);
     const itemsPerPage = 10;
     const term = searchTerm.toLowerCase();
@@ -55,6 +54,7 @@ const TemplateList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
     {
         setCurrentPage(1);
     },[templates, searchTerm]);
+
     useEffect(()=>
     {
         const handleClickOutside = () => setOpenDropdownExportOptions(false);
@@ -65,6 +65,7 @@ const TemplateList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
 
         return () => window.removeEventListener("click",handleClickOutside);
     },[openDropdownExportOptions]);
+
     const handleEditClick = (template: Template) => 
     {
         setOpenDropdown(null);
@@ -75,17 +76,18 @@ const TemplateList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
       setSelectedTemplate(template);
       setIsViewOpen(true);
     };
+
     const handleDelete = async (templateId: number) => 
     {
         const confirmDelete = window.confirm("Are you sure you want to delete this record?");
         if(!confirmDelete) return;
-
         try{
             setOpenDropdown(null);
             const response = await templateCtx?.deleteTemplate?.(templateId);
             if(response?.success)
             {
                 toast.success("Record deleted successfully!");
+                onUpdated();
             }else{
                 toast.error("Failed to delete record");
             }

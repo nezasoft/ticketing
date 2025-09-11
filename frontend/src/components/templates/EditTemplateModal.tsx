@@ -29,10 +29,10 @@ const EditTemplateModal: React.FC<Props> = ({ isOpen, onClose, onUpdated,templat
   useEffect(() => {
     if (isOpen && template) {
       setForm({
-            name: "",
-            subject: "",
-            message: "",
-            type_id: undefined
+            name: template.name,
+            subject: template.subject,
+            message: template.message,
+            type_id: template.type_id
       });
     }
     if (!isOpen) {
@@ -171,16 +171,16 @@ const EditTemplateModal: React.FC<Props> = ({ isOpen, onClose, onUpdated,templat
                                         </select>
                                     </div>
                                 <div>
-                                <label className="block text-sm font-medium text-left mb-1">Message</label>
-                                <CKEditor
-                                editor={ClassicEditor as any}
-                                data={form.message || ''}
-                                onChange={(_, editor) => {
-                                    const data = editor.getData();
-                                    setForm((prev) => ({ ...prev, description: data }));
-                                }}
-                                />
-                            </div>                                    
+                                  <label className="block text-sm font-medium text-left mb-1">Message</label>
+                                  <CKEditor
+                                  editor={ClassicEditor as any}
+                                  data={form.message || ''}
+                                  onChange={(_, editor) => {
+                                      const data = editor.getData();
+                                      setForm((prev) => ({ ...prev, message: data }));
+                                  }}               
+                                  />
+                                </div>                                    
                                     <div className="flex justify-end space-x-2 mt-4">
                                         <button
                                         type="button"
