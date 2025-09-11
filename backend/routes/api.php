@@ -105,6 +105,12 @@ Route::middleware(['auth:api'])->group(function () {
         Route::post('/delete', 'delete')->name('templates.delete');
 
     });
+
+       Route::prefix('slaevents')->controller(SLAEventController::class)->group(function () {
+        Route::post('/list', 'index')->name('slaevents.list');
+
+
+    });
 });
 
 

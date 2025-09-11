@@ -219,13 +219,20 @@ export interface SLARule
 
 export interface SLAEvent
 {
+    id: number;
     ticket_id : number;
     event_type_id: number;
     status_id: number;
     due_date: string;
     company_id : number;
-    met_at: string;
+    met_date: string;
     sla_policy_id : number;
+    policy: string;
+    status: string;
+    event_type: string;
+    ticket_no: string;
+    created_at: string;
+
 }
 
 export interface TicketAssignment
@@ -296,23 +303,18 @@ export interface SLAContextType
     loading: boolean;
 
     listSLARules: (company_id: number) => Promise<GenericResponse<SLARule[]>>;
-    listPolicies: (company_id: number) => Promise<GenericResponse<SLAPolicy[]>>;
-    listEvents: (company_id: number) => Promise<GenericResponse<SLAEvent[] | null>>;
+    listSLAPolicies: (company_id: number) => Promise<GenericResponse<SLAPolicy[]>>;
+    listSLAEvents: (company_id: number) => Promise<GenericResponse<SLAEvent[] | null>>;
 
     //SLA Rules
     newSLARule: (payload: FormData) => Promise<GenericResponse<SLARule | null>>;
     editSLARule: (payload: FormData) => Promise<GenericResponse<SLARule | null>>;
-    deleteSLARule: (payload: FormData) => Promise<GenericResponse<SLARule | null>>;
+    deleteSLARule: (rule_id: number) => Promise<GenericResponse<SLARule | null>>;
 
     //SLA Policy
     newSLAPolicy: (payload: FormData) => Promise<GenericResponse<SLAPolicy | null>>;
     editSLAPolicy: (payload: FormData) => Promise<GenericResponse<SLAPolicy | null>>;
-    deleteSLAPolicy: (payload: FormData) => Promise<GenericResponse<SLAPolicy | null>>;
-
-    //SLA Events
-    newSLAEvent: (payload: FormData) => Promise<GenericResponse<SLAEvent| null>>;
-    editSLAEvent: (payload: FormData) => Promise<GenericResponse<SLAEvent| null>>;
-    deleteSLAEvent: (payload: FormData) => Promise<GenericResponse<SLAEvent | null>>;
+    deleteSLAPolicy: (policy_id: number) => Promise<GenericResponse<SLAPolicy | null>>;
 
 }
 

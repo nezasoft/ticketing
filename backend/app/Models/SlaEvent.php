@@ -35,4 +35,9 @@ class SlaEvent extends Model
     {
         return $this->belongsTo(SlaPolicy::class, 'sla_policy_id');
     }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class,'company_id');
+    }
 }

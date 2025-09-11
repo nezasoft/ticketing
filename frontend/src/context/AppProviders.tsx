@@ -4,6 +4,7 @@ import { SettingProvider } from './SettingContext';
 import { TicketProvider } from './TicketContext';
 import { TicketAssignmentProvider } from './TicketAssignmentContext';
 import { TemplateProvider } from './TemplateContext';
+import { SLAProvider } from './SLAContext';
 
 interface Props {
   children: React.ReactNode;
@@ -14,10 +15,13 @@ const AppProviders: React.FC<Props> = ({ children }) => {
     <AuthProvider>
       <SettingProvider>
         <TemplateProvider>
+        
           <TicketProvider>
+            <SLAProvider>
           <TicketAssignmentProvider>
             {children}
-          </TicketAssignmentProvider>       
+          </TicketAssignmentProvider> 
+          </SLAProvider>      
         </TicketProvider>
         </TemplateProvider>
         

@@ -21,6 +21,7 @@ import EventTypes from './pages/EventTypes';
 import Integrations from './pages/Integrations';
 import Templates from './pages/Templates';
 import { tokenManager } from './utils/tokenManager';
+import SLAEvents from './pages/SLAEvents';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
@@ -129,6 +130,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <Templates />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/sla-events"
+            element={
+              <PrivateRoute>
+                <SLAEvents />
               </PrivateRoute>
             }
           />
