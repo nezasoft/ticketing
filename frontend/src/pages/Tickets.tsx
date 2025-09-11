@@ -4,7 +4,7 @@ import { TicketContext } from '../context/TicketContext';
 import TicketList from '../components/tickets/TicketList';
 import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
-import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon} from '@heroicons/react/24/outline';
 import NewTicketModal from '../components/tickets/NewTicketModal';
 
 const Tickets: React.FC = () => {

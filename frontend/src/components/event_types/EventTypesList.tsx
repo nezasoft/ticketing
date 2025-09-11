@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState,  useEffect } from "react";
 import {
   PrinterIcon,
   BarsArrowDownIcon,
@@ -8,7 +8,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { SettingContext } from "../../context/SettingContext";
+
 type EventType =  {
     id: number;
     name: string;
@@ -19,17 +19,13 @@ type EventTypesListProps ={
     onUpdated: () => void;
 };
 
-const EventTypesList: React.FC<EventTypesListProps> = ({eventTypes, onUpdated}) => 
+const EventTypesList: React.FC<EventTypesListProps> = ({eventTypes}) => 
 {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
-
-    const settingCtx = useContext(SettingContext);
     const itemsPerPage = 10;
-
     const term = searchTerm.toLowerCase();
-
     const filteredEventTypes = eventTypes.filter((eventType)=>
     {
         const matchesText = String(eventType.name ?? "").toLowerCase().includes(term);

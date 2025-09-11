@@ -1,5 +1,5 @@
 import api from '../api/api';
-import { Ticket, GenericResponse,Reply } from '../types';
+import { Ticket, GenericResponse} from '../types';
 
 //Get Tickets Function
 export async function getTickets(company_id:number): Promise<GenericResponse<Ticket[]>>

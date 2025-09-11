@@ -11,7 +11,6 @@ interface Props
 }
 const NewDepartmentModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
     const {newDepartment} = useContext(SettingContext);
-    const {setting} = useContext(SettingContext);
     const [form, setForm] = useState<Partial<Department>>({
         name: '',
     });

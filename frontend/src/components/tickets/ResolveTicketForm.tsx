@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, {useState } from "react";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 
 type ResolveTicketFormProps = {

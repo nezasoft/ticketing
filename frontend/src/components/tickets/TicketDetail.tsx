@@ -62,16 +62,14 @@ const TicketDetail: React.FC<TicketDetailProps> = ({
   const [showAssignTicketForm, setShowAssignTicketForm] = useState(false);
   const [showResolveTicketForm, setShowResolveTicketForm] = useState(false);
   const [showCloseTicketForm, setShowCloseTicketForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting] = useState(false);
   const [isReplySubmitting, setIsReplySubmitting] = useState(false);
   const [isAssignSubmitting, setIsAssignSubmitting] = useState(false);
   const [isResolveSubmitting, setIsResolveSubmitting] = useState(false);
   const [isCloseSubmitting, setIsCloseSubmitting] = useState(false);
-
   const isArchived = status?.toLowerCase() === 'archived';
-
-
   const [replyList, setReplyList] = useState(replies);
+  
   // Group attachments by thread_id
   const repliesWithAttachments = useMemo(() => {
   const attachmentMap = new Map<number, Attachment[]>();
@@ -281,8 +279,6 @@ const toggleResolveTicketForm = () => {
     return newState;
   });
   };
-
-
   return (
     <div className="rounded-xl mt-4 bg-white shadow-sm dark:bg-zinc-900 text-gray-800 dark:text-white">
       <div className="bg-gray-100 px-4 py-3">
@@ -311,7 +307,6 @@ const toggleResolveTicketForm = () => {
             <StarIcon className="w-4 h-4 text-yellow-400 ml-2" />
           </p>
         </div>
-
         <div className="mb-5">
           <h6 className="mb-2 font-semibold text-gray-900 text-sm dark:text-white">{subject}</h6>
           <p className="text-gray-500 text-xs" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(description) }}></p>

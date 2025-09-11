@@ -11,7 +11,6 @@ interface Props
 }
 const NewIntegrationModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
     const {newIntegration} = useContext(SettingContext);
-    const {setting} = useContext(SettingContext);
     const [form, setForm] = useState<Partial<Integration>>({
         code: '',
         value: '',

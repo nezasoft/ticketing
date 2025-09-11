@@ -22,7 +22,7 @@ type Props = {
 
 export const TemplateProvider: React.FC<Props> =  ({children}) =>
 {
-    const [template, setTemplate] =  useState<Template | null>(null);
+    const [template] =  useState<Template | null>(null);
     const [loading,setLoading] = useState<boolean>(false);
 
     const fetchTemplates = useCallback(async (company_id: number): Promise<GenericResponse<Template[]>> => {

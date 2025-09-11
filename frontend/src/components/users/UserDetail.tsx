@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  CheckCircleIcon,
-  UserGroupIcon,
-  GlobeAltIcon,
-  BuildingOfficeIcon,
-  CpuChipIcon,
-  GiftIcon,
-  AcademicCapIcon,
-  ArrowDownIcon
-} from '@heroicons/react/24/solid';
+import {CheckCircleIcon,UserGroupIcon,GlobeAltIcon,BuildingOfficeIcon,CpuChipIcon,GiftIcon,AcademicCapIcon,ArrowDownIcon} from '@heroicons/react/24/solid';
 import TicketAnalyticsCard from '../tickets/TicketAnalyticsCard';
 
 const UserDetail: React.FC = () => {

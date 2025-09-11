@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  ReactNode,
-  FC,
-} from 'react';
+import  {createContext,useState,useEffect,ReactNode,FC} from 'react';
 import { AuthContextType, AuthUser, GenericResponse } from '../types';
 import { loginUser, registerUSer, recoverPassword } from '../service/authService';
 import { jwtDecode } from 'jwt-decode'; 
@@ -74,27 +68,21 @@ useEffect(() => {
   }
 }, []);
 
-
-
 // Login
 const login = async (
   email: string,
   password: string
 ): Promise<GenericResponse<{ user: AuthUser; token: string }>> => {
   const response = await loginUser(email, password);
-
   if (response.success) {
   const decoded: DecodedToken = jwtDecode(response.data.token);
-
   // 🔑 Write to memory immediately
   tokenManager.setToken(response.data.token);
-
   // then update state / localStorage
   setUser(response.data.user);
   setToken(response.data.token);
   localStorage.setItem("user", JSON.stringify(response.data.user));
   localStorage.setItem("token_exp", decoded.exp.toString());
-
   scheduleLogout(decoded.exp);
 }
 
@@ -130,11 +118,11 @@ const logout = (notify = false) => {
   }
 
   // redirect after a short delay
-  setTimeout(() => {
+  /*setTimeout(() => {
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
-  }, 100);
+  }, 100);*/
 };
 
 const scheduleLogout = (exp: number) => {
@@ -150,13 +138,9 @@ const scheduleLogout = (exp: number) => {
     logout(true); // Token already expired
   }
 };
-
-
   // Provider value                                                
   return (
-    <AuthContext.Provider
-      value={{ user, token, loading, login, logout, register, recover }}
-    >
+    <AuthContext.Provider value={{ user, token, loading, login, logout, register, recover }}>
       {/* Render children only after auth state has hydrated */}
       {!loading && children}
     </AuthContext.Provider>

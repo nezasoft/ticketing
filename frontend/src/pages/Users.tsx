@@ -3,7 +3,7 @@ import { AuthUser } from '../types';
 import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
 import { SettingContext } from '../context/SettingContext';
-import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import UserList from '../components/users/UserList';
 import NewUserModal from '../components/users/NewUserModal';
 const Users: React.FC = () => 

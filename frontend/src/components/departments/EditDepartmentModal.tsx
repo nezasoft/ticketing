@@ -13,7 +13,7 @@ interface Props {
 
 const EditDepartmentModal: React.FC<Props> = ({isOpen, onClose, onUpdated, dept}) => 
 {
-    const {editDepartment, setting} = useContext(SettingContext);
+    const {editDepartment} = useContext(SettingContext);
     const [form, setForm] = useState<Partial<Department>>({
         name: ""
     });

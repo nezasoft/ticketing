@@ -17,7 +17,7 @@ type Props = {
 };
 
 export const TicketAssignmentProvider: React.FC<Props> = ({children}) => {
-    const [ticket_assignment, setTicketAssignment] = useState<TicketAssignment | null>(null);
+    const [ticket_assignment] = useState<TicketAssignment | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
     const fetchTicketAssignments = useCallback(async (company_id: number): Promise<GenericResponse<TicketAssignment[]>> =>{

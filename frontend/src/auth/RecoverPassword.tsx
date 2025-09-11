@@ -8,7 +8,6 @@ import { useNavigate, Link } from 'react-router-dom';
 const RecoverPassword: React.FC = () => 
 {
     const { recover } = useContext(AuthContext);
-    const navigate = useNavigate();
     const [email, setEmail]  = useState('');
     const [loading, setLoading] = useState(false);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);

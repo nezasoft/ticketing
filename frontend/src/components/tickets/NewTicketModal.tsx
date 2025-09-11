@@ -7,7 +7,7 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { SettingContext } from '../../context/SettingContext';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
-import { TicketIcon } from "@heroicons/react/24/solid";
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -71,7 +71,6 @@ const NewTicketModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
       const formData = new FormData();
       formData.append('company_id', user.company_id);
       formData.append('user_id', user.id);
-
       Object.entries(form).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           formData.append(key, value as string);

@@ -13,7 +13,7 @@ interface Props {
 
 const EditIntegrationModal: React.FC<Props> = ({isOpen, onClose, onUpdated, integration}) => 
 {
-    const {editIntegration, setting} = useContext(SettingContext);
+    const {editIntegration} = useContext(SettingContext);
     const [form, setForm] = useState<Partial<Integration>>({
         code: "",
         value: "",

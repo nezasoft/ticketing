@@ -1,5 +1,5 @@
 import React, {createContext,useState,useCallback,useMemo,ReactNode,useEffect} from 'react';
-import {SettingContextType,Setting,AuthUser,Department,Email,EventType,Integration,Template, GenericResponse} from '../types';
+import {SettingContextType,Setting,AuthUser,Department,Email,EventType,Integration,GenericResponse} from '../types';
 import {getSettings, newUser, editUser, deleteUser, viewUser,
   newDepartment, editDepartment, deleteDepartment, newEmail, editEmail,
    deleteEmail,newIntegration, editIntegration, deleteIntegration
@@ -41,11 +41,10 @@ type Props = {
 export const SettingProvider: React.FC<Props> = ({ children }) => {
   const [setting, setSetting] = useState<Setting | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [dept, setDept] = useState<Department | null>(null);
-  const [email,setEmail] = useState<Email | null>(null);
+  const [dept] = useState<Department | null>(null);
+  const [email] = useState<Email | null>(null);
   const [eventType] = useState<EventType | null >(null);
   const [integration] = useState<Integration | null>(null);
-  const [template] = useState<Template | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
     // Load from localStorage on init
     useEffect(() => {

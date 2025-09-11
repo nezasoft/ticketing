@@ -1,11 +1,8 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-
+import React, { useState } from 'react';
+import {Link } from 'react-router-dom';
 
 const Register: React.FC = () => {
 
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [name, setFullName] = useState('');
   const [phone, setPhone] = useState('');

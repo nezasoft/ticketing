@@ -3,7 +3,7 @@ import { Email } from '../types';
 import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
 import { SettingContext } from '../context/SettingContext';
-import { ArrowPathIcon,EllipsisVerticalIcon } from '@heroicons/react/24/outline';
+import { ArrowPathIcon} from '@heroicons/react/24/outline';
 import EmailList from '../components/emails/EmailList';
 import NewEmailModal from '../components/emails/NewEmailModal';
 const Emails: React.FC = () => 

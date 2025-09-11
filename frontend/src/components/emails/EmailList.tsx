@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   EllipsisVerticalIcon,
   PrinterIcon,
@@ -14,6 +13,7 @@ import { toast } from "react-toastify";
 import { SettingContext } from "../../context/SettingContext";
 import EditEmailModal from "./EditEmailModal";
 import ViewEmailModal from "./ViewEmailModal";
+
 type Email =  {
     id: number;
     name: string;
@@ -62,7 +62,6 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
         )
     });
     const paginatedEmails = filteredEmails.slice((currentPage - 1) * itemsPerPage,currentPage * itemsPerPage);
-    const navigate = useNavigate();
     useEffect(()=>
     {
         setCurrentPage(1);
