@@ -54,7 +54,7 @@ const EditSLAPolicyModal: React.FC<Props> = ({ isOpen, onClose, onUpdated, sla_p
       const formData = new FormData();
       formData.append("company_id", currentUser.company_id);
       formData.append("user_id", currentUser.id);
-      formData.append("item_id", sla_policy.id.toString()); // important: tell API which user to update
+      formData.append("policy_id", sla_policy.id.toString()); // important: tell API which user to update
 
       Object.entries(form).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {

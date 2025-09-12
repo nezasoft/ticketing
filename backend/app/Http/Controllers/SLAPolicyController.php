@@ -57,9 +57,8 @@ class SLAPolicyController extends Controller
         }
          $sla_policy = new SlaPolicy;
          $sla_policy->name = $request->input('name');
-         $sla_policy->response_time_min = $request->input('response_time');
-         $sla_policy->resolve_time_min = $request->input('resolve_time');
-         $sla_policy->is_default = $request->input('is_default');
+         $sla_policy->response_time_min = $request->input('response_time_min');
+         $sla_policy->resolve_time_min = $request->input('resolve_time_min');
          $sla_policy->company_id = $request->input('company_id');
 
          if($sla_policy->save())
@@ -90,8 +89,8 @@ class SLAPolicyController extends Controller
             if($sla_policy)
             {
                 $sla_policy->name = $request->name;
-                $sla_policy->response_time_min = $request->response_time;
-                $sla_policy->resolve_time_min = $request->resolve_time;
+                $sla_policy->response_time_min = $request->response_time_min;
+                $sla_policy->resolve_time_min = $request->resolve_time_min;
                 $sla_policy->is_default = $request->is_default;
                 $sla_policy->company_id = $request->company_id;
                 if($sla_policy->save())
@@ -106,7 +105,7 @@ class SLAPolicyController extends Controller
     public function delete(Request $request)
     {
         $validator = Validator::make($request->only('item_id'), [
-            'item_id' => 'required|integer|exists:policies,id',
+            'item_id' => 'required|integer|exists:sla_policies,id',
         ]);
         if ($validator->fails()) {
             return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
