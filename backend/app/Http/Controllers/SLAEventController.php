@@ -24,7 +24,7 @@ class SLAEventController extends Controller
         $data= [];
         $records = SlaEvent::with(['policy','type','ticket','status'])->whereHas('company', function ($query) use ($request) {
             $query->where('id', $request->company_id);
-            })->get();
+            })->orderBy('id','DESC')->get();
         if(!empty($records))
         {
             foreach($records as $record)

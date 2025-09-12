@@ -22,6 +22,7 @@ import Integrations from './pages/Integrations';
 import Templates from './pages/Templates';
 import { tokenManager } from './utils/tokenManager';
 import SLAEvents from './pages/SLAEvents';
+import SLAPolicies from './pages/SLAPolicies';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
@@ -138,6 +139,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <SLAEvents />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/sla-policies"
+            element={
+              <PrivateRoute>
+                <SLAPolicies />
               </PrivateRoute>
             }
           />

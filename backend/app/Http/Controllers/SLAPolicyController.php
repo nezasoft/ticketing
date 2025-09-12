@@ -45,9 +45,8 @@ class SLAPolicyController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name'=> 'required|string|max:255|unique:sla_policies,name',
-            'response_time'=> 'required|integer|min:1',
-            'resolve_time'=> 'required|integer|min:1',
-            'is_default'=>'required|integer|min:0',
+            'response_time_min'=> 'required|integer|min:1',
+            'resolve_time_min'=> 'required|integer|min:1',
             'company_id'=> 'required|integer|exists:companies,id'
 
         ]);
@@ -76,9 +75,8 @@ class SLAPolicyController extends Controller
     {
             $validator = Validator::make($request->all(), [
             'name'=> 'required|string|max:255',
-            'response_time'=> 'required|integer|min:1',
-            'resolve_time'=> 'required|integer|min:1',
-            'is_default'=>'required|integer|min:0',
+            'response_time_min'=> 'required|integer|min:1',
+            'resolve_time_min'=> 'required|integer|min:1',
             'company_id'=> 'required|integer|exists:companies,id',
             'policy_id' => 'required|integer|exists:sla_policies,id'
             ]);

@@ -201,6 +201,7 @@ export interface Integration
     company_id: number;
 }
 export interface SLAPolicy{
+    id: number;
     name:string;
     response_time_min:number;
     resolve_time_min:number;
