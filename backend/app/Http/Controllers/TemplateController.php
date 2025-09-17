@@ -30,6 +30,7 @@ class TemplateController extends Controller
                     'name' => $record->name ?? '',
                     'subject' => $record->subject ?? '',
                     'message' => $record->message ?? '',
+                    'type_id' => $record->type ?? '',
                     'type' => $record->type->name ?? ''
                     ];
             }

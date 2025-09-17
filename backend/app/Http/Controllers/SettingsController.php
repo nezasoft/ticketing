@@ -171,7 +171,6 @@ class SettingsController extends Controller
         $emails = [];
         $event_types= [];
         $integrations = [];
-        $templates = [];
         $template_types  =[];
         $records = Channel::orderBy('name','asc')->get();
         if(count($records) != 0)
@@ -368,6 +367,8 @@ class SettingsController extends Controller
                     'department' => $record->department->name ?? '',
                     'role' => $record->role->name ?? '',
                     'dept_id'=>$record->dept_id,
+                    'role_id' => $record->role_id,
+                    'status' => $record->status,
                     'active' => $record->status == 1 ? 'Yes' : 'No',
                     'date_created' => $this->service->formatDate($record->created_at)
                 ];
@@ -385,6 +386,7 @@ class SettingsController extends Controller
                     'name' => $record->name ?? '',
                     'subject' => $record->subject ?? '',
                     'message' => $record->message ?? '',
+                    'type_id' => $record->type ?? '',
                     'type' => $record->type->name ?? ''
                 ];
             }

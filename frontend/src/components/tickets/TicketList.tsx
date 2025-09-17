@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 import DOMPurify from 'dompurify';
+import Pagination from "../common/Pagination";
 // Dummy types and pagination logic. Replace with actual types and data handling.
 type Ticket = {
   id: number;
@@ -213,24 +214,13 @@ const priorityClassMap: Record<string, string> = {
         </table>
       </div>
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-4 text-sm">
-        <div>
-          Showing {((currentPage - 1) * itemsPerPage) + 1}–
-          {Math.min(currentPage * itemsPerPage, filteredTickets.length)} of {filteredTickets.length}
-        </div>
-        <div className="flex gap-2">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(prev => prev - 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >Previous</button>
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(prev => prev + 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >Next</button>
-        </div>
-      </div>
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredTickets.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+      />
       {/* Modal */}
       <Dialog open={!!selectedTicket} onClose={() => setSelectedTicket(null)} className="fixed z-50 inset-0 overflow-y-auto dark:bg-zinc-900 text-gray-800 dark:text-white">
         <div className="flex items-center justify-center min-h-screen p-4">
