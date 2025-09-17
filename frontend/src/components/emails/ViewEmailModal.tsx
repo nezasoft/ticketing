@@ -28,7 +28,7 @@ type ViewEmailModalProps = {
 const ViewEmailModal: React.FC<ViewEmailModalProps> = ({ isOpen, onClose, email }) => {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={() => {}}>
+      <Dialog as="div" className="relative z-50" onClose={onClose} >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
