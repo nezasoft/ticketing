@@ -12,6 +12,7 @@ import autoTable from "jspdf-autotable";
 import { toast } from "react-toastify";
 import { SLAContext } from "../../context/SLAContext";
 import EditSLARuleModal from "./EditSLARuleModal";
+import Pagination from "../common/Pagination";
 
 type SLARule =  {
     id: number;
@@ -284,32 +285,13 @@ const SLARuleList: React.FC<SLARuleListProps> = ({sla_rules, onUpdated}) =>
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-4 text-sm">
-        <div>
-          {filteredSLARules.length > 0
-            ? `Showing ${(currentPage - 1) * itemsPerPage + 1}–${Math.min(
-                currentPage * itemsPerPage,
-                filteredSLARules.length
-              )} of ${filteredSLARules.length}`
-            : "No results to display"}
-        </div>
-        <div className="flex gap-2">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Previous
-          </button>
-          <button
-            disabled={currentPage === totalPages || filteredSLARules.length === 0}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Next
-          </button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredSLARules.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+       />
 
       {/* Edit Item Modal */}
       {isEditOpen && selectedSLARule && (

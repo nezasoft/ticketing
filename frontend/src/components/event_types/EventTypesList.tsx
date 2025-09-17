@@ -8,6 +8,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import Pagination from "../common/Pagination";
 
 type EventType =  {
     id: number;
@@ -175,36 +176,15 @@ const EventTypesList: React.FC<EventTypesListProps> = ({eventTypes}) =>
         </tbody>
         </table>
       </div>
-
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-4 text-sm">
-        <div>
-          {filteredEventTypes.length > 0
-            ? `Showing ${(currentPage - 1) * itemsPerPage + 1}–${Math.min(
-                currentPage * itemsPerPage,
-                filteredEventTypes.length
-              )} of ${filteredEventTypes.length}`
-            : "No results to display"}
-        </div>
-        <div className="flex gap-2">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Previous
-          </button>
-          <button
-            disabled={currentPage === totalPages || filteredEventTypes.length === 0}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Next
-          </button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredEventTypes.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+        /> 
     </div>
   );
 };
-
 export default EventTypesList;

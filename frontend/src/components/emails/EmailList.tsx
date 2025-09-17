@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { SettingContext } from "../../context/SettingContext";
 import EditEmailModal from "./EditEmailModal";
 import ViewEmailModal from "./ViewEmailModal";
+import Pagination from "../common/Pagination";
 
 type Email =  {
     id: number;
@@ -296,34 +297,14 @@ const EmailList: React.FC<EmailListProps> = ({emails, onUpdated}) =>
         </tbody>
         </table>
       </div>
-
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-4 text-sm">
-        <div>
-          {filteredEmails.length > 0
-            ? `Showing ${(currentPage - 1) * itemsPerPage + 1}–${Math.min(
-                currentPage * itemsPerPage,
-                filteredEmails.length
-              )} of ${filteredEmails.length}`
-            : "No results to display"}
-        </div>
-        <div className="flex gap-2">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Previous
-          </button>
-          <button
-            disabled={currentPage === totalPages || filteredEmails.length === 0}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Next
-          </button>
-        </div>
-      </div>
+    {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredEmails.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {/* Edit Item Modal */}
       {isEditOpen && selectedEmail && (

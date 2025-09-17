@@ -13,6 +13,7 @@ import autoTable from "jspdf-autotable";
 import { toast } from "react-toastify";
 import { SettingContext } from "../../context/SettingContext";
 import EditUserModal from "./EditUserModal";
+import Pagination from "../common/Pagination";
 
 type AuthUser = {
   id: number;
@@ -371,32 +372,13 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-4 text-sm">
-        <div>
-          {filteredUsers.length > 0
-            ? `Showing ${(currentPage - 1) * itemsPerPage + 1}–${Math.min(
-                currentPage * itemsPerPage,
-                filteredUsers.length
-              )} of ${filteredUsers.length}`
-            : "No results to display"}
-        </div>
-        <div className="flex gap-2">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Previous
-          </button>
-          <button
-            disabled={currentPage === totalPages || filteredUsers.length === 0}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Next
-          </button>
-        </div>
-      </div>
+      <Pagination 
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredUsers.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {/* Edit Modal */}
       {isEditOpen && selectedUser && (

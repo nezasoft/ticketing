@@ -13,6 +13,7 @@ import autoTable from "jspdf-autotable";
 import { toast } from "react-toastify";
 import { SettingContext } from "../../context/SettingContext";
 import EditDepartmentModal from "./EditDepartmentModal";
+import Pagination from "../common/Pagination";
 type Department =  {
     id: number;
     name: string;
@@ -31,12 +32,9 @@ const DepartmentList: React.FC<DepartmentListProps> = ({depts, onUpdated}) =>
     const [openDropdown, setOpenDropdown] = useState<number | null>(null);
     const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
-
     const settingCtx = useContext(SettingContext);
     const itemsPerPage = 10;
-
     const term = searchTerm.toLowerCase();
-
     const filteredDepartments = depts.filter((dept)=>
     {
         const matchesText = String(dept.name ?? "").toLowerCase().includes(term);
@@ -44,17 +42,11 @@ const DepartmentList: React.FC<DepartmentListProps> = ({depts, onUpdated}) =>
             matchesText
         )
     });
-
-    const paginatedDepartments = filteredDepartments
-    .slice((currentPage - 1) * itemsPerPage,currentPage * itemsPerPage);
-
-    const navigate = useNavigate();
-
+    const paginatedDepartments = filteredDepartments.slice((currentPage - 1) * itemsPerPage,currentPage * itemsPerPage);
     useEffect(()=>
     {
         setCurrentPage(1);
-
-    },[depts, searchTerm]);
+    },[searchTerm]);
 
     useEffect(()=>
     {
@@ -63,7 +55,6 @@ const DepartmentList: React.FC<DepartmentListProps> = ({depts, onUpdated}) =>
         {
             window.addEventListener("click",handleClickOutside);
         }
-
         return () => window.removeEventListener("click",handleClickOutside);
     },[openDropdownExportOptions]);
 
@@ -76,7 +67,6 @@ const DepartmentList: React.FC<DepartmentListProps> = ({depts, onUpdated}) =>
     {
         const confirmDelete = window.confirm("Are you sure you want to delete this record?");
         if(!confirmDelete) return;
-
         try{
             setOpenDropdown(null);
             const response = await settingCtx?.deleteDepartment?.(deptId);
@@ -95,7 +85,6 @@ const DepartmentList: React.FC<DepartmentListProps> = ({depts, onUpdated}) =>
 
     const handleExportToExcel = () => 
     {
-
         const worksheet = XLSX.utils.json_to_sheet(
             filteredDepartments.map((d)=>({
                 Department: d.name
@@ -115,16 +104,13 @@ const DepartmentList: React.FC<DepartmentListProps> = ({depts, onUpdated}) =>
         const tableRows =filteredDepartments.map((d)=> [
             d.name
         ]);
-
         autoTable(doc,{
             head: [tableColumn],
             body: tableRows,
         });
         doc.save("departments.pdf");
     };
-
     const totalPages = Math.ceil(filteredDepartments.length / itemsPerPage);
-
     return (
     <div className="p-4">
       {/* Search + Export */}
@@ -245,34 +231,14 @@ const DepartmentList: React.FC<DepartmentListProps> = ({depts, onUpdated}) =>
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-4 text-sm">
-        <div>
-          {filteredDepartments.length > 0
-            ? `Showing ${(currentPage - 1) * itemsPerPage + 1}–${Math.min(
-                currentPage * itemsPerPage,
-                filteredDepartments.length
-              )} of ${filteredDepartments.length}`
-            : "No results to display"}
-        </div>
-        <div className="flex gap-2">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Previous
-          </button>
-          <button
-            disabled={currentPage === totalPages || filteredDepartments.length === 0}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-
+    {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredDepartments.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+      />
       {/* Edit User Modal */}
       {isEditOpen && selectedDepartment && (
       <EditDepartmentModal

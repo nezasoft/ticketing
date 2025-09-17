@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { TemplateContext } from "../../context/TemplateContext";
 import EditTemplateModal from "./EditTemplateModal";
 import ViewTemplateModal from "./ViewTemplateModal";
+import Pagination from "../common/Pagination";
 type Template =  {
     id: number;
     name: string;
@@ -270,32 +271,13 @@ const TemplateList: React.FC<TemplateListProps> = ({templates, onUpdated}) =>
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-4 text-sm">
-        <div>
-          {filteredTemplates.length > 0
-            ? `Showing ${(currentPage - 1) * itemsPerPage + 1}–${Math.min(
-                currentPage * itemsPerPage,
-                filteredTemplates.length
-              )} of ${filteredTemplates.length}`
-            : "No results to display"}
-        </div>
-        <div className="flex gap-2">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Previous
-          </button>
-          <button
-            disabled={currentPage === totalPages || filteredTemplates.length === 0}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-3 py-1 bg-white border rounded disabled:opacity-50 dark:bg-zinc-900 text-gray-800 dark:text-white"
-          >
-            Next
-          </button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredTemplates.length}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {/* Edit Item Modal */}
       {isEditOpen && selectedTemplate && (
