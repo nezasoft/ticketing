@@ -211,11 +211,18 @@ export interface SLAPolicy{
 
 export interface SLARule
 {
+    id:number;
     sla_policy_id:number;
     customer_type_id:number;
     priority_id:number;
     channel_id:number;
     company_id:number;
+    policy: string;
+    customer_type:string;
+    priority: string;
+    channel: string;
+    response_time: string;
+    resolve_time:string;
 }
 
 export interface SLAEvent

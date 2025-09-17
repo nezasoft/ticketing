@@ -173,7 +173,7 @@ const Sidebar: React.FC = () => {
                   <ul>
                     <li>
                       <Link
-                        to="#"
+                        to="/sla-rules"
                         className="flex items-center gap-2 pl-14 pr-6 py-2 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                       >
                         <ClipboardDocumentCheckIcon className="h-4 w-4 text-violet-400" />

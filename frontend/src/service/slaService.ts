@@ -54,7 +54,7 @@ export  async function editSLARule(payload: FormData): Promise<GenericResponse<S
 }
 
 //Delete
-export async function deleteSLARule(item_id: number): Promise<GenericResponse<null>> {
-  const response = await api.post<GenericResponse<null>>('/slarule/delete', { item_id });
+export async function deleteSLARule(rule_id: number): Promise<GenericResponse<null>> {
+  const response = await api.post<GenericResponse<null>>('/slarule/delete', { rule_id });
   return response.data;
 }

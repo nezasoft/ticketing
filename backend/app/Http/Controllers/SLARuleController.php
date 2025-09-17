@@ -105,4 +105,21 @@ class SLARuleController extends Controller
         }
         return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $this->service::FAILED_MESSAGE);
     }
+
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->only('rule_id'), [
+            'rule_id' => 'required|integer|exists:sla_rules,id',
+        ]);
+        if ($validator->fails()) {
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
+        }
+        $rule = SLARule::find($request->rule_id);
+        if($rule->delete())
+        {
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Request processed successfuly');
+        }
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,400, 'Failed processing this request. Please try again!');
+
+    }
 }

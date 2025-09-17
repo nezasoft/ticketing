@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { EllipsisVerticalIcon, PrinterIcon, BarsArrowDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import { Dialog } from '@headlessui/react';
@@ -6,8 +6,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { toast } from 'react-toastify';
-import { TicketContext } from '../../context/TicketContext';
+
 import DOMPurify from 'dompurify';
 // Dummy types and pagination logic. Replace with actual types and data handling.
 type Ticket = {
@@ -35,16 +34,15 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
-  const ticketCtx = useContext(TicketContext);
   const itemsPerPage = 10;
 
   const filteredTickets = tickets.filter(ticket =>
-    ticket.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.ticket_no.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.channel.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ticket.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ticket.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  ticket.ticket_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  ticket.channel?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  ticket.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  ticket.email?.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   const paginatedTickets = filteredTickets.slice(
     (currentPage - 1) * itemsPerPage,
@@ -52,32 +50,10 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
   );
  
   const navigate = useNavigate();
-  const handleEdit = (ticketId: number) => {
-    // Navigate to the ticket edit page
-    navigate(`/tickets/${ticketId}/edit`);
-  };
   const handleView = (ticketId: number) => {
     // Navigate to the ticket detail page
     navigate(`/tickets/${ticketId}`);
   };
-
-  const handleDelete = async (ticketId: number) => {
-  const confirmDelete = window.confirm("Are you sure you want to delete this ticket?");
-  if (!confirmDelete) return;
-  try 
-  {
-    const response = await ticketCtx?.deleteTicket?.(ticketId);
-    if (response?.success && response.data) {
-        toast.success("Ticket deleted successfully!");
-    } else {
-        toast.error("Failed to delete ticket.");
-    }
-    // Optionally refresh or update list
-  } catch (error) {
-    console.error("Failed to delete ticket:", error);
-    toast.error("Failed to delete ticket.");
-  }
-};
 
 // Excel:
 const handleExportToExcel = () => {
@@ -236,7 +212,6 @@ const priorityClassMap: Record<string, string> = {
           </tbody>
         </table>
       </div>
-
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4 text-sm">
         <div>
@@ -256,7 +231,6 @@ const priorityClassMap: Record<string, string> = {
           >Next</button>
         </div>
       </div>
-
       {/* Modal */}
       <Dialog open={!!selectedTicket} onClose={() => setSelectedTicket(null)} className="fixed z-50 inset-0 overflow-y-auto dark:bg-zinc-900 text-gray-800 dark:text-white">
         <div className="flex items-center justify-center min-h-screen p-4">
@@ -281,5 +255,4 @@ const priorityClassMap: Record<string, string> = {
     </div>
   );
 };
-
 export default TicketList;

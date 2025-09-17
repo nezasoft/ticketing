@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   EllipsisVerticalIcon,
@@ -27,7 +27,7 @@ type AuthUser = {
 
 type AuthUserListProps = {
   users: AuthUser[];
-  onUpdated: () => void;   // callback from parent
+  onUpdated: () => void;
 };
 
 const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
@@ -37,75 +37,79 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [openDropdownExportOptions, setOpenDropdownExportOptions] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
+
   const settingCtx = useContext(SettingContext);
+  const navigate = useNavigate();
   const itemsPerPage = 10;
 
+  const exportDropdownRef = useRef<HTMLDivElement | null>(null);
+  const rowDropdownRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+  // 🔹 Filter users
   const term = searchTerm.toLowerCase();
-  // 🔹 Apply both text and date filters
   const filteredUsers = users.filter((user) => {
-  const matchesText =
+    const matchesText =
       String(user.name ?? "").toLowerCase().includes(term) ||
       String(user.email ?? "").toLowerCase().includes(term) ||
       String(user.phone ?? "").toLowerCase().includes(term) ||
       String(user.department ?? "").toLowerCase().includes(term) ||
       String(user.role ?? "").toLowerCase().includes(term) ||
       String(user.active ?? "").toLowerCase().includes(term);
-
-      // format the date string (e.g. "9th Aug 2025 9:25 am")
-  const formattedDate = user.date_created ? formatDate(user.date_created) : "";
-
-  // convert to Date for comparison
-  const userDate = user.date_created ? new Date(user.date_created) : null;
-
-  const matchesDate =
-    (!startDate || (userDate && userDate >= new Date(startDate))) &&
-    (!endDate || (userDate && userDate <= new Date(endDate)));
-
-  // ✅ now text search also checks formatted date string
-  return (
-    matchesText ||
-    formattedDate.toLowerCase().includes(term) // allow searching by formatted date
-  ) && matchesDate;
+    const formattedDate = user.date_created ? formatDate(user.date_created) : "";
+    const userDate = user.date_created ? new Date(user.date_created) : null;
+    const matchesDate =
+      (!startDate || (userDate && userDate >= new Date(startDate))) &&
+      (!endDate || (userDate && userDate <= new Date(endDate)));
+    return (
+      (matchesText || formattedDate.toLowerCase().includes(term)) &&
+      matchesDate
+    );
   });
 
   const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-  const navigate = useNavigate();
-
-  // Reset page when users change or search changes
+  // Reset page when users/search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [users, searchTerm]);
-
-  // Close export dropdown when clicking outside
+  // 🔹 Close dropdowns on outside click
   useEffect(() => {
-    const handleClickOutside = () => setOpenDropdownExportOptions(false);
-    if (openDropdownExportOptions) {
-      window.addEventListener("click", handleClickOutside);
-    }
-    return () => window.removeEventListener("click", handleClickOutside);
-  }, [openDropdownExportOptions]);
-
+    const handleClickOutside = (event: MouseEvent) => {
+      // Export dropdown
+      if (
+        exportDropdownRef.current &&
+        !exportDropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpenDropdownExportOptions(false);
+      }
+      // Row dropdowns
+      let clickedInsideRowDropdown = false;
+      rowDropdownRefs.current.forEach((ref) => {
+        if (ref && ref.contains(event.target as Node)) {
+          clickedInsideRowDropdown = true;
+        }
+      });
+      if (!clickedInsideRowDropdown) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const handleEditClick = (user: AuthUser) => {
     setSelectedUser(user);
     setIsEditOpen(true);
   };
-
   const handleView = (userId: number) => {
     setOpenDropdown(null);
     navigate(`/users/${userId}`);
   };
-
   const handleDelete = async (userId: number) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
-    if (!confirmDelete) return;
-
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       setOpenDropdown(null);
       const response = await settingCtx?.deleteUser?.(userId);
@@ -139,56 +143,83 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
     saveAs(blob, "users.xlsx");
   };
 
-  const handleExportToPDF = () => {
-    const doc = new jsPDF();
-    const tableColumn = ["Name", "Email", "Phone", "Department", "Role", "Active", "Date"];
-    const tableRows = filteredUsers.map((u) => [
-      u.name || "",
-      u.email || "",
-      u.phone || "",
-      u.department || "",
-      u.role || "",
-      u.active || "",
-      u.date_created || "",
-    ]);
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-    });
-    doc.save("users.pdf");
-  };
+ const handleExportToPDF = () => {
+  const doc = new jsPDF();
+  // Table columns
+  const tableColumn = [
+    "Name",
+    "Email",
+    "Phone",
+    "Department",
+    "Role",
+    "Active",
+    "Date Created",
+  ];
+  // Table rows from filtered users
+  const tableRows = filteredUsers.map((u) => [
+    u.name || "",
+    u.email || "",
+    u.phone || "",
+    u.department || "",
+    u.role || "",
+    u.active || "",
+    u.date_created || "",
+  ]);
 
+  // Add title
+  doc.setFontSize(14);
+  doc.setTextColor(54, 33, 129); // violet title
+  doc.text("User List", 14, 15);
+
+  // Generate table
+  autoTable(doc, {
+    head: [tableColumn],
+    body: tableRows,
+    startY: 25, // leave space for title
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+    },
+    headStyles: {
+      fillColor: [138, 43, 226], // violet background
+      textColor: [255, 255, 255], // white text
+      fontStyle: "bold",
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245], // zebra rows (light gray)
+    },
+    margin: { left: 14, right: 14 },
+  });
+  // Save file
+  doc.save("users.pdf");
+};
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-
   function formatDate(dateStr?: string): string {
-  if (!dateStr) return "";
-
-  const date = new Date(dateStr);
-
-  const day = date.getDate();
-  const month = date.toLocaleString("en-US", { month: "short" });
-  const year = date.getFullYear();
-
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "pm" : "am";
-  const formattedHours = hours % 12 || 12; // convert 0 -> 12
-  const formattedMinutes = minutes.toString().padStart(2, "0");
-
-  // Add ordinal suffix
-  const getOrdinal = (n: number) => {
-    if (n > 3 && n < 21) return "th"; // special case 11–20
-    switch (n % 10) {
-      case 1: return "st";
-      case 2: return "nd";
-      case 3: return "rd";
-      default: return "th";
-    }
-  };
-
-  return `${day}${getOrdinal(day)} ${month} ${year} ${formattedHours}:${formattedMinutes} ${ampm}`;
-}
-
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const day = date.getDate();
+    const month = date.toLocaleString("en-US", { month: "short" });
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? "pm" : "am";
+    const formattedHours = hours % 12 || 12;
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+    const getOrdinal = (n: number) => {
+      if (n > 3 && n < 21) return "th";
+      switch (n % 10) {
+        case 1:
+          return "st";
+        case 2:
+          return "nd";
+        case 3:
+          return "rd";
+        default:
+          return "th";
+      }
+    };
+    return `${day}${getOrdinal(day)} ${month} ${year} ${formattedHours}:${formattedMinutes} ${ampm}`;
+  }
 
   return (
     <div className="p-4">
@@ -207,20 +238,20 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
           </div>
         </div>
         <div className="flex gap-2">
-          <div className="relative">
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="border rounded px-2 py-2 text-sm text-violet-500 dark:text-gray-200 dark:bg-zinc-800 dark:border-zinc-700"
-              />
-              <span className="text-gray-500 dark:text-gray-300 text-sm">to</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="border rounded px-2 py-2 text-sm text-violet-500 dark:text-gray-200 dark:bg-zinc-800 dark:border-zinc-700"
-              />
+          <div className="relative" ref={exportDropdownRef}>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border rounded px-2 py-2 text-sm text-violet-500 dark:text-gray-200 dark:bg-zinc-800 dark:border-zinc-700"
+            />
+            <span className="text-gray-500 dark:text-gray-300 text-sm">to</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border rounded px-2 py-2 text-sm text-violet-500 dark:text-gray-200 dark:bg-zinc-800 dark:border-zinc-700"
+            />
             <button
               className="bg-violet-500 text-white border px-4 py-2 rounded text-sm"
               onClick={(e) => {
@@ -249,13 +280,12 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
           </div>
           <button
             className="bg-violet-500 text-white border px-4 py-2 rounded text-sm"
-            onClick={() => window.print()}
+            onClick={handleExportToPDF}   // ✅ Use jsPDF export
           >
             <PrinterIcon className="w-4 h-4" />
           </button>
         </div>
       </div>
-
       {/* Table */}
       <div className="overflow-x-auto bg-white dark:bg-zinc-900 rounded-lg shadow">
         <table className="min-w-full text-sm text-gray-700 dark:text-gray-200">
@@ -278,18 +308,27 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
                   key={user.id}
                   className="hover:bg-gray-50 dark:hover:bg-zinc-800 text-xs cursor-pointer"
                 >
-                  <td className="px-4 py-3 text-violet-600 font-semibold">{user.name}</td>
+                  <td className="px-4 py-3 text-violet-600 font-semibold">
+                    {user.name}
+                  </td>
                   <td className="px-4 py-3">{user.email}</td>
                   <td className="px-4 py-3">{user.phone}</td>
                   <td className="px-4 py-3">{user.department}</td>
                   <td className="px-4 py-3">{user.role}</td>
                   <td className="px-4 py-3">{user.active}</td>
                   <td className="px-4 py-3">{user.date_created}</td>
-                  <td className="relative px-4 py-3">
+                  <td
+                    className="relative px-4 py-3"
+                    ref={(el) => {
+                      if (el) rowDropdownRefs.current.set(user.id, el);
+                    }}
+                  >
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setOpenDropdown(openDropdown === user.id ? null : user.id);
+                        setOpenDropdown(
+                          openDropdown === user.id ? null : user.id
+                        );
                       }}
                       className="flex items-center gap-1 text-sm px-3 py-1 rounded bg-gray-100 hover:bg-gray-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
                     >
@@ -359,15 +398,15 @@ const UserList: React.FC<AuthUserListProps> = ({ users, onUpdated }) => {
         </div>
       </div>
 
-      {/* Edit User Modal */}
+      {/* Edit Modal */}
       {isEditOpen && selectedUser && (
-      <EditUserModal
-        isOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-        onUpdated={onUpdated}
-        user={selectedUser}
-      />
-    )}
+        <EditUserModal
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          onUpdated={onUpdated}
+          user={selectedUser}
+        />
+      )}
     </div>
   );
 };
