@@ -186,7 +186,9 @@ const TicketDetail: React.FC<TicketDetailProps> = ({
         toast.success('Ticket resolved successfully!');
         setShowResolveTicketForm(false);       
       }else{
-        toast.error(response.message || 'Failed to resolve ticket. Please try again');
+        //toast.error(response.message || 'Failed to resolve ticket. Please try again');
+        const message = typeof response.message === "string" ? response.message : Object.values(response.message || {}).join(",");
+        toast.error(message || "Failed to resolve ticket. Please try again");
       }
 
     }catch(error: any)

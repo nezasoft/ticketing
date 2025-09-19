@@ -134,9 +134,9 @@ export interface Company
 export interface Customer 
 {
     id: number;
-    name?: string;
-    email?: string;
-    phone?: string;
+    name: string;
+    email: string;
+    phone: string;
     client_no?:string;
     company_id?: number;
     account_no?: string;
@@ -364,6 +364,17 @@ export interface TicketAssignmentContextType
     listTicketAssignments: (company_id: number) => Promise<GenericResponse<TicketAssignment[]>>;
     editTicketAssignment: (ticket_assignment_id: number, data: Partial<TicketAssignment>) => Promise<GenericResponse<TicketAssignment | null>>;
     newTicketAssignment: (payload: FormData) => Promise<GenericResponse<TicketAssignment | null>>;
+    loading: boolean;
+}
+
+export interface CustomerContextType
+{
+    customer : Customer | null;
+    listCustomers: (company_id : number) => Promise<GenericResponse<Customer[]>>;
+    viewCustomer: (customer_id: number) => Promise<GenericResponse<Customer | null>>;
+    newCustomer: (payload: FormData) => Promise<GenericResponse<Customer | null>>;
+    editCustomer: (payload: FormData) => Promise<GenericResponse<Customer | null>>;
+    deleteCustomer: (customer_id: number) => Promise<GenericResponse<null>>;
     loading: boolean;
 }
 

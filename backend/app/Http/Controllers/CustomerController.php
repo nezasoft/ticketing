@@ -51,7 +51,7 @@ class CustomerController extends Controller
 
     public function create(Request $request)
     {
-        $messages = ['phone.regex' => 'The phone number must be in international format (e.g., +14155552671).'];
+        $messages = ['phone.regex' => 'The phone number must be in international format (e.g., 14155552671).'];
         $validator = Validator::make($request->all(),[
             'company_id' => 'required|integer|min:1|exists:companies,id',
             'email'=> 'required|email|unique:customers,email',
@@ -86,7 +86,7 @@ class CustomerController extends Controller
 
     public function edit(Request $request)
     {
-        $messages = ['phone.regex' => 'The phone number must be in international format (e.g., +14155552671).'];
+        $messages = ['phone.regex' => 'The phone number must be in international format (e.g., 14155552671).'];
         $validator = Validator::make($request->all(),[
             'customer_id' => 'required|integer|min:1|exists:customers,id',
             'company_id' => 'required|integer|min:1|exists:companies,id',

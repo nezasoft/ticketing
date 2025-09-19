@@ -36,7 +36,11 @@ class SLARuleController extends Controller
                     'priority' => $record->priority->name ?? '',
                     'channel' => $record->channel->name ?? '',
                     'response_time' => $record->policy->response_time_min ?? '',
-                    'resolve_time' => $record->policy->resolve_time_min
+                    'resolve_time' => $record->policy->resolve_time_min,
+                    'sla_policy_id' => $record->sla_policy_id ?? '',
+                    'customer_type_id' => $record->customer_type_id ?? '',
+                    'priority_id' => $record->priority_id ?? '',
+                    'channel_id' => $record->channel_id ?? ''
                 ];
             }
         }
