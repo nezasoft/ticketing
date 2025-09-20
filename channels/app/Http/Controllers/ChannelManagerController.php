@@ -38,24 +38,33 @@ class ChannelManagerController extends Controller
      */
     public function receiveEmail(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+
+        $data = $request->all();
+        $validator = Validator::make($data, [
             'sender'        => 'required|email',
             'recipient'     => 'required|array',
             'recipient.*'   => 'required|email',
-            'subject'       => 'required|string|min:10|max:255',
-            'body'          => 'required|string|min:10|max:65535',
+            'subject'       => 'required|string|min:5|max:255',
+            'body'          => 'required|string|min:5|max:65535',
             'user_id'       => 'nullable|int',
         ]);
 
-        if ($validator->fails()) {
+        if ($validator->fails()) 
+        {
+            //Log full request + validation errors for debugging
+            \Log::error('Email validation failed', [
+                'request_data' => $data,
+                'errors' => $validator->errors()->toArray(),
+            ]);
             return $this->channel->serviceResponse('error',400,$validator->errors());
         }
 
-        $email  = $request->input('sender') ?? $request->input('from');
-        $recipient = $request->input('recipient');
-        $subject = $request->input('subject');
-        $description    = $request->input('body') ?? $request->input('body-html');
-        $user_id = $request->input('user_id');
+
+        $email      = $data['sender'] ?? $data['from'] ?? null;
+        $recipient  = $data['recipient'] ?? [];
+        $subject    = $data['subject'] ?? '';
+        $description= $data['body'] ?? $data['body-html'] ?? '';
+        $user_id    = $data['user_id'] ?? 0;
         $phone = '';
         if(empty($user_id))
         {
@@ -75,7 +84,12 @@ class ChannelManagerController extends Controller
             if(!$company){ //lets fetch using the second email in the recipient list
                 $company_email = $recipient[1] ?? '';
                 $company = $this->channel->identifyCompany($company_email);
+                if(!$company)
+                {
+                    return;
+                }
             }
+
         }
         $company_id = $company->company_id;
         DB::beginTransaction();
