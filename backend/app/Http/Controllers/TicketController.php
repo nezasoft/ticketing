@@ -27,6 +27,7 @@ class TicketController extends Controller
 {
     protected $service;
     protected $ticket_service;
+ 
 
     public function __construct(BackendService $service, TicketService $ticketService)
     {
@@ -450,9 +451,9 @@ class TicketController extends Controller
 
     }
 
-   public function reply(Request $request)
+    //Reply Ticket
+    public function reply(Request $request)
     {
-
         // Validate request input
         $validator = Validator::make($request->all(), [
             'ticket_id' => 'required|integer|exists:tickets,id',
@@ -464,19 +465,15 @@ class TicketController extends Controller
         {
             return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, $validator->errors());
         }
-
         $ticket = Ticket::find($request->ticket_id);
         if($ticket)
         {
-
-            $user = AuthUser::find($request->user_id);            
+            $user = AuthUser::find($request->user_id);
             $list_users = [];
             $department_users = $this->ticket_service->getDepartmentUsersByDepartmentId($ticket->dept_id);
-
             if($department_users){
                 $list_users = $department_users->authUsers;
             }
-
             $support_name = $department_users->name ?? 'Unknown Department';
             if($user)
             {
@@ -484,7 +481,6 @@ class TicketController extends Controller
             }else{
                 $agent_signature = $support_name;
             }
-            
             // save thread
             $thread = $this->ticket_service->saveThread($ticket->id, $request->description, $request->user_id);
             if($thread)
@@ -503,7 +499,6 @@ class TicketController extends Controller
                         ]);
                     }
                 }
-
                 // Get ticket details
                 $ticket = Ticket::find($thread->ticket_id);
                 // Make sure this is the initial response
@@ -519,13 +514,10 @@ class TicketController extends Controller
                         $sla_id = $sla_rule->policy->id;
                         // Lets trigger an SLA Event based on this customers profile
                         $this->ticket_service->logSLAEvent($ticket->id, $sla_id, $this->ticket_service::SLA_EVENT_TYPE_FIRST_RESPONSE_SENT, $this->ticket_service::TICKET_STATUS_PENDING, $ticket->company_id);
-                        Log::info('SLA Event logged', ['sla_id' => $sla_id]);
-    
-                    }
+                    } 
                 }
                 // send notification to user
                 $this->ticket_service->saveNotifications($list_users, $this->ticket_service::NEW_REPLY);
-
                 if($ticket)
                 {
                     // check if the ticket has been responded to
@@ -540,16 +532,16 @@ class TicketController extends Controller
                     if(!empty($ticket->email)){
                         $data = ["ticket_no"=>$ticket->ticket_no,"agent_sign"=>$agent_signature,"content"=>$request->description];
                         $this->service->sendEmail($ticket->email, $this->ticket_service::TEMPLATE_REPLY_TICKET, $data);
-                        Log::info('Reply email sent', ['to' => $ticket->email]);
                     }
 
                     if(!empty($ticket->phone)){
-                        // send customer SMS
-                        //$this->channel->sendConfirmationSMS($phone,$message);
                         // alternatively send whatsapp message
                         if (env('APP_ENV') === 'production') {
+                            // send customer SMS
+                            $this->service->sendConfirmationSMS($ticket->phone,$request->description);
+                            //Send Whatspp Message
                             $this->sendWhatsAppMessage($ticket->company_id, 'whatsapp:+'.$ticket->phone, $request->description);
-                        }
+                        } 
                     }
 
                     return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200, 'Request processed successfuly');
@@ -557,6 +549,8 @@ class TicketController extends Controller
                 }else{
                     return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, 'Ticket not found');
                 }
+            } else {
+                Log::error('Failed to save thread', ['ticket_id' => $ticket->id]);
             }
         }
 

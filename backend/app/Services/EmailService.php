@@ -20,7 +20,7 @@ class EmailService
             $mail->SMTPAuth   = true;
             $mail->Username   = $configs['RT_MAIL_USERNAME']['value'] ?? env('MAIL_USERNAME');
             $mail->Password   = $configs['RT_MAIL_PASSWORD']['value'] ?? env('MAIL_PASSWORD');
-            $mail->SMTPSecure = $configs['RT_MAIL_ENCRYPTION']['value'] ?? env('MAIL_ENCRYPTION', 'tls');
+            $mail->SMTPSecure = $configs['RT_MAIL_ENCRYPTION']['value'] ?? env('MAIL_ENCRYPTION', 'ssl');
             $mail->Port       = $configs['RT_MAIL_PORT']['value'] ?? env('MAIL_PORT');
             // Recipients
             $mail->setFrom(

@@ -39,7 +39,9 @@ class BackendService {
         }
         $body = $this->replacePlaceholders($template->message, $data);
         $mailer = new EmailService();
-        $sent = $mailer->sendEmailMessage($email, $template->subject, $body);
+        //$sent = $mailer->sendEmailMessage($email, $template->subject, $body);
+        //Instead of sending directly lets queue all emails being sent
+        $sent = $mailer->queueEmailMessage($email,$template->subject, $body);
         return $sent ? true : false;
     }
     public function emailTemplate($template_type)
@@ -71,6 +73,10 @@ class BackendService {
                 })
                 ->toArray();
         });
+    }
+    public function sendConfirmationSMS($phone, $message)
+    {
+        return ;
     }
 
 }
