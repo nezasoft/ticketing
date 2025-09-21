@@ -44,7 +44,7 @@ class BackendService {
     }
     public function emailTemplate($template_type)
     {
-        $template = Template::with('template_type')->whereHas('template_type', function ($query) use ($template_type) {
+        $template = Template::with('type')->whereHas('type', function ($query) use ($template_type) {
         $query->where('name', $template_type);
         })->first();
         if(!$template){

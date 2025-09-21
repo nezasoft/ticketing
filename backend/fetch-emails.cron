@@ -1,0 +1,2 @@
+# Run every 10 minutes (adjust as needed)
+*/10 * * * * curl -s "http://localhost:7000/api/channels/fetch-emails?token=OrisRT2025" >> /var/log/cron.log 2>&1

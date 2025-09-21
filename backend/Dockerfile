@@ -1,6 +1,9 @@
 FROM php:8.3-apache AS base
 
-RUN apt-get update && apt-get install -y --no-install-recommends cron \
+# install system deps + supervisor
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cron \
+    supervisor \
     libpq-dev unzip libzip-dev libjpeg-dev libpng-dev libfreetype6-dev libwebp-dev zlib1g-dev \
     && docker-php-ext-install mysqli pdo pdo_mysql pdo_pgsql \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
@@ -9,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends cron \
 
 RUN a2enmod rewrite ssl
 
+# change apache port to 7000 (your existing changes)
 RUN sed -i.bak 's/Listen 80/Listen 7000/' /etc/apache2/ports.conf && \
     sed -i '/<VirtualHost \*:80>/,/<\/VirtualHost>/d' /etc/apache2/sites-available/000-default.conf && \
     echo '<VirtualHost *:7000>' >> /etc/apache2/sites-available/000-default.conf && \
@@ -24,7 +28,6 @@ RUN sed -i.bak 's/Listen 80/Listen 7000/' /etc/apache2/ports.conf && \
     echo '    CustomLog ${APACHE_LOG_DIR}/access.log combined' >> /etc/apache2/sites-available/000-default.conf && \
     echo '</VirtualHost>' >> /etc/apache2/sites-available/000-default.conf
 
-
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
@@ -34,15 +37,22 @@ RUN composer install --optimize-autoloader --no-interaction --prefer-dist
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 storage storage/app/public
-#copy and set up laravel scheduler    
-#COPY laravel-schedule /etc/cron.d/laravel-schedule
-#RUN chmod 0644 /etc/cron.d/laravel-schedule && \
- #   crontab /etc/cron.d/laravel-schedule
-# Consider running this during container startup
-# RUN php artisan storage:link
+# Copy cron job
+COPY fetch-emails.cron /etc/cron.d/fetch-emails
+
+# Apply correct permissions
+RUN chmod 0644 /etc/cron.d/fetch-emails \
+    && crontab /etc/cron.d/fetch-emails \
+    && touch /var/log/cron.log
+# Copy supervisor config and start script
+COPY cron.conf /etc/supervisor/conf.d/cron.conf
+COPY supervisord.conf /etc/supervisor/supervisord.conf
+COPY apache.conf /etc/supervisor/conf.d/apache.conf
+COPY laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 EXPOSE 7000
 
-#COPY start.sh /start.sh
-#RUN chmod +x /start.sh
-#CMD ["/start.sh"]
+ENTRYPOINT ["/start.sh"]
+# supervisord runs in foreground (start.sh execs supervisord) so no CMD needed

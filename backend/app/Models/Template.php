@@ -12,4 +12,8 @@ class Template extends Model
     {
         return $this->belongsTo(TemplateType::class,"type","id");
     }
+    public function TemplateType()
+    {
+        return $this->belongsTo(TemplateType::class,"type","id");
+    }
 }

@@ -22,7 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Log;
 class TicketController extends Controller
 {
     protected $service;
@@ -450,13 +450,14 @@ class TicketController extends Controller
 
     }
 
-    public function reply(Request $request)
+   public function reply(Request $request)
     {
+
         // Validate request input
         $validator = Validator::make($request->all(), [
             'ticket_id' => 'required|integer|exists:tickets,id',
             'user_id'=> 'required|integer|exists:auth_users,id',
-            'description' => 'required|string|min:10|max:65535',
+            'description' => 'required|string|min:5|max:65535',
             'attachments.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf,doc,docx,zip|max:5120' // max 5MB
         ]);
         if($validator->fails())
@@ -467,8 +468,8 @@ class TicketController extends Controller
         $ticket = Ticket::find($request->ticket_id);
         if($ticket)
         {
-            $user = AuthUser::find($request->user_id);
-            
+
+            $user = AuthUser::find($request->user_id);            
             $list_users = [];
             $department_users = $this->ticket_service->getDepartmentUsersByDepartmentId($ticket->dept_id);
 
@@ -476,7 +477,7 @@ class TicketController extends Controller
                 $list_users = $department_users->authUsers;
             }
 
-            $support_name = $department_users->name;
+            $support_name = $department_users->name ?? 'Unknown Department';
             if($user)
             {
                 $agent_signature = $user->name ?? ''; 
@@ -494,7 +495,7 @@ class TicketController extends Controller
                         $path = $file->store('attachments', 'public'); 
                         //saveThreadAttachment must be defined in your ticket service
                         $this->ticket_service->saveThreadAttachment($thread->id, $ticket->id,$request->user_id,
-                         [
+                        [
                             'filename'   => $file->getClientOriginalName(),
                             'path'       => $path,
                             'mime_type'  => $file->getClientMimeType(),
@@ -518,10 +519,13 @@ class TicketController extends Controller
                         $sla_id = $sla_rule->policy->id;
                         // Lets trigger an SLA Event based on this customers profile
                         $this->ticket_service->logSLAEvent($ticket->id, $sla_id, $this->ticket_service::SLA_EVENT_TYPE_FIRST_RESPONSE_SENT, $this->ticket_service::TICKET_STATUS_PENDING, $ticket->company_id);
+                        Log::info('SLA Event logged', ['sla_id' => $sla_id]);
+    
                     }
                 }
                 // send notification to user
                 $this->ticket_service->saveNotifications($list_users, $this->ticket_service::NEW_REPLY);
+
                 if($ticket)
                 {
                     // check if the ticket has been responded to
@@ -536,6 +540,7 @@ class TicketController extends Controller
                     if(!empty($ticket->email)){
                         $data = ["ticket_no"=>$ticket->ticket_no,"agent_sign"=>$agent_signature,"content"=>$request->description];
                         $this->service->sendEmail($ticket->email, $this->ticket_service::TEMPLATE_REPLY_TICKET, $data);
+                        Log::info('Reply email sent', ['to' => $ticket->email]);
                     }
 
                     if(!empty($ticket->phone)){
@@ -555,6 +560,7 @@ class TicketController extends Controller
             }
         }
 
+        Log::error('Failed processing request');
         return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, 'Failed processing this request. Please try again!');
     }
 //Assign Ticket

@@ -34,5 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+     'channel_manager' => [
+    'email_endpoint'   => env('CHANNEL_MANAGER_EMAIL_ENDPOINT', 'http://localhost/api/channels/email'),
+],
+
 
 ];

@@ -11,6 +11,11 @@ Route::get('/test', function () {
     return 'API route working';
 });
 
+Route::post('/channels/email', [ChannelManagerController::class, 'receiveEmail']);
+Route::post('/channels/portal', [ChannelManagerController::class, 'receiveWebPortal']);
+Route::post('/channels/whatsapp', [ChannelManagerController::class, 'receiveWhatsApp']);
+Route::get('/channels/fetch-emails', [EmailFetchController::class, 'fetch']);
+
 
 Route::prefix('user')->controller(AuthController::class)->group(function () {
     Route::post('/recover', 'recover')->name('user.recover');
