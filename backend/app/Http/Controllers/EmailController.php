@@ -191,4 +191,23 @@ class EmailController extends Controller
         return $this->service->serviceResponse($this->service::FAILED_FLAG,200,$this->service::FAILED_MESSAGE);
 
     }
+
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->only('email_id'), [
+            'email_id' => 'required|integer|exists:emails,id',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
+        }
+        $email = Email::find($request->email_id);
+
+        if($email->delete())
+        {
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200,'Request processed successfuly');
+        }
+        return $this->service->serviceResponse($this->service::FAILED_FLAG,200, 'Failed processing this request. Please try again!');
+
+    }
 }

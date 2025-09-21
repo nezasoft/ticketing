@@ -145,7 +145,7 @@ class TicketService
         $ticket->customer_id = $customer_id;
         $ticket->priority_id = $priority_id;
         $ticket->channel_id = $channel_id;
-        $ticket->subject = $subject.'- ['.$ticket_no.']';
+        $ticket->subject = $subject.'-['.$ticket_no.']';
         $ticket->status_id = $status_id;
         $ticket->description = $description;
         $ticket->created_at = Carbon::now();

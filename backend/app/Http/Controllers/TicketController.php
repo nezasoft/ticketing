@@ -221,7 +221,6 @@ class TicketController extends Controller
 
     public function create(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'user_id'=> 'required|integer|exists:auth_users,id',
             'customer_id'=> 'nullable|integer',
@@ -265,7 +264,6 @@ class TicketController extends Controller
 
         $list_users = [];
         $department_users = $this->ticket_service->getDepartmentUsersByDepartmentId($dept_id);
-
         if($department_users){
             $list_users = $department_users->authUsers;
         }
@@ -279,7 +277,7 @@ class TicketController extends Controller
                         $customer_type = $this->ticket_service::REGULAR_CUSTOMER;
                         //Before we save the ticket lets flag it as a high / low priority based on if its an existing customer
                         $customer = $this->ticket_service->identifyCustomer($phone);
-                        $customer_name = "Esteemed Client";
+                        $customer_name = $name ?? "Esteemed Client";
                         if($customer)
                         {
                             $customer_id = $customer->id;
@@ -292,7 +290,6 @@ class TicketController extends Controller
                         $ticket = $this->ticket_service->saveTicket($customer_id,$priority_id,$channel, $subject, $this->ticket_service::TICKET_STATUS_NEW, $description, $ticket_type, $company_id,$dept_id, $phone, $email);
                         if($ticket)
                         {
-
                             //Handle attachments
                             if ($request->hasFile('attachments')) {
                                 foreach ($request->file('attachments') as $file) {
@@ -448,9 +445,7 @@ class TicketController extends Controller
             }
         }
         return $this->service->serviceResponse($this->service::FAILED_FLAG,200, 'Failed processing this request. Please try again!');
-
     }
-
     //Reply Ticket
     public function reply(Request $request)
     {
@@ -527,13 +522,11 @@ class TicketController extends Controller
                     }
                     $ticket->status_id  = $this->ticket_service::TICKET_STATUS_PENDING;
                     $ticket->save();
-
                     // Send email response to the customer / client
                     if(!empty($ticket->email)){
                         $data = ["ticket_no"=>$ticket->ticket_no,"agent_sign"=>$agent_signature,"content"=>$request->description];
                         $this->service->sendEmail($ticket->email, $this->ticket_service::TEMPLATE_REPLY_TICKET, $data);
                     }
-
                     if(!empty($ticket->phone)){
                         // alternatively send whatsapp message
                         if (env('APP_ENV') === 'production') {
@@ -543,9 +536,7 @@ class TicketController extends Controller
                             $this->sendWhatsAppMessage($ticket->company_id, 'whatsapp:+'.$ticket->phone, $request->description);
                         } 
                     }
-
                     return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200, 'Request processed successfuly');
-
                 }else{
                     return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, 'Ticket not found');
                 }
@@ -553,7 +544,6 @@ class TicketController extends Controller
                 Log::error('Failed to save thread', ['ticket_id' => $ticket->id]);
             }
         }
-
         Log::error('Failed processing request');
         return $this->service->serviceResponse($this->service::FAILED_FLAG, 400, 'Failed processing this request. Please try again!');
     }

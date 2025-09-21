@@ -36,10 +36,7 @@ export async function getSettings(company_id:number):Promise<GenericResponse<Set
 //Delete User Function
 export async function deleteUser( user_id: number): Promise<GenericResponse<any>>
 {
-  const response = await api.post<GenericResponse<any>>('/users/delete',{
-    user_id
-
-  });
+  const response = await api.post<GenericResponse<any>>('/users/delete',{user_id});
   return response.data;
 }
 
@@ -120,7 +117,7 @@ export async function editDepartment(
 //Delete Department
 export async function deleteDepartment( dept_id : number): Promise<GenericResponse<any>>
 {
-  const response = await api.post<GenericResponse<any>>('/department/delete',dept_id);
+  const response = await api.post<GenericResponse<any>>('/department/delete',{dept_id});
   return response.data;
 }
 
@@ -139,7 +136,7 @@ export  async function editEmail(payload: FormData): Promise<GenericResponse<Ema
 //Delete Email
 export async function deleteEmail(email_id: number): Promise<GenericResponse<null>>
 {
-  const response = await api.post<GenericResponse<null>>('/email/delete',email_id);
+  const response = await api.post<GenericResponse<null>>('/email/delete',{email_id});
   return response.data;
 }
 
@@ -158,7 +155,7 @@ export  async function editIntegration(payload: FormData): Promise<GenericRespon
 //Delete Integration Setting
 export async function deleteIntegration(integration_id: number): Promise<GenericResponse<null>>
 {
-  const response = await api.post<GenericResponse<null>>('/integration/delete',integration_id);
+  const response = await api.post<GenericResponse<null>>('/integration/delete',{integration_id});
   return response.data;
 }
 

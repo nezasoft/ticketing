@@ -69,7 +69,7 @@ class ProcessEmailMessage implements ShouldQueue
             throw new \Exception("No recipients provided for email from {$this->sender}");
         }
 
-        $endpoint = config('services.channel_manager.email_endpoint', 'http://localhost/ticketing/channels/api/channels/email');
+        $endpoint = config('services.channel_manager.email_endpoint', 'http://localhost:7000/api/channels/email');
 
         $payload = [
             'sender'    => $this->sender,

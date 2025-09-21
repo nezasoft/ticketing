@@ -54,7 +54,7 @@ const SLAEventsList: React.FC<SLAEventsListProps> = ({sla_events}) =>
     useEffect(()=>
     {
         setCurrentPage(1);
-    },[sla_events, searchTerm]);
+    },[searchTerm]);
 
     useEffect(()=>
     {
