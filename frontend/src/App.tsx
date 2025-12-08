@@ -2,10 +2,8 @@ import React,{useEffect} from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import AppProviders from './context/AppProviders';
 import { AuthContext } from './context/AuthContext';
-
 import Login from './auth/Login';
 import Register from './auth/Register';
 import RecoverPassword from './auth/RecoverPassword';
@@ -25,13 +23,12 @@ import SLAEvents from './pages/SLAEvents';
 import SLAPolicies from './pages/SLAPolicies';
 import SLARules from './pages/SLARules';
 import Customers from './pages/Customers';
+import Contacts from './pages/Contacts';
 
 const PrivateRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
   const { token } = React.useContext(AuthContext);
   return token ? children : <Navigate to="/login" replace />;
 };
-
-
 const App: React.FC = () => {
   useEffect(() => {
   const savedToken = localStorage.getItem("token");
@@ -168,7 +165,14 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
-
+          <Route
+            path="/contacts"
+            element={
+              <PrivateRoute>
+                <Contacts />
+              </PrivateRoute>
+            }
+          />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>

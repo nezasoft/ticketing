@@ -135,7 +135,7 @@ const Sidebar: React.FC = () => {
               </li>
                <li>
                 <Link
-                  to="#"
+                  to="/contacts"
                   className="flex items-center gap-3 py-2.5 px-6 text-sm font-medium text-gray-950 dark:text-gray-300 hover:text-violet-500 dark:hover:text-white"
                 >
                   <UserPlusIcon className="h-5 w-5 text-violet-500" />

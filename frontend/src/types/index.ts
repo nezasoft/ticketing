@@ -112,9 +112,15 @@ export interface Attachment
 export interface ChannelContact
 {
     id:number;
+    channel_id:number;
+    name:string;
+    website?:string;
     email?:string;
     phone?:string;
+    phy_add?:string;
+    client_no?: string;
     company_id:number;
+    active:string;
 }
 
 export interface Company
@@ -376,6 +382,21 @@ export interface CustomerContextType
     editCustomer: (payload: FormData) => Promise<GenericResponse<Customer | null>>;
     deleteCustomer: (customer_id: number) => Promise<GenericResponse<null>>;
     loading: boolean;
+}
+
+
+
+export interface ContactContextType
+{
+    contact: ChannelContact | null;
+    listContacts : (company_id: number) => Promise<GenericResponse<ChannelContact[]>>;
+    viewContact : (contact_id: number) => Promise<GenericResponse<ChannelContact | null >>;
+    newContact : (payload: FormData) => Promise<GenericResponse<ChannelContact | null >>;
+    editContact : (payload: FormData) => Promise<GenericResponse<ChannelContact |  null >>;
+    deleteContact : (contact_id: number) => Promise<GenericResponse<null>>;
+    loading: boolean;
+
+
 }
 
 
