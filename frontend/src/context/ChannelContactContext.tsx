@@ -1,6 +1,6 @@
 import { createContext, useCallback, useState, ReactNode, useMemo } from "react";
 import { ContactContextType, ChannelContact, GenericResponse } from "../types";
-import { listContacts, newContact, editContact, deleteContact, viewContact } from "../service/contactService";
+import { listContacts, newContact, editContact, deleteContact, viewContact } from "../service/contactService2";
 
 
 const defaultContext: ContactContextType = {

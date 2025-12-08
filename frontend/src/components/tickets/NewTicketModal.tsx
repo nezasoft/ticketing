@@ -56,16 +56,13 @@ const NewTicketModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
       setError(null);
     }
   }, [isOpen]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
-
     try {
       const user = JSON.parse(localStorage.getItem('user')!);
       const formData = new FormData();
@@ -76,13 +73,10 @@ const NewTicketModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
           formData.append(key, value as string);
         }
       });
-
       files.forEach((file, i) => {
         formData.append(`attachments[${i}]`, file);
       });
-
       const response = await newTicket(formData);
-
       if (response.success) {
         toast.success('Ticket raised successfully');
         onCreated();
@@ -100,13 +94,11 @@ const NewTicketModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
       setSubmitting(false);
     }
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFiles([...files, ...Array.from(e.target.files)]);
     }
   };
-
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -114,16 +106,13 @@ const NewTicketModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
       setFiles([...files, ...Array.from(e.dataTransfer.files)]);
     }
   };
-
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
-
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
-
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={()=>{}} >
@@ -162,9 +151,7 @@ const NewTicketModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
                     &times;
                   </button>
                 </div>
-
                 {error && <div className="text-red-600 text-sm">{error}</div>}
-
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="flex items-center gap-4 mb-2">
                     <label className="text-sm font-medium">Is Existing Customer?</label>
@@ -182,7 +169,6 @@ const NewTicketModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
                       className="w-4 h-4"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-left">Subject</label>
                     <input
@@ -194,7 +180,6 @@ const NewTicketModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
                       className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-left mb-1">Description</label>
                     <CKEditor
@@ -206,7 +191,6 @@ const NewTicketModal: React.FC<Props> = ({ isOpen, onClose, onCreated }) => {
                       }}
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-left">Attachments</label>
                     <div

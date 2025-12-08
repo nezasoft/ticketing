@@ -40,8 +40,8 @@ class ChannelContactController extends Controller
     public function createChanneContact(Request $request)
     {
         $validator = Validator::make($request->all(),[
-            'CompanyID' => 'required|integer|min:1',
-            'ChannelID' => 'required|integer|min:1',
+            'company_id' => 'required|integer|min:1',
+            'channel_id' => 'required|integer|min:1',
             'Email'=> 'nullable|email',
             'Phone' => 'nullable|string|max:15'
         ]);
@@ -50,21 +50,18 @@ class ChannelContactController extends Controller
             return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
         $channel_contact = new ChannelContact();
-        $channel_contact->company_id = $request->CompanyID;
-        $channel_contact->channel_id = $request->ChannelID;
-        $channel_contact->email = $request->Email;
-        $channel_contact->phone = $request->Phone;
+        $channel_contact->company_id = $request->company_id;
+        $channel_contact->channel_id = $request->channel_id;
+        $channel_contact->email = $request->email;
+        $channel_contact->phone = $request->phone;
         $channel_contact->created_at = Carbon::now();
         $channel_contact->updated_at = Carbon::now();
         $channel_contact->save();
-
         if($channel_contact)
         {
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, 'Request processed successfully!');
         }
-
         return $this->service->serviceResponse($this->service::FAILED_FLAG,200, 'Error occured while processing request!');
-
     }
 
     public function updateChannelContact(Request $request)

@@ -18,12 +18,13 @@ import Pagination from "../common/Pagination";
 type ChannelContact =  {
     id: number;
     channel_id: number;
-    name: string;
+    full_name: string;
     email?: string;
-    website?: string;
     phone?: string;
-    phy_add?: string;
-    client_no?: string;
+    company_id:number;
+    channel?: any[];
+    company?: any[];
+
 };
 
 type ContactListProps ={
@@ -45,7 +46,7 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
     const filteredContacts = contacts.filter((contact)=>
     {
         const matchesText =
-            String(contact.name ?? "").toLowerCase().includes(term) ||
+            String(contact.full_name ?? "").toLowerCase().includes(term) ||
             String(contact.phone ?? "").toLowerCase().includes(term) ||
             String(contact.email ?? "").toLowerCase().includes(term);
         return (
@@ -97,11 +98,9 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
     {
         const worksheet = XLSX.utils.json_to_sheet(
             filteredContacts.map((d)=>({
-                Contact: d.name,
+                Contact: d.full_name,
                 Email: d.email,
-                Website: d.website,
-                Phone: d.phone,
-                ClientNo: d.client_no ?? "",
+                Phone: d.phone
             }))
         );
         const workbook = XLSX.utils.book_new();
@@ -114,13 +113,11 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
     const handleExportToPDF = () =>
     {
         const doc = new jsPDF();
-        const tableColumn = ["Name","Email","Phone","Website","Client No"];
+        const tableColumn = ["Name","Email","Phone"];
         const tableRows =filteredContacts.map((d)=> [
-            d.name,
-            d.email,
-            d.website,
-            d.phone,
-            d.client_no ?? ""
+            d.full_name ?? "",
+            d.email ?? "",
+            d.phone ?? ""
         ]);
         autoTable(doc,{
             head: [tableColumn],
@@ -188,11 +185,9 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
          <thead className="bg-gray-100 dark:bg-zinc-800">
           <tr className="text-xs">
             <th className="px-4 py-3 text-left w-12">#</th>
-            <th className="px-4 py-3 text-left">Name</th>
+            <th className="px-4 py-3 text-left">Full Name</th>
             <th className="px-4 py-3 text-left">Email</th>
-            <th className="px-4 py-3 text-left">Website</th>
             <th className="px-4 py-3 text-left">Phone</th>
-            <th className="px-4 py-3 text-left">Client No</th>
             <th className="px-4 py-3 text-right">Action</th>
           </tr>
         </thead>
@@ -207,11 +202,9 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
                 <td className="px-4 py-3">
                   {(currentPage - 1) * itemsPerPage + index + 1}
                 </td>
-                <td className="px-4 py-3 text-violet-600 font-semibold">{contact.name}</td>
+                <td className="px-4 py-3 text-violet-600 font-semibold">{contact.full_name}</td>
                 <td className="px-4 py-3 text-violet-600 font-semibold">{contact.email}</td>
-                <td className="px-4 py-3 text-violet-600 font-semibold">{contact.website}</td>
                 <td className="px-4 py-3 text-violet-600 font-semibold">{contact.phone}</td>
-                <td className="px-4 py-3 text-violet-600 font-semibold">{contact?.client_no}</td>
                 {/* Right-aligned action menu */}
                 <td className="relative px-4 py-3 text-right">
                   <button

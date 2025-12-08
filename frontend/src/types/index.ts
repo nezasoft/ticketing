@@ -51,9 +51,6 @@ export interface Setting
     integrations? : any[];
     template_types? : any[];
 }
-
-
-
 export interface AuthUser{
     id: number;
     name:string;
@@ -68,7 +65,6 @@ export interface AuthUser{
     updated_at?: string;
     date_created?: string;
 }
-
 export interface BusinessDoc{
     id: number;
     company_id: number;
@@ -80,7 +76,6 @@ export interface BusinessDoc{
     created_at?: string;
 
 }
-
 export interface Channel
 {
     id: number;
@@ -97,8 +92,6 @@ export interface EventType {
     id: number;
     name: string;
 }
-
-
 export interface Attachment
 {
     ticket_id: number;
@@ -107,22 +100,17 @@ export interface Attachment
     file_name?: string;
     file_path?: string;
 }
-
-
 export interface ChannelContact
 {
     id:number;
     channel_id:number;
-    name:string;
-    website?:string;
+    full_name:string;
     email?:string;
     phone?:string;
-    phy_add?:string;
-    client_no?: string;
     company_id:number;
-    active:string;
+    channel?: any[];
+    company?: any[];
 }
-
 export interface Company
 {
     id: number;
@@ -136,7 +124,6 @@ export interface Company
     active: number;
     days: number;
 }
-
 export interface Customer 
 {
     id: number;
@@ -147,28 +134,24 @@ export interface Customer
     company_id?: number;
     account_no?: string;
 }
-
 export interface CustomerType
 {
     id: number;
     name: string;
     company_id: number;
 }
-
 export interface Department
 {
     id: number;
     name: string;
     company_id: number;
 }
-
 export interface DepartmentHead
 {
     id: number;
     user_id: number;
     dept_id: number;   
 }
-
 export interface Email
 {
     id: number,

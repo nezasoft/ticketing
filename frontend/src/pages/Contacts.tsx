@@ -14,7 +14,6 @@ const Contacts: React.FC = () =>
     const [isModalOpen, setModalOpen] = useState(false);
     const contactCtx = useContext(ChannelContactContext);
 
-
     const fetchContacts = useCallback(async ()=>
     {
         try
@@ -35,6 +34,7 @@ const Contacts: React.FC = () =>
             if(contactCtx?.listContacts)
             {
                 const response = await contactCtx.listContacts(companyId);
+                console.log(response);
                 if(response.success && response.data)
                 {
                     setContacts(response.data);

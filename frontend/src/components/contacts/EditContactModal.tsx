@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { ChannelContactContext } from "../../context/ChannelContactContext";
 import { ChannelContact } from "../../types";
 import { toast } from "react-toastify";
-
+import { SettingContext } from '../../context/SettingContext';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -14,12 +14,12 @@ interface Props {
 const EditContactModal: React.FC<Props> = ({isOpen, onClose, onUpdated, contact}) => 
 {
     const {editContact} = useContext(ChannelContactContext);
+    const { setting } = useContext(SettingContext);
     const [form, setForm] = useState<Partial<ChannelContact>>({
-        name: '',
+        full_name: '',
         email: '',
-        website: '',
         phone: '',
-        client_no: ''
+        channel_id: undefined
     });
     const [submitting, setSubmitting]  = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -29,11 +29,10 @@ const EditContactModal: React.FC<Props> = ({isOpen, onClose, onUpdated, contact}
         {
             setForm(
                 {
-                    name: contact.name,
+                    full_name: contact.full_name,
                     email: contact.email,
-                    website: contact.website,
                     phone: contact.phone,
-                    client_no: contact.client_no
+                    channel_id : contact.channel_id
                 }
             );
         }
@@ -42,7 +41,6 @@ const EditContactModal: React.FC<Props> = ({isOpen, onClose, onUpdated, contact}
             setError(null);
         }
     },[isOpen, contact]);
-
       const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
       ) => {
@@ -64,8 +62,7 @@ const EditContactModal: React.FC<Props> = ({isOpen, onClose, onUpdated, contact}
             const formData = new FormData();
             formData.append("company_id",currentUser.company_id);
             formData.append("user_id",currentUser.id);
-            formData.append("contactId",contact.id.toString());
-            formData.append("channelId",contact.channel_id?.toString());
+            formData.append("contact_id",contact.id.toString());
             Object.entries(form).forEach(([keyboard, value])=>
             {
                 if(value !== undefined &&  value !==null)
@@ -89,7 +86,6 @@ const EditContactModal: React.FC<Props> = ({isOpen, onClose, onUpdated, contact}
               setSubmitting(false);
         }
     };
-
       return (
         <Transition.Root show={isOpen} as={Fragment}>
           <Dialog as="div" className="relative z-50" onClose={onClose} >
@@ -104,7 +100,6 @@ const EditContactModal: React.FC<Props> = ({isOpen, onClose, onUpdated, contact}
             >
               <div className="fixed inset-0 bg-gray-600 bg-opacity-30 transition-opacity" />
             </Transition.Child>
-    
             <div className="fixed inset-0 z-50 overflow-y-auto dark:bg-zinc-900 text-gray-800 dark:text-white">
               <div className="flex min-h-full items-center justify-center p-4 text-center">
                 <Transition.Child
@@ -129,14 +124,13 @@ const EditContactModal: React.FC<Props> = ({isOpen, onClose, onUpdated, contact}
                         &times;
                       </button>
                     </div>
-                    {error && <div className="text-red-600 text-sm">{error}</div>}
-    
+                    {error && <div className="text-red-600 text-sm">{error}</div>} 
                     <form onSubmit={handleSubmit} className="space-y-4">
                                         <label className="block text-sm font-medium text-left">Name</label>
                                         <input 
                                         autoComplete="off"
                                         name="name"
-                                        value={form.name || ''}
+                                        value={form.full_name || ''}
                                         onChange={handleChange}
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
@@ -160,24 +154,23 @@ const EditContactModal: React.FC<Props> = ({isOpen, onClose, onUpdated, contact}
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
                                          />
-                                         <input 
-                                        autoComplete="off"
-                                        type="text"
-                                        name="website"
-                                        value={form.website|| ''}
-                                        onChange={handleChange}
-                                        required
-                                        className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
-                                         />
-                                        <label className="block text-sm font-medium text-left">Client No</label>
-                                        <input 
-                                        autoComplete="off"
-                                        name="client_no"
-                                        value={form.client_no|| ''}
-                                        onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
-                                         />
-                                         <label className="block text-sm font-medium text-left">Account No</label>
+                                        <div>
+                                        <label className="block text-sm font-medium text-left">Channel</label>
+                                        <select
+                                            name="channel_id"
+                                            value={form.channel_id || ''}
+                                            onChange={handleChange}
+                                            required
+                                            className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
+                                        >
+                                            <option value="">Select</option>
+                                            {setting?.channels?.map((c) => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.name}
+                                            </option>
+                                            ))}
+                                        </select>
+                                        </div>
                     
                       <div className="flex justify-end space-x-2 mt-4">
                         <button
@@ -204,8 +197,5 @@ const EditContactModal: React.FC<Props> = ({isOpen, onClose, onUpdated, contact}
           </Dialog>
         </Transition.Root>
       );
-
-
 };
-
 export default EditContactModal;

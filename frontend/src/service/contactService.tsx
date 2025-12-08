@@ -35,7 +35,7 @@ export async function deleteContact(customer_id: number) : Promise<GenericRespon
 //View Contact
 export async function viewContact(contact_id: number): Promise<GenericResponse<ChannelContact>> {
   try {
-    const response = await api.post<GenericResponse<ChannelContact[]>>('/contact/show', {contact_id});
+    const response = await api.post<GenericResponse<ChannelContact[]>>('/contacts/show', {contact_id});
     return {success: true,message: 'Contact retrieved successfully',data: response.data.data[0]};
   } catch (error: any) {
     console.error("View Contact error:", {success: error.response?.success,message: error.message,data: error.response?.data});

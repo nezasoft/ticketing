@@ -2,8 +2,16 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { SettingContext } from '../context/SettingContext';
+import { toast } from "react-toastify";
 
-
+const parseErrorMessage = (message: any): string => {
+  if (!message) return "An error occurred";
+  if (typeof message === "string") return message;
+  if (typeof message === "object") {
+    return Object.values(message).flat().join(",");
+  }
+  return "An error occurred";
+};
 
 const Login: React.FC = () => {
   const { login } = useContext(AuthContext);
@@ -19,35 +27,37 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setFeedback(null); // Clear previous message
+    setFeedback(null);
+
     try {
       const response = await login(email, password);
       if (response.success) {
-        // 1. Login succeeded
-      const user = response.data.user;
-         // 2. Fetch and store settings
-      const settingsResp = await listSettings(user.company_id);
-      if (!settingsResp.success) {
-        setFeedback({ type: 'error', message: 'Failed to load settings' });
-        return;
-      }
-
-      //Decode and save token
-        setFeedback({ type: 'success', message: 'Login successful!' });
-        navigate('/dashboard');
+        const user = response.data.user;
+        // Load settings
+        const settingsResp = await listSettings(user.company_id);
+        if (!settingsResp.success) {
+          const msg = parseErrorMessage(settingsResp.message);
+          toast.error(msg);
+          setFeedback({ type: "error", message: msg });
+          return;
+        }
+        toast.success("Login successful!");
+        setFeedback({ type: "success", message: "Login successful!" });
+        navigate("/dashboard");
       } else {
-        setFeedback({ type: 'error', message: response.message || 'Login failed.' });
+        //Extract proper message
+        const msg = parseErrorMessage(response.message);
+        toast.error(msg);
+        setFeedback({ type: "error", message: msg });
       }
     } catch (error) {
-      setFeedback({ type: 'error', message: 'An error occurred. Please try again.' });
-      console.error('Login Error:', error);
+      toast.error("An unexpected error occurred.");
+      setFeedback({ type: "error", message: "An unexpected error occurred." });
+      console.error("Login Error:", error);
     } finally {
       setLoading(false);
     }
   };
-
-  
-
   return (
     <div className="h-screen grid grid-cols-1 md:grid-cols-2 dark:bg-zinc-900 text-gray-800 dark:text-white">
       {/* Left Panel */}

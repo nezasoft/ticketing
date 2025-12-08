@@ -3,6 +3,7 @@ import {Dialog, Transition} from '@headlessui/react';
 import { ChannelContactContext } from '../../context/ChannelContactContext';
 import { ChannelContact } from '../../types';
 import { toast } from 'react-toastify';
+import { SettingContext } from '../../context/SettingContext';
 
 interface Props
 {
@@ -12,12 +13,12 @@ interface Props
 }
 const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
     const {newContact} = useContext(ChannelContactContext);
+    const { setting } = useContext(SettingContext);
     const [form, setForm] = useState<Partial<ChannelContact>>({
-        name: '',
+        full_name: '',
         email: '',
         phone: '',
-        website: '',
-        client_no: ''
+        channel_id: undefined
     });
     const [submitting, setSubmitting]= useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -25,11 +26,10 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
         if(!isOpen)
         {
             setForm({
-                name :'',
+                full_name :'',
                 email: '',
                 phone: '',
-                website: '',
-                client_no: ''
+                channel_id: undefined
             });
             setError(null);
         }
@@ -48,7 +48,8 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
             const formData = new FormData();
             formData.append('company_id',user.company_id);
             formData.append('user_id',user.id);
-            Object.entries(form).forEach(([keyboard, value])=>{
+            Object.entries(form).forEach(([keyboard, value])=>
+            {
                 if(value !== undefined && value !==null)
                 {
                     formData.append(keyboard, value as string);
@@ -66,7 +67,6 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                  : Object.values(response.message || {}).join(',');
                  toast.error(message || 'Failed to create a new record');
             }
-
         }catch(err: any)
         {
             toast.error(err.message || 'Unexpected error occured');
@@ -74,7 +74,6 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
             setSubmitting(false);
         }
     }
-
     return(
         <Transition.Root show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-50" onClose={onClose} >
@@ -103,7 +102,7 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                             <Dialog.Panel className="bg-white dark:bg-zinc-800 rounded-lg w-full max-w-2xl p-6 space-y-4 shadow-xl border border-gray-300">
                                 <div className="flex justify-between items-center">
                                     <Dialog.Title className="text-lg font-medium text-gray-800 dark:text-white text-left">
-                                        Create New Customer
+                                        Create New Contact
                                     </Dialog.Title>
                                     <button 
                                     onClick={onClose} 
@@ -112,15 +111,12 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                      >&times;</button>
                                 </div>
                                 {error && <div className="text-red-600 text-sm">{error}</div>}
-                                <form  
-                                onSubmit={handleSubmit}
-                                className="space-y-4"
-                                >
+                                <form  onSubmit={handleSubmit} className="space-y-4">
                                         <label className="block text-sm font-medium text-left">Name</label>
                                         <input 
                                         autoComplete="off"
                                         name="name"
-                                        value={form.name || ''}
+                                        value={form.full_name || ''}
                                         onChange={handleChange}
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
@@ -135,16 +131,6 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
                                          />
-                                        <label className="block text-sm font-medium text-left">Website</label>
-                                        <input 
-                                        autoComplete="off"
-                                        type="text"
-                                        name="website"
-                                        value={form.website || ''}
-                                        onChange={handleChange}
-                                        required
-                                        className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
-                                         />
                                          <label className="block text-sm font-medium text-left">Phone</label>
                                         <input 
                                         autoComplete="off"
@@ -154,15 +140,23 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                         required
                                         className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
                                          />
-                                        <label className="block text-sm font-medium text-left">Client No</label>
-                                        <input 
-                                        autoComplete="off"
-                                        name="client_no"
-                                        value={form.client_no|| ''}
-                                        onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
-                                         />
-           
+                                         <div>
+                                            <label className="block text-sm font-medium text-left">Channel</label>
+                                            <select
+                                                name="channel_id"
+                                                value={form.channel_id || ''}
+                                                onChange={handleChange}
+                                                required
+                                                className="mt-1 block w-full border border-gray-200 rounded p-2 bg-gray-50 dark:bg-zinc-700"
+                                            >
+                                                <option value="">Select</option>
+                                                {setting?.channels?.map((c) => (
+                                                <option key={c.id} value={c.id}>
+                                                    {c.name}
+                                                </option>
+                                                ))}
+                                            </select>
+                                        </div>          
                                        <div className="flex justify-end space-x-2 mt-4">
                                         <button
                                         type="button"
@@ -208,8 +202,6 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                 </div>
             </Dialog>
         </Transition.Root>
-    );
-    
+    ); 
 };
-
 export default NewContactModal;
