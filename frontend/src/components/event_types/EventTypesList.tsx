@@ -154,7 +154,7 @@ const EventTypesList: React.FC<EventTypesListProps> = ({eventTypes}) =>
             paginatedEventTypes.map((event, index) => (
               <tr
                 key={event.id}
-                className="hover:bg-gray-50 dark:hover:bg-zinc-800 text-xs"
+                className="hover:bg-gray-50 dark:hover:bg-zinc-800 text-xs cursor-pointer odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800"
               >
                 {/* Numbering column */}
                 <td className="px-4 py-3">

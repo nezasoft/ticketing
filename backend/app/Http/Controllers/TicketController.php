@@ -267,6 +267,16 @@ class TicketController extends Controller
         if($department_users){
             $list_users = $department_users->authUsers;
         }
+            if ($department_users && $department_users->authUsers) {
+            $list_users = $department_users->authUsers;
+
+            // Return as JSON
+            return response()->json([
+                'success' => true,
+                'users'   => $list_users
+            ], 200);
+        }
+        exit();
         DB::beginTransaction();
         try
         {
