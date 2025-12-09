@@ -26,9 +26,9 @@ export async function editContact(payload: FormData) : Promise<GenericResponse<C
 }
 
 //Delete Contact
-export async function deleteContact(customer_id: number) : Promise<GenericResponse<null>>
+export async function deleteContact(contact_id: number) : Promise<GenericResponse<null>>
 {
-    const response = await api.post<GenericResponse<null>>('/contacts/delete',{customer_id});
+    const response = await api.post<GenericResponse<null>>('/contacts/delete',{contact_id});
     return response.data;
 }
 

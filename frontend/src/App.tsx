@@ -4,7 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AppProviders from './context/AppProviders';
 import { AuthContext } from './context/AuthContext';
-import Login from './auth/login';
+import Login from './auth/Login';
 import Register from './auth/Register';
 import RecoverPassword from './auth/RecoverPassword';
 import Dashboard from './pages/Dashboard';

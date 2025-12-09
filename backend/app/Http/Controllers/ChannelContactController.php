@@ -20,15 +20,15 @@ class ChannelContactController extends Controller
 
     public function getContactList(Request $request)
     {
-        $validator = Validator::make($request->only('CompanyID'), [
-            'CompanyID' => 'required|integer|min:1',
+        $validator = Validator::make($request->only('company_id'), [
+            'company_id' => 'required|integer|min:1',
         ]);
 
         if ($validator->fails()) {
             return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
         $records = [];
-        $records = ChannelContact::with(['channel', 'company'])->where('company_id', $request->CompanyID)->get();
+        $records = ChannelContact::with(['channel', 'company'])->where('company_id', $request->company_id)->get();
         if($records)
         {
             return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200,'Success', $records);
@@ -42,8 +42,9 @@ class ChannelContactController extends Controller
         $validator = Validator::make($request->all(),[
             'company_id' => 'required|integer|min:1',
             'channel_id' => 'required|integer|min:1',
-            'Email'=> 'nullable|email',
-            'Phone' => 'nullable|string|max:15'
+            'full_name'  => 'required|string|max:255',
+            'email'=> 'nullable|email',
+            'phone' => 'nullable|string|max:15'
         ]);
 
         if ($validator->fails()) {
@@ -54,6 +55,7 @@ class ChannelContactController extends Controller
         $channel_contact->channel_id = $request->channel_id;
         $channel_contact->email = $request->email;
         $channel_contact->phone = $request->phone;
+        $channel_contact->full_name = $request->full_name;
         $channel_contact->created_at = Carbon::now();
         $channel_contact->updated_at = Carbon::now();
         $channel_contact->save();
@@ -67,27 +69,28 @@ class ChannelContactController extends Controller
     public function updateChannelContact(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'ContactID' => 'required|integer|min:1',
-            'ChannelID' => 'required|integer|min:1',
-            'Email'     => 'nullable|email',
-            'Phone'     => 'nullable|string|max:15'
+            'contact_id' => 'required|integer|min:1',
+            'channel_id' => 'required|integer|min:1',
+            'full_name' => 'required|string|max:255',
+            'email'     => 'nullable|email',
+            'phone'     => 'nullable|string|max:15'
         ]);
 
         if ($validator->fails()) {
             return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
-
-        $channel_contact = ChannelContact::find($request->ContactID);
-
+        $channel_contact = ChannelContact::find($request->contact_id);
         if ($channel_contact) {
-            $channel_contact->update([
-                'channel_id' => $request->ChannelID,
-                'email'      => $request->Email,
-                'phone'      => $request->Phone,
-                'updated_at' => Carbon::now()
-            ]);
-
-            return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200, 'Request processed successfully!');
+            $channel_contact->channel_id = $request->channel_id;
+            $channel_contact->full_name = $request->full_name;
+            $channel_contact->email = $request->email;
+            $channel_contact->phone = $request->phone;
+            $channel_contact->updated_at = Carbon::now();
+            $channel_contact->save();
+            if($channel_contact)
+            {
+                return $this->service->serviceResponse($this->service::SUCCESS_FLAG,200, 'Request processed successfully!');
+            }
         }
 
         return $this->service->serviceResponse($this->service::FAILED_FLAG, 404, 'Channel contact not found.');
@@ -95,8 +98,8 @@ class ChannelContactController extends Controller
 
     public function deleteChannelContact(Request $request)
     {
-        $validator = Validator::make($request->only('ContactID'), [
-            'ContactID' => 'required|integer|min:1',
+        $validator = Validator::make($request->only('contact_id'), [
+            'contact_id' => 'required|integer|min:1',
         ]);
 
         if ($validator->fails()) {
@@ -104,7 +107,7 @@ class ChannelContactController extends Controller
         }
 
         //Find channel contact by id
-        $channel_contact = ChannelContact::find($request->ContactID);
+        $channel_contact = ChannelContact::find($request->contact_id);
         if($channel_contact)
         {
             $channel_contact->delete();

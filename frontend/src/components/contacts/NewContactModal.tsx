@@ -112,10 +112,10 @@ const NewContactModal: React.FC<Props> = ({isOpen, onClose, onCreated}) =>{
                                 </div>
                                 {error && <div className="text-red-600 text-sm">{error}</div>}
                                 <form  onSubmit={handleSubmit} className="space-y-4">
-                                        <label className="block text-sm font-medium text-left">Name</label>
+                                        <label className="block text-sm font-medium text-left">Full Name</label>
                                         <input 
                                         autoComplete="off"
-                                        name="name"
+                                        name="full_name"
                                         value={form.full_name || ''}
                                         onChange={handleChange}
                                         required

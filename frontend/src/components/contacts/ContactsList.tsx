@@ -74,13 +74,13 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
         setIsEditOpen(true);
     };
 
-    const handleDelete = async (contactId: number) => 
+    const handleDelete = async (contact_id: number) => 
     {
         const confirmDelete = window.confirm("Are you sure you want to delete this record?");
         if(!confirmDelete) return;
         try{
             setOpenDropdown(null);
-            const response = await contactCtx?.deleteContact?.(contactId);
+            const response = await contactCtx?.deleteContact?.(contact_id);
             if(response?.success)
             {
                 toast.success("Record deleted successfully!");
