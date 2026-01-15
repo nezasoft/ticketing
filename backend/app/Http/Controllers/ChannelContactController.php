@@ -27,11 +27,25 @@ class ChannelContactController extends Controller
         if ($validator->fails()) {
             return $this->service->serviceResponse($this->service::FAILED_FLAG, 200, $validator->errors());
         }
-        $records = [];
+        $data = [];
         $records = ChannelContact::with(['channel', 'company'])->where('company_id', $request->company_id)->get();
         if($records)
         {
-            return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200,'Success', $records);
+            foreach($records as $record)
+            {
+                $data[] = [
+                'id' => $record->id,
+                'channel_id' => $record->channel_id,
+                'full_name' => $record->full_name,
+                'email' => $record->email ?? '',
+                'phone' => $record->phone ?? '',
+                'company_id' => $record->company_id,
+                'created_at' => Carbon::parse($record->created_at)->format('d M Y h:i:s a'),
+                'updated_at' => Carbon::parse($record->updated_at)->format('d M Y h:i:s a'),
+                'channel' => $record->channel->name ?? ''
+                ];
+            }
+            return $this->service->serviceResponse($this->service::SUCCESS_FLAG, 200,'Success', $data);
         }
         return $this->service->serviceResponse($this->service::FAILED_FLAG, 200,'No records found');
 

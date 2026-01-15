@@ -108,7 +108,7 @@ export interface ChannelContact
     email?:string;
     phone?:string;
     company_id:number;
-    channel?: any[];
+    channel?: string;
     company?: any[];
 }
 export interface Company

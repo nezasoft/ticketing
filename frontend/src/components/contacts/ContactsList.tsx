@@ -22,7 +22,7 @@ type ChannelContact =  {
     email?: string;
     phone?: string;
     company_id:number;
-    channel?: any[];
+    channel?: string;
     company?: any[];
 
 };
@@ -48,6 +48,7 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
         const matchesText =
             String(contact.full_name ?? "").toLowerCase().includes(term) ||
             String(contact.phone ?? "").toLowerCase().includes(term) ||
+            String(contact.channel ?? "").toLowerCase().includes(term) ||
             String(contact.email ?? "").toLowerCase().includes(term);
         return (
             matchesText
@@ -100,7 +101,8 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
             filteredContacts.map((d)=>({
                 Contact: d.full_name,
                 Email: d.email,
-                Phone: d.phone
+                Phone: d.phone,
+                Channel: d.channel
             }))
         );
         const workbook = XLSX.utils.book_new();
@@ -113,11 +115,12 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
     const handleExportToPDF = () =>
     {
         const doc = new jsPDF();
-        const tableColumn = ["Name","Email","Phone"];
+        const tableColumn = ["Name","Email","Phone","Channel"];
         const tableRows =filteredContacts.map((d)=> [
             d.full_name ?? "",
             d.email ?? "",
-            d.phone ?? ""
+            d.phone ?? "",
+            d.channel ?? ""
         ]);
         autoTable(doc,{
             head: [tableColumn],
@@ -188,6 +191,7 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
             <th className="px-4 py-3 text-left">Full Name</th>
             <th className="px-4 py-3 text-left">Email</th>
             <th className="px-4 py-3 text-left">Phone</th>
+            <th className="px-4 py-3 text-left">Channel</th>
             <th className="px-4 py-3 text-right">Action</th>
           </tr>
         </thead>
@@ -205,6 +209,7 @@ const ContactsList: React.FC<ContactListProps> = ({contacts, onUpdated}) =>
                 <td className="px-4 py-3 text-violet-600 font-semibold">{contact.full_name}</td>
                 <td className="px-4 py-3 text-violet-600 font-semibold">{contact.email}</td>
                 <td className="px-4 py-3 text-violet-600 font-semibold">{contact.phone}</td>
+                <td className="px-4 py-3 text-violet-600 font-semibold">{contact.channel}</td>
                 {/* Right-aligned action menu */}
                 <td className="relative px-4 py-3 text-right">
                   <button
